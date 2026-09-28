@@ -341,6 +341,46 @@
     </div>
   </div>
 
+  <!-- Review-Before-Submit Table Card (Task 7) -->
+  <div id="review-box" class="card" style="display:none; background: #fff; border: 2px solid var(--primary); margin-top: 10px;">
+    <div class="card-header">
+      <span class="card-title" style="color: var(--primary); font-weight:700;">Review Before Submit</span>
+      <span id="review-field-count" style="font-size: 11px; font-weight:600; color:var(--primary);">0 fields</span>
+    </div>
+    <p style="font-size: 11.5px; color: var(--text-muted); margin: 0 0 8px;">Please verify your data before final submission. Click [Reveal] to inspect sensitive values.</p>
+    <div style="max-height: 180px; overflow-y: auto; border: 1px solid var(--line); border-radius: 6px; margin-bottom: 8px;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 11.5px;">
+        <thead>
+          <tr style="background: #f1f5f9; text-align: left; border-bottom: 1px solid var(--line);">
+            <th style="padding: 5px 8px;">Field</th>
+            <th style="padding: 5px 8px;">Value</th>
+            <th style="padding: 5px 8px;">Source</th>
+          </tr>
+        </thead>
+        <tbody id="review-tbody"></tbody>
+      </table>
+    </div>
+    <div class="btn-row">
+      <button type="button" id="approve-review-btn" class="action-btn" style="flex:2; background: var(--signal);">Approve & Submit</button>
+      <button type="button" id="skip-review-btn" class="action-btn" style="flex:1; background: #64748b;">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Manual Action Stop Condition Box (Task 4) -->
+  <div id="manual-resume-box" style="display:none; margin-top: 10px; padding: 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;">
+    <div style="font-size: 11.5px; font-weight: 700; color: #1e40af; margin-bottom: 4px;">MANUAL ACTION REQUIRED</div>
+    <div id="manual-resume-desc" style="font-size: 12px; color: #1e3a8a; margin-bottom: 8px; line-height: 1.4;"></div>
+    <button type="button" id="resume-task-btn" class="action-btn" style="width: 100%; background: var(--primary);">Resume Task</button>
+  </div>
+
+  <!-- Clarification Needed Box (Task 2 & 9) -->
+  <div id="ask-user-box" style="display:none; margin-top: 10px; padding: 10px; background: #fefce8; border: 1px solid #fef08a; border-radius: 8px;">
+    <div style="font-size: 11.5px; font-weight: 700; color: #854d0e; margin-bottom: 4px;">CLARIFICATION NEEDED</div>
+    <div id="ask-user-question" style="font-size: 12px; color: #713f12; margin-bottom: 6px;"></div>
+    <input type="text" id="ask-user-input" placeholder="Type your response..." style="width: 100%; padding: 6px; border: 1px solid var(--line); border-radius: 6px; font-size: 12px; margin-bottom: 6px;">
+    <button type="button" id="submit-answer-btn" class="action-btn" style="width: 100%; background: var(--primary);">Submit Response</button>
+  </div>
+
   <!-- Answer Display Card (Task 7) -->
   <div class="card" id="answer-card" style="display:none; background: #f0fdf4; border-color: #bbf7d0;">
     <div class="card-header">

@@ -4,10 +4,10 @@
 
 if (typeof importScripts === 'function') {
   try {
-    importScripts('/workers/pii.js', '/privacy/protocol-validator.js', '/privacy/vault.js', '/privacy/model-loader.js', '/privacy/vision-runner.js', '/privacy/redactor.js', '/privacy/gate.js');
+    importScripts('/workers/pii.js', '/workers/field-matcher.js', '/privacy/protocol-validator.js', '/privacy/vault.js', '/privacy/model-loader.js', '/privacy/vision-runner.js', '/privacy/redactor.js', '/privacy/gate.js');
   } catch (e) {
     try {
-      importScripts('../workers/pii.js', '../privacy/protocol-validator.js', '../privacy/vault.js', '../privacy/model-loader.js', '../privacy/vision-runner.js', '../privacy/redactor.js', '../privacy/gate.js');
+      importScripts('../workers/pii.js', '../workers/field-matcher.js', '../privacy/protocol-validator.js', '../privacy/vault.js', '../privacy/model-loader.js', '../privacy/vision-runner.js', '../privacy/redactor.js', '../privacy/gate.js');
     } catch (e2) {
       console.error('Failed to import background scripts:', e2);
     }
@@ -20,10 +20,33 @@ const MAX_STEPS = 8;
 const WHITELIST_ACTIONS = ['click', 'type', 'select', 'scroll', 'done'];
 
 const DEFAULT_PASSPHRASE = 'veil-local-key-passphrase';
-const DEFAULT_VAULT = {
-  NAME: 'Asha Verma',
-  EMAIL: 'asha@example.com',
-  PHONE: '9876543210'
+const DEFAULT_VAULT = globalThis.VeilVault?.DEFAULT_PROFILES || {
+  schema_version: '1.0',
+  active_profile: 'default',
+  profiles: {
+    default: {
+      FULL_NAME: 'Asha Verma',
+      FIRST_NAME: 'Asha',
+      LAST_NAME: 'Verma',
+      DOB: '1995-08-15',
+      GENDER: 'Female',
+      EMAIL: 'asha@example.com',
+      MOBILE: '9876543210',
+      ADDRESS_LINE1: 'Flat 402, Shanti Niketan',
+      ADDRESS_LINE2: 'MG Road',
+      CITY: 'Bangalore',
+      DISTRICT: 'Bangalore Urban',
+      STATE: 'Karnataka',
+      PIN: '560001',
+      FATHER_NAME: 'Ramesh Verma',
+      MOTHER_NAME: 'Sunita Verma',
+      CATEGORY: 'General',
+      AADHAAR: '367598346012',
+      PAN: 'ABCDE1234F',
+      IFSC: 'SBIN0001234',
+      ACCOUNT_NO: '12345678901'
+    }
+  }
 };
 
 // In-memory cache for decrypted vault, current tokenizer, and server inspection view
@@ -153,7 +176,8 @@ async function validateAndResolveValue(value, tabUrl) {
   while ((match = placeholderRegex.exec(value)) !== null) {
     hasPlaceholder = true;
     const key = match[1];
-    if (!(key in vault)) {
+    const val = getVaultValue(vault, key);
+    if (!val) {
       throw new Error(`Action rejected: unknown vault placeholder {{${key}}}`);
     }
   }
@@ -162,7 +186,7 @@ async function validateAndResolveValue(value, tabUrl) {
     if (isPlainHttp) {
       throw new Error('Action rejected: refusing to fill identity fields on unencrypted http:// page');
     }
-    return value.replace(placeholderRegex, (_, k) => vault[k] ?? '');
+    return value.replace(placeholderRegex, (_, k) => getVaultValue(vault, k));
   }
 
   // 3. Reject unknown tokens or tokens from page content
@@ -170,12 +194,35 @@ async function validateAndResolveValue(value, tabUrl) {
     throw new Error(`Action rejected: token ${value} was not issued in this session`);
   }
 
-  // Plain text must not exceed 100 chars
-  if (value.length > 100) {
-    throw new Error('Action rejected: typed plain text exceeds 100 characters');
+  // Plain text must not exceed 500 chars (for free-text drafts)
+  if (value.length > 500) {
+    throw new Error('Action rejected: typed plain text exceeds 500 characters');
   }
 
   return value;
+}
+
+function getVaultValue(vault, key) {
+  if (!vault || !key) return '';
+  const normKey = key.toUpperCase().trim();
+  const profile = globalThis.VeilVault?.getProfile ? globalThis.VeilVault.getProfile(vault) : vault;
+
+  // Direct match
+  if (profile[normKey] !== undefined) return profile[normKey];
+
+  // Common aliases
+  if (normKey === 'NAME' && profile.FULL_NAME) return profile.FULL_NAME;
+  if (normKey === 'FULL_NAME' && profile.NAME) return profile.NAME;
+  if (normKey === 'PHONE' && profile.MOBILE) return profile.MOBILE;
+  if (normKey === 'MOBILE' && profile.PHONE) return profile.PHONE;
+
+  // Composed values (DOB formats, split fields, name parts)
+  if (globalThis.VeilVault?.compose) {
+    const comp = globalThis.VeilVault.compose(normKey, profile);
+    if (comp) return comp;
+  }
+
+  return '';
 }
 
 // Task 7: Answer path token resolution for DISPLAY ONLY (never innerHTML, never written to page, never sent back)
@@ -190,6 +237,20 @@ function resolveDisplayTokens(text, tokenizer) {
     }
     return '[unknown]';
   });
+}
+
+function isSubmitAction(action, nodes = []) {
+  if (action.action !== 'click') return false;
+  const node = nodes.find((n) => n.id === action.target_id);
+  const label = (node?.label || '').toLowerCase();
+  const reason = (action.reason || '').toLowerCase();
+  const type = (node?.type || '').toLowerCase();
+  const tag = (node?.tag || '').toLowerCase();
+
+  return (
+    type === 'submit' ||
+    ((tag === 'button' || tag === 'input') && /submit|apply|register|complete|proceed/i.test(label || reason))
+  );
 }
 
 function isRiskyClick(action, nodes = []) {
@@ -296,6 +357,34 @@ async function executeStep(tabId, action, rawAction, goal, step, history, nodes,
     await appendLog(`Auto-approved risky click: ${action.target_id}`);
   }
 
+  // Phase 8: Review-Before-Submit Table (Task 7)
+  if (isSubmitAction(rawAction, nodes) && !options.reviewApproved) {
+    const { state: curState } = await getStoredData();
+    const filled = curState.filledFields || [];
+    const reviewTable = filled.map((f) => ({
+      nodeId: f.nodeId,
+      label: f.label || f.nodeId,
+      value: f.value,
+      masked: globalThis.VeilVault?.maskValue ? globalThis.VeilVault.maskValue(f.value, (f.key || '').toLowerCase(), true) : f.value,
+      source: f.source || 'Vault',
+      sensitivity: globalThis.VeilVault?.getSensitivity ? globalThis.VeilVault.getSensitivity(f.key) : 'low'
+    }));
+
+    await updateState({
+      status: 'waiting_review',
+      pendingAction: action,
+      rawAction,
+      goal,
+      step,
+      history,
+      tabId,
+      reviewTable,
+      approvalReason: 'Review form values before submission'
+    });
+    await appendLog(`Approval required: Review-Before-Submit table generated (${reviewTable.length} fields).`);
+    return { waitingApproval: true };
+  }
+
   // Target frame handling (Task 1 & 2)
   let targetFrameId = 0;
   let localTargetId = action.target_id;
@@ -345,6 +434,39 @@ async function executeStep(tabId, action, rawAction, goal, step, history, nodes,
     result = await api.tabs.sendMessage(tabId, { type: 'EXECUTE', action: actionForContent });
   }
 
+  // Phase 8: Stop conditions handling (Task 4)
+  if (result?.stopCondition) {
+    await updateState({
+      status: 'waiting_user',
+      stopCondition: result.conditionType,
+      stopMessage: result.message,
+      pendingAction: action,
+      rawAction,
+      goal,
+      step,
+      history,
+      tabId
+    });
+    await appendLog(`Stop condition encountered: ${result.message}`);
+    return { waitingApproval: true, stopped: true };
+  }
+
+  // Phase 8: Consent checkbox safety (Task 3)
+  if (result?.isConsent || (result?.requiresApproval && !options.consentApproved)) {
+    await updateState({
+      status: 'waiting_approval',
+      pendingAction: action,
+      rawAction,
+      goal,
+      step,
+      history,
+      tabId,
+      approvalReason: result.error || 'Consent/declaration checkboxes require user approval'
+    });
+    await appendLog(`Approval required: ${result.error || 'Consent checkbox requires approval'}`);
+    return { waitingApproval: true };
+  }
+
   // Dynamic page stale ID handling - recapture without guessing (Task 4)
   if (result?.stale) {
     await appendLog(`Stale element detected for ${action.target_id}: dynamic DOM changed. Recapturing without guessing.`);
@@ -356,6 +478,23 @@ async function executeStep(tabId, action, rawAction, goal, step, history, nodes,
     await appendLog('Execution failed: ' + err);
     await updateState({ status: 'error', error: err });
     return { error: err };
+  }
+
+  // Phase 8: Accumulate filled field for Review-Before-Submit table
+  if (action.action === 'type' || action.action === 'select') {
+    const { state: curState } = await getStoredData();
+    const filled = curState.filledFields || [];
+    const keyMatch = (rawAction.value || '').match(/\{\{([A-Z0-9_]+)\}\}/);
+    const vaultKey = keyMatch ? keyMatch[1] : (action.action === 'select' ? 'SELECT' : 'DRAFTED');
+    filled.push({
+      nodeId: action.target_id,
+      label: targetNode?.label || targetNode?.text || action.target_id,
+      value: action.value,
+      key: vaultKey,
+      source: keyMatch ? `Vault: ${vaultKey}` : (action.action === 'select' ? 'Selection' : 'Drafted'),
+      sensitivity: globalThis.VeilVault?.getSensitivity ? globalThis.VeilVault.getSensitivity(vaultKey) : 'low'
+    });
+    await updateState({ filledFields: filled });
   }
 
   // Append raw action (with placeholder/tokens, NOT resolved PII) to history
@@ -411,7 +550,8 @@ async function runAgent(goal) {
     status: 'running',
     error: null,
     pendingAction: null,
-    tabId: tab.id
+    tabId: tab.id,
+    filledFields: []
   });
 
   await runLoopFrom(tab.id, goal, 1, history, tab.url);
@@ -625,6 +765,90 @@ async function runLoopFrom(tabId, goal, startStep, history, tabUrl) {
       effectiveMode = 'Strict';
       screenshotData = null;
       redactionManifest = [];
+    }
+
+    // Phase 8: Layered Field Matching (Local First, VLM only for ambiguity)
+    let localAction = null;
+    const doneTargets = new Set();
+    for (const h of history) {
+      if (h.target_id) doneTargets.add(h.target_id);
+    }
+
+    if (globalThis.FieldMatcher?.matchField) {
+      for (const node of cap.dom.nodes) {
+        if (
+          (node.tag === 'input' || node.tag === 'select' || node.tag === 'textarea') &&
+          !node.sensitive &&
+          !doneTargets.has(node.id)
+        ) {
+          const itype = (node.type || '').toLowerCase();
+          if (itype === 'submit' || itype === 'button' || itype === 'hidden') continue;
+
+          const match = globalThis.FieldMatcher.matchField(node);
+          if (match && match.isConsent) {
+            // Consent checkbox safety invariant: NEVER auto-tick!
+            await updateState({
+              status: 'waiting_approval',
+              pendingAction: { action: 'click', target_id: node.id },
+              rawAction: { type: 'action', action: 'click', target_id: node.id, reason: 'Consent/declaration approval' },
+              approvalReason: `Consent required: "${node.label || 'terms and conditions'}". Approve checking this declaration?`
+            });
+            await appendLog(`Consent required: "${node.label || 'terms'}". Awaiting user approval.`);
+            return;
+          }
+
+          if (match && match.vaultKey && match.confidence >= 0.70) {
+            const vaultKey = match.vaultKey;
+            const val = getVaultValue(vault, vaultKey);
+            if (val) {
+              // Task 5: Data minimization check
+              const isLowStakes = /newsletter|subscribe|contact|feedback|survey/i.test(cap.dom.title || '');
+              if (isLowStakes && globalThis.VeilVault?.isHighSensitivity(vaultKey)) {
+                await appendLog(`Data Minimization: Skipped high-sensitivity field "${vaultKey}" on low-stakes page.`);
+                doneTargets.add(node.id);
+                continue;
+              }
+
+              localAction = {
+                type: 'action',
+                action: node.tag === 'select' ? 'select' : 'type',
+                target_id: node.id,
+                value: `{{${vaultKey}}}`,
+                reason: match.reason
+              };
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    if (localAction) {
+      const rawAction = { ...localAction };
+      const executableAction = { ...localAction };
+      try {
+        executableAction.value = await validateAndResolveValue(executableAction.value, tabUrl);
+      } catch (err) {
+        await appendLog(err.message);
+        await updateState({ status: 'error', error: err.message });
+        return;
+      }
+
+      await appendLog(`step ${step} [local matcher]: ${executableAction.action} ${executableAction.target_id} - ${executableAction.reason}`);
+      const stepResult = await executeStep(
+        tabId,
+        executableAction,
+        rawAction,
+        goal,
+        step,
+        history,
+        cap.dom.nodes,
+        { viewport: cap.dom.viewport, redactions: redactionManifest, topOrigin: cap.topOrigin }
+      );
+      if (stepResult.stopped || stepResult.error) return;
+      if (stepResult.waitingApproval) return;
+      if (stepResult.stale) continue;
+      continue;
     }
 
     const payload = {
@@ -886,5 +1110,70 @@ api.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     }
     sendResponse({ ok: true });
     return false;
+  }
+
+  // Phase 8: Message listeners for Review-Before-Submit, Manual Resume, and Clarification
+  if (msg?.type === 'APPROVE_REVIEW') {
+    (async () => {
+      const { state } = await getStoredData();
+      if (!state.pendingAction) {
+        sendResponse({ ok: false, error: 'no pending submit action' });
+        return;
+      }
+      await appendLog('Review-before-submit approved by user.');
+      await updateState({ status: 'running' });
+
+      // Execute submit action with reviewApproved: true
+      const stepResult = await executeStep(
+        state.tabId,
+        state.pendingAction,
+        state.rawAction,
+        state.goal,
+        state.step,
+        state.history,
+        [],
+        { reviewApproved: true }
+      );
+      if (stepResult.stopped || stepResult.error) {
+        sendResponse({ ok: false });
+        return;
+      }
+      const history = [...state.history, state.rawAction];
+      const nextStep = state.step + 1;
+      await updateState({ step: nextStep, history, pendingAction: null });
+      sendResponse({ ok: true });
+      runLoopFrom(state.tabId, state.goal, nextStep, history, '').catch((e) =>
+        appendLog('Error resuming: ' + e.message)
+      );
+    })();
+    return true;
+  }
+
+  if (msg?.type === 'RESUME_TASK') {
+    (async () => {
+      const { state } = await getStoredData();
+      await appendLog('Resumed after manual user action.');
+      await updateState({ status: 'running', stopCondition: null, stopMessage: null });
+      sendResponse({ ok: true });
+      runLoopFrom(state.tabId, state.goal, state.step, state.history, '').catch((e) =>
+        appendLog('Error resuming: ' + e.message)
+      );
+    })();
+    return true;
+  }
+
+  if (msg?.type === 'ANSWER_USER_QUESTION') {
+    (async () => {
+      const { state } = await getStoredData();
+      const ans = msg.answer || '';
+      await appendLog(`User answered clarification: "${ans}"`);
+      await updateState({ status: 'running', userQuestion: null });
+      sendResponse({ ok: true });
+      const history = [...state.history, { type: 'ask_user_answer', answer: ans }];
+      runLoopFrom(state.tabId, state.goal, state.step, history, '').catch((e) =>
+        appendLog('Error resuming: ' + e.message)
+      );
+    })();
+    return true;
   }
 });

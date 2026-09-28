@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://veil-agent.internal/schemas/vault.schema.json",
+  "title": "VeilVaultSchema",
+  "description": "Versioned schema for Veil local encrypted vault and profile storage",
+  "version": "1.0",
+  "type": "object",
+  "required": ["schema_version", "active_profile", "profiles"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "active_profile": {
+      "type": "string",
+      "minLength": 1
+    },
+    "profiles": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        },
+        "properties": {
+          "FULL_NAME": { "type": "string" },
+          "FIRST_NAME": { "type": "string" },
+          "LAST_NAME": { "type": "string" },
+          "DOB": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+          "GENDER": { "type": "string" },
+          "EMAIL": { "type": "string", "format": "email" },
+          "MOBILE": { "type": "string" },
+          "ADDRESS_LINE1": { "type": "string" },
+          "ADDRESS_LINE2": { "type": "string" },
+          "CITY": { "type": "string" },
+          "DISTRICT": { "type": "string" },
+          "STATE": { "type": "string" },
+          "PIN": { "type": "string" },
+          "FATHER_NAME": { "type": "string" },
+          "MOTHER_NAME": { "type": "string" },
+          "CATEGORY": { "type": "string" },
+          "AADHAAR": { "type": "string" },
+          "PAN": { "type": "string" },
+          "IFSC": { "type": "string" },
+          "ACCOUNT_NO": { "type": "string" }
+        }
+      }
+    },
+    "sensitivity_map": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "enum": ["low", "medium", "high"]
+      }
+    }
+  }
+}

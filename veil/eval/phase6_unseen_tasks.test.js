@@ -35,8 +35,10 @@ function createTestSession() {
 
   const vault = {
     NAME: 'Asha Verma',
+    FULL_NAME: 'Asha Verma',
     EMAIL: 'asha@example.com',
-    PHONE: '9876543210'
+    PHONE: '9876543210',
+    MOBILE: '9876543210'
   };
 
   return { tokenizer, vault };

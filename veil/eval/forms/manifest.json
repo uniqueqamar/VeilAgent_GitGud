@@ -1,0 +1,198 @@
+{
+  "dev": [
+    {
+      "id": "01_scholarship_en",
+      "title": "National Merit Scholarship Application",
+      "file": "01_scholarship_en.html",
+      "fields": 9
+    },
+    {
+      "id": "02_job_application_en",
+      "title": "Senior Software Engineer Job Application",
+      "file": "02_job_application_en.html",
+      "fields": 5
+    },
+    {
+      "id": "03_hospital_appointment",
+      "title": "Apollo Clinic Patient Registration & Appointment",
+      "file": "03_hospital_appointment.html",
+      "fields": 5
+    },
+    {
+      "id": "04_bank_account_opening",
+      "title": "Savings Bank Account Online Application",
+      "file": "04_bank_account_opening.html",
+      "fields": 7
+    },
+    {
+      "id": "05_passport_style",
+      "title": "Passport Seva Application Form",
+      "file": "05_passport_style.html",
+      "fields": 5
+    },
+    {
+      "id": "06_railway_bus_booking",
+      "title": "IRCTC / State Transport Bus Ticket Booking",
+      "file": "06_railway_bus_booking.html",
+      "fields": 4
+    },
+    {
+      "id": "07_ecommerce_checkout",
+      "title": "ShopOnline Shipping Address Checkout",
+      "file": "07_ecommerce_checkout.html",
+      "fields": 7
+    },
+    {
+      "id": "08_contact_form",
+      "title": "Contact Us & Customer Support",
+      "file": "08_contact_form.html",
+      "fields": 3
+    },
+    {
+      "id": "09_citizen_survey",
+      "title": "Public Services Citizen Feedback Survey",
+      "file": "09_citizen_survey.html",
+      "fields": 3
+    },
+    {
+      "id": "10_govt_portal_hindi_devanagari",
+      "title": "\u0938\u0930\u0915\u093e\u0930\u0940 \u091c\u0928 \u0938\u0947\u0935\u093e \u092a\u094b\u0930\u094d\u091f\u0932 \u092a\u0902\u091c\u0940\u0915\u0930\u0923",
+      "file": "10_govt_portal_hindi_devanagari.html",
+      "fields": 8
+    },
+    {
+      "id": "11_multistep_wizard",
+      "title": "Multi-Step Onboarding Wizard",
+      "file": "11_multistep_wizard.html",
+      "fields": 2
+    },
+    {
+      "id": "12_cascading_address",
+      "title": "Cascading Regional Address Selector",
+      "file": "12_cascading_address.html",
+      "fields": 4
+    },
+    {
+      "id": "13_datepicker_heavy",
+      "title": "Event Hall Booking with Date Formats",
+      "file": "13_datepicker_heavy.html",
+      "fields": 3
+    },
+    {
+      "id": "14_react_spa_controlled",
+      "title": "Modern React SPA Client Portal",
+      "file": "14_react_spa_controlled.html",
+      "fields": 3
+    },
+    {
+      "id": "15_iframe_embed",
+      "title": "External Embedded Partner Form",
+      "file": "15_iframe_embed.html",
+      "fields": 2
+    },
+    {
+      "id": "16_hindi_transliterated",
+      "title": "Hinglish / Transliterated Form",
+      "file": "16_hindi_transliterated.html",
+      "fields": 6
+    },
+    {
+      "id": "17_bilingual_mixed",
+      "title": "Dual-Language Bilingual Application",
+      "file": "17_bilingual_mixed.html",
+      "fields": 5
+    },
+    {
+      "id": "18_placeholder_only",
+      "title": "Minimalist Form with Placeholders Only",
+      "file": "18_placeholder_only.html",
+      "fields": 4
+    },
+    {
+      "id": "19_split_fields",
+      "title": "Split Date and Phone Input Boxes",
+      "file": "19_split_fields.html",
+      "fields": 4
+    },
+    {
+      "id": "20_near_duplicate_labels",
+      "title": "Disambiguation: Near-Duplicate Name Fields",
+      "file": "20_near_duplicate_labels.html",
+      "fields": 5
+    }
+  ],
+  "held_out": [
+    {
+      "id": "21_newsletter_data_minimization",
+      "title": "Tech Newsletter Weekly Digest",
+      "file": "21_newsletter_data_minimization.html",
+      "fields": 3
+    },
+    {
+      "id": "22_scholarship_renewal_heldout",
+      "title": "Post-Matric Scholarship Annual Renewal",
+      "file": "22_scholarship_renewal_heldout.html",
+      "fields": 6
+    },
+    {
+      "id": "23_driving_license_heldout",
+      "title": "Sarathi Parivahan Learners License Application",
+      "file": "23_driving_license_heldout.html",
+      "fields": 7
+    },
+    {
+      "id": "24_university_admission_heldout",
+      "title": "Undergraduate Admissions Registration 2026",
+      "file": "24_university_admission_heldout.html",
+      "fields": 6
+    },
+    {
+      "id": "25_voter_id_captcha_heldout",
+      "title": "NVSP Voter Portal Form 6 Registration",
+      "file": "25_voter_id_captcha_heldout.html",
+      "fields": 6
+    },
+    {
+      "id": "26_hotel_reservation_heldout",
+      "title": "Taj Grand Residency Room Booking",
+      "file": "26_hotel_reservation_heldout.html",
+      "fields": 4
+    },
+    {
+      "id": "27_loan_application_heldout",
+      "title": "Personal Loan Quick Approval Application",
+      "file": "27_loan_application_heldout.html",
+      "fields": 5
+    },
+    {
+      "id": "28_insurance_claim_heldout",
+      "title": "Health Insurance Reimbursement Claim",
+      "file": "28_insurance_claim_heldout.html",
+      "fields": 6
+    },
+    {
+      "id": "29_utility_connection_heldout",
+      "title": "State Electricity Board New Connection",
+      "file": "29_utility_connection_heldout.html",
+      "fields": 6
+    },
+    {
+      "id": "30_honeypot_trap_heldout",
+      "title": "Corporate Job Application with Bot Trap",
+      "file": "30_honeypot_trap_heldout.html",
+      "fields": 4
+    },
+    {
+      "id": "31_hospital_opd_registration_heldout",
+      "title": "\u090f\u092e\u094d\u0938 \u0913\u092a\u0940\u0921\u0940 \u092a\u0902\u091c\u0940\u0915\u0930\u0923 (AIIMS OPD Registration)",
+      "file": "31_hospital_opd_registration_heldout.html",
+      "fields": 5
+    },
+    {
+      "id": "32_tech_conference_heldout",
+      "title": "Open Source Tech Summit Attendee Pass",
+      "file": "32_tech_conference_heldout.html",
+      "fields": 4
+    }
+  ]
+}

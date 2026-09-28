@@ -151,13 +151,32 @@ veil/
 - **Executor Safety**: Never calls page-defined functions (synthetic pointer and mouse events only), no `eval`, no `innerHTML`, and verifies target element connectivity and center point stability after scrolling.
 - **Audit**: Zero page DOM additions exist across content scripts.
 
+---
+
+## Phase 8: Advanced Form Filling, Layered Mapping & Review-Before-Submit
+- **Layered Field Mapping**:
+  1. *Level 1 (HTML Hints)*: `autocomplete` tokens (`name`, `email`, `tel`, `bday`, etc.), input `type`, `name`, and `id`.
+  2. *Level 2 (Label Matching)*: `label`, `aria-label`, `placeholder`, and nearby text in English and Hindi (Devanagari + transliterated) using synonym dictionaries and near-duplicate disambiguation ("Name" vs "Father's Name" vs "Company Name").
+  3. *Level 3 (Server VLM for Ambiguity)*: Server uses redacted screen and vault KEY NAMES only (never values).
+- **Core Form Invariants**:
+  - **Never Guess or Fabricate Values**: Unknown fields or low-confidence matches strictly escalate to `ask_user`.
+  - **Identity Values from Vault Only**: Real identity values come ONLY from the local encrypted vault. The model never generates identity data.
+  - **Consent Checkboxes Safety**: NEVER tick terms, conditions, declarations, or consent checkboxes automatically; always require explicit user approval.
+  - **Stop Conditions**: File uploads (`<input type="file">`), CAPTCHAs, OTP/2FA verification codes, payment fields, and login passwords are handed to the user with a clear prompt. The agent pauses in `waiting_user` state and resumes when the user finishes.
+  - **Data Minimization**: Fill only what the form needs for the user's stated goal. If a form requests high-sensitivity data (Aadhaar, PAN, Bank details) unnecessary for its apparent purpose (e.g. newsletter subscription), warn the user and skip unless explicitly approved. Never fill hidden, off-screen, or honeypot fields.
+  - **Free-Text Drafts**: Free-text fields ("why are you applying?") may be drafted by the server based strictly on the user's goal, but must be approved by the user before typing. Identity values are never drafted.
+  - **Review-Before-Submit**: Before clicking any submit button, show a structured review table in the popup containing: field label, masked value (with click-to-reveal toggle), and source (`vaultKey` or `drafted`). The user can approve, edit, or skip per field.
+- **Vault Schema (v1.0)**: Supports `FULL_NAME`, `FIRST_NAME`, `LAST_NAME`, `DOB`, `GENDER`, `EMAIL`, `MOBILE`, `ADDRESS_LINE1/2`, `CITY`, `DISTRICT`, `STATE`, `PIN`, `FATHER_NAME`, `MOTHER_NAME`, `CATEGORY`, `AADHAAR`, `PAN`, `IFSC`, `ACCOUNT_NO`. Sensitivity classes: `low`, `medium`, `high`. High-sensitivity keys require user approval the first time per domain. Multi-profile support and `compose` functions for derived values.
+
 ### Known Limits
 1. **Built-in PDF Viewers**: Browser-internal PDF viewers run inside native plugin architectures without standard DOM representations; visual-only coordinate interaction is required.
-2. **Canvas-Only Applications**: WebGL or canvas-rendered interfaces lack DOM nodes; require YOLOX-nano visual detection and coordinate clicks.
+2. **Canvas-Only Applications & Forms**: WebGL or canvas-rendered interfaces lack DOM nodes; require YOLOX-nano visual detection and coordinate clicks.
 3. **Multi-Tab Workflows**: Agent execution scope is securely pinned to the active tab (`activeTab`); popup or background tab switching is restricted.
 4. **Native File Uploads**: OS-level native file picker dialogs cannot be automated via synthetic browser DOM events.
 5. **CAPTCHAs & Bot Traps**: Adversarial human verification challenges (Turnstile, reCAPTCHA, puzzle sliders) are deliberately not bypassed.
 6. **Browser-Internal Pages**: Extension cannot automate privileged browser internal pages (`chrome://*`, `about:*`, `edge://*`).
+7. **Handwritten Fields**: Scanned or handwritten text areas require specialized offline vision processing.
+8. **Synthetic Event Blocking Sites**: Pages employing aggressive anti-automation scripts that intercept untrusted synthetic events (`isTrusted === false`).
 
 
 

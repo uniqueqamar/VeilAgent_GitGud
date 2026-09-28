@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Public Services Citizen Feedback Survey</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 30px; background: #f8fafc; color: #0f172a; }
+        form { background: white; padding: 24px; border-radius: 8px; max-width: 600px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .form-group, div { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; }
+        input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select, textarea {
+            width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;
+        }
+        button { background: #2563eb; color: white; padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        button:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    
+        <h1>City Municipal Survey</h1>
+        <form id="survey-form">
+            <label for="respondentName">Resident Name</label>
+            <input type="text" id="respondentName" name="resident_name" />
+
+            <label for="resCity">City Ward</label>
+            <input type="text" id="resCity" name="city" />
+
+            <label for="favoritePark">What is your favorite local city park?</label>
+            <input type="text" id="favoritePark" name="favorite_park" />
+
+            <button type="submit" id="submitSurvey">Submit Feedback</button>
+        </form>
+        
+    <script id="ground-truth" type="application/json">
+        [
+  {
+    "id": "respondentName",
+    "expectedKey": "FULL_NAME"
+  },
+  {
+    "id": "resCity",
+    "expectedKey": "CITY"
+  },
+  {
+    "id": "favoritePark",
+    "expectedKey": "ASK_USER",
+    "isUnknown": true
+  }
+]
+    </script>
+</body>
+</html>

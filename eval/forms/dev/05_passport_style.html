@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Passport Seva Application Form</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 30px; background: #f8fafc; color: #0f172a; }
+        form { background: white; padding: 24px; border-radius: 8px; max-width: 600px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .form-group, div { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; }
+        input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select, textarea {
+            width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;
+        }
+        button { background: #2563eb; color: white; padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        button:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    
+        <h1>Passport Application System</h1>
+        <form id="passport-form">
+            <label for="givenName">Given Name (First Name)</label>
+            <input type="text" id="givenName" name="first_name" />
+
+            <label for="surName">Surname (Last Name)</label>
+            <input type="text" id="surName" name="last_name" />
+
+            <label for="bday">Date of Birth</label>
+            <input type="date" id="bday" name="dob" />
+
+            <label for="citizenState">State of Residence</label>
+            <input type="text" id="citizenState" name="state" />
+
+            <label for="citizenPin">Pin Code</label>
+            <input type="text" id="citizenPin" name="pincode" />
+
+            <button type="submit" id="btnSubmit">Save and Continue</button>
+        </form>
+        
+    <script id="ground-truth" type="application/json">
+        [
+  {
+    "id": "givenName",
+    "expectedKey": "FIRST_NAME"
+  },
+  {
+    "id": "surName",
+    "expectedKey": "LAST_NAME"
+  },
+  {
+    "id": "bday",
+    "expectedKey": "DOB"
+  },
+  {
+    "id": "citizenState",
+    "expectedKey": "STATE"
+  },
+  {
+    "id": "citizenPin",
+    "expectedKey": "PIN"
+  }
+]
+    </script>
+</body>
+</html>

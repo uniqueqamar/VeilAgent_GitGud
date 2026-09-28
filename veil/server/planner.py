@@ -48,12 +48,37 @@ class BasePlanner(abc.ABC):
 class DeterministicPlanner(BasePlanner):
     """Deterministic fallback and test planner fixture."""
 
-    FILL_MAP = {
-        "name": "{{NAME}}",
-        "email": "{{EMAIL}}",
-        "phone": "{{PHONE}}",
-        "mobile": "{{PHONE}}",
-    }
+    FILL_MAP = [
+        ("father", "{{FATHER_NAME}}"),
+        ("pita", "{{FATHER_NAME}}"),
+        ("mother", "{{MOTHER_NAME}}"),
+        ("mata", "{{MOTHER_NAME}}"),
+        ("first name", "{{FIRST_NAME}}"),
+        ("last name", "{{LAST_NAME}}"),
+        ("full name", "{{FULL_NAME}}"),
+        ("name", "{{FULL_NAME}}"),
+        ("email", "{{EMAIL}}"),
+        ("mobile", "{{MOBILE}}"),
+        ("phone", "{{MOBILE}}"),
+        ("date of birth", "{{DOB}}"),
+        ("dob", "{{DOB}}"),
+        ("birth", "{{DOB}}"),
+        ("gender", "{{GENDER}}"),
+        ("sex", "{{GENDER}}"),
+        ("address line 2", "{{ADDRESS_LINE2}}"),
+        ("address line 1", "{{ADDRESS_LINE1}}"),
+        ("address", "{{ADDRESS_LINE1}}"),
+        ("city", "{{CITY}}"),
+        ("district", "{{DISTRICT}}"),
+        ("state", "{{STATE}}"),
+        ("pin", "{{PIN}}"),
+        ("pincode", "{{PIN}}"),
+        ("aadhaar", "{{AADHAAR}}"),
+        ("pan", "{{PAN}}"),
+        ("ifsc", "{{IFSC}}"),
+        ("account", "{{ACCOUNT_NO}}"),
+        ("category", "{{CATEGORY}}"),
+    ]
 
     async def plan(self, req: PlanRequest, image_bytes: Optional[bytes] = None) -> PlanResponse:
         goal_lower = req.goal.lower()
@@ -83,16 +108,58 @@ class DeterministicPlanner(BasePlanner):
 
         for n in req.dom.nodes:
             if n.tag in ("input", "textarea") and not n.sensitive and n.id not in done_targets:
+                itype = (n.type or "").lower()
+                if itype in ("submit", "button", "hidden"):
+                    continue
+
                 label = (n.label or "").lower()
-                for key, placeholder in self.FILL_MAP.items():
-                    if key in label:
-                        return ActionResponse(
-                            type="action",
-                            action="type",
-                            target_id=n.id,
-                            value=placeholder,
-                            reason=f"fill '{n.label}'"
-                        )
+                text = (n.text or "").lower()
+                combined_desc = f"{label} {text} {n.id}".lower()
+
+                # Phase 8: Disambiguation checks (company/org is NOT personal full name)
+                if "company" in combined_desc or "organization" in combined_desc or "institution" in combined_desc:
+                    return AskUserResponse(
+                        type="ask_user",
+                        question=f"Please provide your organization name for '{n.label or n.id}'",
+                        reason="organization name is not in personal vault"
+                    )
+
+                # Check known vault keys
+                matched_placeholder = None
+                for key_token, placeholder in self.FILL_MAP:
+                    if key_token in combined_desc:
+                        # Negative checks for personal name
+                        if placeholder == "{{FULL_NAME}}" and any(neg in combined_desc for neg in ("father", "mother", "pita", "mata", "first", "last")):
+                            continue
+                        matched_placeholder = placeholder
+                        break
+
+                if matched_placeholder:
+                    return ActionResponse(
+                        type="action",
+                        action="type",
+                        target_id=n.id,
+                        value=matched_placeholder,
+                        reason=f"fill '{n.label or n.id}'"
+                    )
+
+                # Phase 8: Free-text fields drafting (why are you applying, remarks, purpose)
+                if any(w in combined_desc for w in ("why", "purpose", "reason", "remarks", "statement of purpose", "comment", "feedback")):
+                    draft = f"Applying for {req.goal} based on eligibility requirements."
+                    return ActionResponse(
+                        type="action",
+                        action="type",
+                        target_id=n.id,
+                        value=draft,
+                        reason=f"draft free text for '{n.label or n.id}' based on goal"
+                    )
+
+                # Unknown field with no matching vault key (Invariant: never guess, ask user)
+                return AskUserResponse(
+                    type="ask_user",
+                    question=f"Please provide value for field '{n.label or n.id}'",
+                    reason="unrecognized field without matching vault key"
+                )
 
         if "submit" in goal_lower:
             for n in req.dom.nodes:

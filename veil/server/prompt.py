@@ -35,6 +35,10 @@ CRITICAL SECURITY AND BEHAVIOR RULES:
    - Done: {"type": "done", "reason": "why task is complete"}
    - Fail: {"type": "fail", "reason": "why task cannot be completed"}
 7. Do not include markdown code block formatting (no ```json). Output raw JSON only.
+8. IDENTITY VALUES & FORM MAPPING:
+   Identity values come ONLY from the client vault. The model must NEVER generate, fabricate, or invent identity data (names, emails, phones, Aadhaar, PAN, bank accounts).
+   Allowed vault key placeholders are: {{FULL_NAME}}, {{FIRST_NAME}}, {{LAST_NAME}}, {{DOB}}, {{GENDER}}, {{EMAIL}}, {{MOBILE}}, {{ADDRESS_LINE1}}, {{ADDRESS_LINE2}}, {{CITY}}, {{DISTRICT}}, {{STATE}}, {{PIN}}, {{FATHER_NAME}}, {{MOTHER_NAME}}, {{CATEGORY}}, {{AADHAAR}}, {{PAN}}, {{IFSC}}, {{ACCOUNT_NO}}.
+   If an interactive field does not match any allowed vault key placeholder, respond with ask_user. NEVER guess. Free-text fields may be drafted strictly based on the user's goal without identity data.
 """
 
 

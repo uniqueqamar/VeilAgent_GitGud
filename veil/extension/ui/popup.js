@@ -26,6 +26,22 @@ const answerCard = document.getElementById('answer-card');
 const answerText = document.getElementById('answer-text');
 const copyAnswerBtn = document.getElementById('copy-answer-btn');
 
+// Phase 8 DOM Elements
+const reviewBox = document.getElementById('review-box');
+const reviewTbody = document.getElementById('review-tbody');
+const reviewFieldCount = document.getElementById('review-field-count');
+const approveReviewBtn = document.getElementById('approve-review-btn');
+const skipReviewBtn = document.getElementById('skip-review-btn');
+
+const manualResumeBox = document.getElementById('manual-resume-box');
+const manualResumeDesc = document.getElementById('manual-resume-desc');
+const resumeTaskBtn = document.getElementById('resume-task-btn');
+
+const askUserBox = document.getElementById('ask-user-box');
+const askUserQuestion = document.getElementById('ask-user-question');
+const askUserInput = document.getElementById('ask-user-input');
+const submitAnswerBtn = document.getElementById('submit-answer-btn');
+
 if (copyAnswerBtn) {
   copyAnswerBtn.onclick = async () => {
     if (answerText?.textContent) {
@@ -135,6 +151,82 @@ function renderState(state) {
   } else if (!state.answer) {
     if (answerCard) answerCard.style.display = 'none';
   }
+
+  // Phase 8: Review-Before-Submit Table (Task 7)
+  const isWaitingReview = state.status === 'waiting_review' && Array.isArray(state.reviewTable);
+  if (isWaitingReview && reviewBox && reviewTbody) {
+    reviewBox.style.display = 'block';
+    if (reviewFieldCount) reviewFieldCount.textContent = `${state.reviewTable.length} fields`;
+    while (reviewTbody.firstChild) {
+      reviewTbody.removeChild(reviewTbody.firstChild);
+    }
+
+    for (const item of state.reviewTable) {
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid var(--line)';
+
+      const tdLabel = document.createElement('td');
+      tdLabel.style.padding = '5px 8px';
+      tdLabel.style.fontWeight = '600';
+      tdLabel.textContent = item.label || item.nodeId;
+
+      const tdVal = document.createElement('td');
+      tdVal.style.padding = '5px 8px';
+      const valSpan = document.createElement('span');
+      valSpan.textContent = item.masked || item.value;
+      tdVal.appendChild(valSpan);
+
+      if (item.value && item.masked && item.value !== item.masked) {
+        const toggleBtn = document.createElement('button');
+        toggleBtn.type = 'button';
+        toggleBtn.textContent = 'Reveal';
+        toggleBtn.style.marginLeft = '6px';
+        toggleBtn.style.padding = '1px 5px';
+        toggleBtn.style.fontSize = '10px';
+        toggleBtn.style.borderRadius = '3px';
+        toggleBtn.style.border = '1px solid #cbd5e1';
+        toggleBtn.style.background = '#f8fafc';
+        toggleBtn.style.cursor = 'pointer';
+        let revealed = false;
+        toggleBtn.onclick = () => {
+          revealed = !revealed;
+          valSpan.textContent = revealed ? item.value : item.masked;
+          toggleBtn.textContent = revealed ? 'Hide' : 'Reveal';
+        };
+        tdVal.appendChild(toggleBtn);
+      }
+
+      const tdSrc = document.createElement('td');
+      tdSrc.style.padding = '5px 8px';
+      tdSrc.style.color = 'var(--text-muted)';
+      tdSrc.textContent = item.source || 'Vault';
+
+      tr.appendChild(tdLabel);
+      tr.appendChild(tdVal);
+      tr.appendChild(tdSrc);
+      reviewTbody.appendChild(tr);
+    }
+  } else if (reviewBox) {
+    reviewBox.style.display = 'none';
+  }
+
+  // Phase 8: Manual Stop Conditions (Task 4)
+  const isWaitingUser = state.status === 'waiting_user';
+  if (isWaitingUser && manualResumeBox && manualResumeDesc) {
+    manualResumeBox.style.display = 'block';
+    manualResumeDesc.textContent = state.stopMessage || 'Manual action required. Please complete it and click Resume.';
+  } else if (manualResumeBox) {
+    manualResumeBox.style.display = 'none';
+  }
+
+  // Phase 8: Clarification Needed (Task 2 & 9)
+  const isWaitingInput = state.status === 'waiting_user_input';
+  if (isWaitingInput && askUserBox && askUserQuestion) {
+    askUserBox.style.display = 'block';
+    askUserQuestion.textContent = state.userQuestion || state.question || 'Please provide information.';
+  } else if (askUserBox) {
+    askUserBox.style.display = 'none';
+  }
 }
 
 function renderReceipt(receipt) {
@@ -213,6 +305,36 @@ skipBtn.onclick = () => {
   approvalBox.classList.remove('visible');
   api.runtime.sendMessage({ type: 'SKIP_ACTION' });
 };
+
+// Phase 8 Button Handlers
+if (approveReviewBtn) {
+  approveReviewBtn.onclick = () => {
+    if (reviewBox) reviewBox.style.display = 'none';
+    api.runtime.sendMessage({ type: 'APPROVE_REVIEW' });
+  };
+}
+
+if (skipReviewBtn) {
+  skipReviewBtn.onclick = () => {
+    if (reviewBox) reviewBox.style.display = 'none';
+    api.runtime.sendMessage({ type: 'SKIP_ACTION' });
+  };
+}
+
+if (resumeTaskBtn) {
+  resumeTaskBtn.onclick = () => {
+    if (manualResumeBox) manualResumeBox.style.display = 'none';
+    api.runtime.sendMessage({ type: 'RESUME_TASK' });
+  };
+}
+
+if (submitAnswerBtn) {
+  submitAnswerBtn.onclick = () => {
+    const val = askUserInput?.value || '';
+    if (askUserBox) askUserBox.style.display = 'none';
+    api.runtime.sendMessage({ type: 'ANSWER_USER_QUESTION', answer: val });
+  };
+}
 
 // Tamper-Evident Receipts Export
 exportReceiptsBtn.onclick = async () => {

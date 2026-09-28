@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>State Electricity Board New Connection</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 30px; background: #f8fafc; color: #0f172a; }
+        form { background: white; padding: 24px; border-radius: 8px; max-width: 600px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .form-group, div { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; }
+        input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select, textarea {
+            width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;
+        }
+        button { background: #2563eb; color: white; padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        button:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    
+        <h1>Electricity Distribution - New Meter Connection</h1>
+        <form id="utility-form">
+            <label for="ownerName">Premises Owner Full Name</label>
+            <input type="text" id="ownerName" name="consumer_name" />
+
+            <label for="ownerFather">Father / Husband Name</label>
+            <input type="text" id="ownerFather" name="father_name" />
+
+            <label for="premiseAddress">Premises Supply Address</label>
+            <input type="text" id="premiseAddress" name="supply_address" />
+
+            <label for="premiseCity">City / Subdivision</label>
+            <input type="text" id="premiseCity" name="city" />
+
+            <label for="premisePin">PIN Code</label>
+            <input type="text" id="premisePin" name="pincode" />
+
+            <label for="ownerPhone">Contact Mobile Number</label>
+            <input type="tel" id="ownerPhone" name="phone" />
+
+            <button type="submit" id="btnRequest">Apply for Meter</button>
+        </form>
+        
+    <script id="ground-truth" type="application/json">
+        [
+  {
+    "id": "ownerName",
+    "expectedKey": "FULL_NAME"
+  },
+  {
+    "id": "ownerFather",
+    "expectedKey": "FATHER_NAME"
+  },
+  {
+    "id": "premiseAddress",
+    "expectedKey": "ADDRESS_LINE1"
+  },
+  {
+    "id": "premiseCity",
+    "expectedKey": "CITY"
+  },
+  {
+    "id": "premisePin",
+    "expectedKey": "PIN"
+  },
+  {
+    "id": "ownerPhone",
+    "expectedKey": "MOBILE"
+  }
+]
+    </script>
+</body>
+</html>

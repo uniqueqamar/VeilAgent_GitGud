@@ -326,7 +326,7 @@
           tag,
           role: role || null,
           type: type || null,
-          label: redactedLabel.text.slice(0, 40),
+          label: redactedLabel.text.slice(0, 100),
           text: redactedLabel.text.slice(0, 200),
           autocomplete: ac || null,
           sensitive: isSensitive,

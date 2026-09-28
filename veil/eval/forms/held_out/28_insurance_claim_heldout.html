@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Health Insurance Reimbursement Claim</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 30px; background: #f8fafc; color: #0f172a; }
+        form { background: white; padding: 24px; border-radius: 8px; max-width: 600px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .form-group, div { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; }
+        input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select, textarea {
+            width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;
+        }
+        button { background: #2563eb; color: white; padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        button:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    
+        <h1>Health Shield Insurance Claim Submission</h1>
+        <form id="claim-form">
+            <label for="policyHolder">Policy Holder Full Name</label>
+            <input type="text" id="policyHolder" name="insured_name" />
+
+            <label for="claimDob">Date of Birth</label>
+            <input type="date" id="claimDob" name="dob" />
+
+            <label for="claimMobile">Registered Mobile Number</label>
+            <input type="tel" id="claimMobile" name="phone" />
+
+            <label for="claimAccount">Bank Account Number for Reimbursement</label>
+            <input type="text" id="claimAccount" name="account_number" />
+
+            <label for="claimIfsc">Bank IFSC Code</label>
+            <input type="text" id="claimIfsc" name="ifsc_code" />
+
+            <label>
+                <input type="checkbox" id="claimDeclaration" name="terms" />
+                I agree to the terms and declare that all submitted hospital bills are genuine.
+            </label>
+
+            <button type="submit" id="submitClaim">Submit Insurance Claim</button>
+        </form>
+        
+    <script id="ground-truth" type="application/json">
+        [
+  {
+    "id": "policyHolder",
+    "expectedKey": "FULL_NAME"
+  },
+  {
+    "id": "claimDob",
+    "expectedKey": "DOB"
+  },
+  {
+    "id": "claimMobile",
+    "expectedKey": "MOBILE"
+  },
+  {
+    "id": "claimAccount",
+    "expectedKey": "ACCOUNT_NO"
+  },
+  {
+    "id": "claimIfsc",
+    "expectedKey": "IFSC"
+  },
+  {
+    "id": "claimDeclaration",
+    "expectedKey": "CONSENT_BOX",
+    "isConsent": true
+  }
+]
+    </script>
+</body>
+</html>
