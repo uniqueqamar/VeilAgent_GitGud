@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Shadow DOM & Opaque Widgets Test Page</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .card { border: 1px solid #ccc; padding: 15px; margin: 10px 0; border-radius: 8px; }
+    canvas { background: #000; display: block; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <h1>Shadow DOM Test Suite</h1>
+
+  <!-- 1. Open Shadow Root Host -->
+  <div id="open-shadow-host" class="card">
+    <p>Loading open shadow root...</p>
+  </div>
+
+  <!-- 2. Closed Shadow Root Host (Opaque) -->
+  <div id="closed-shadow-host" class="card">
+    <p>Loading closed shadow root...</p>
+  </div>
+
+  <!-- 3. Opaque Canvas Widget -->
+  <canvas id="opaque-canvas-widget" width="300" height="100"></canvas>
+
+  <script>
+    // Create OPEN shadow DOM
+    const openHost = document.getElementById('open-shadow-host');
+    openHost.innerHTML = '';
+    const openRoot = openHost.attachShadow({ mode: 'open' });
+    openRoot.innerHTML = `
+      <style>
+        .inner { background: #f0fdf4; padding: 10px; border-radius: 6px; }
+      </style>
+      <div class="inner">
+        <h3>Open Shadow Component</h3>
+        <label for="open-name">Full name</label>
+        <input type="text" id="open-name" placeholder="Open shadow name">
+        <button id="open-submit-btn">Submit Shadow</button>
+      </div>
+    `;
+
+    // Create CLOSED shadow DOM
+    const closedHost = document.getElementById('closed-shadow-host');
+    closedHost.innerHTML = '';
+    const closedRoot = closedHost.attachShadow({ mode: 'closed' });
+    closedRoot.innerHTML = `
+      <div style="background: #fef2f2; padding: 10px;">
+        <h3>Closed Shadow Secret Component</h3>
+        <p>Confidential Key: SECRET_SHADOW_KEY_999</p>
+      </div>
+    `;
+  </script>
+</body>
+</html>

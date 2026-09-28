@@ -22,6 +22,8 @@
 8. [Protocol Specification & Schemas](#8-protocol-specification--schemas)
 9. [Configuration Reference](#9-configuration-reference)
 10. [Repository File Map](#10-repository-file-map)
+11. [Real-World Web Handling & Anti-Evasion Defenses](#11-real-world-web-handling--anti-evasion-defenses)
+12. [Known Limitations & Operating Boundaries](#12-known-limitations--operating-boundaries)
 
 ---
 
@@ -182,6 +184,11 @@ sequenceDiagram
 | **Invisible Honeypot Traps** | Webpage places hidden zero-opacity or 1x1 pixel links to detect or trap bots | **Anti-Honeypot Scanner**: [`extension/content/executor.js`](file:///d:/downloads/Downloads/veil-skeleton/veil/extension/content/executor.js) detects zero-opacity, hidden, or zero-dimension elements and blocks clicks. |
 | **Decompression Bomb / DoS** | Malicious payload sends a gigapixel image to exhaust server RAM | **Pillow Bomb Shield**: Pillow enforces `MAX_IMAGE_PIXELS = 10_000_000` and `ImageFile.LOAD_TRUNCATED_IMAGES = False`. Server body capped at 2 MB. |
 | **Token Re-Identification** | Server attempts to infer identity across multiple sessions | **Session-Scoped Tokenizer**: Tokens (e.g. `[NAME_1]`) are randomly generated per session and are unlinked between different sessions or domains. |
+| **Cross-Origin Iframe Leaks** | Attacker embeds cross-origin iframe to bait vault credentials | **Cross-Origin Vault Block**: Extension reads frame structure for context, but vault value injection into cross-origin iframes is strictly **BLOCKED** unless user approves exact origin. Passwords, OTPs, and cards are never filled. |
+| **Clickjacking & UI Redress** | Malicious transparent overlay intercepts or redirects clicks | **Pre-Click Re-Check**: Checks center point visibility during capture; immediately re-checks `elementFromPoint(cx, cy)` after scroll and aborts if obscured. |
+| **CSS Invisibility & Text Evasions** | Hidden prompts in zero-contrast, zero-font, or offscreen DOM | **9-Point Visibility Filter**: Filters `display:none`, `visibility:hidden`, `opacity < 0.05`, off-screen, font-size < 6px, WCAG contrast < 1.5, aria-hidden, 1px elements, and large negative text-indent. |
+| **Opaque Widgets & Custom Elements** | Uninspected closed shadow DOM or canvas components | **Media Blackout Default**: Closed shadow roots and opaque widgets (`canvas`, `embed`, `object`) are blacked out like media unless on-device vision clears them. |
+| **Page DOM Tampering** | Content scripts alter page DOM causing exploits or detection | **Invariant 11 Non-Invasive Audit**: Zero page DOM injections (`appendChild`, `innerHTML`, `document.write`). Purely observational and synthetic standard events. |
 
 ---
 
@@ -392,7 +399,10 @@ python veil/eval/test_server_security.py
 # 6. End-to-End Full Loop Regression Test
 python veil/eval/run_loop_test.py
 
-# 7. Previous Phase Unit Test Suites
+# 7. Real-World Pages (Iframes, Shadow DOM, Dynamic SPAs, Evasion Filters)
+node --test veil/eval/phase7_real_world_pages.test.js
+
+# 8. Previous Phase Unit Test Suites
 node --test veil/eval/pii.test.js
 node --test veil/eval/phase3_gate_leak.test.js veil/eval/phase3_unit.test.js
 node --test veil/eval/phase4_vision.test.js veil/eval/phase5_ui.test.js
@@ -402,6 +412,7 @@ node --test veil/eval/phase4_vision.test.js veil/eval/phase5_ui.test.js
 
 | Test Suite | Evaluation Target | Status | Result / Metric |
 |---|---|:---:|:---:|
+| [`phase7_real_world_pages.test.js`](file:///d:/downloads/Downloads/veil-skeleton/veil/eval/phase7_real_world_pages.test.js) | Iframes, shadow DOM, dynamic SPAs, 9-point filter, clickjacking | **PASS** | **8/8 tests passed** (Zero DOM mutations) |
 | [`test_server_tripwire.py`](file:///d:/downloads/Downloads/veil-skeleton/veil/eval/test_server_tripwire.py) | 441 positive PII samples in 100-page Phase 2 corpus | **PASS** | **100.00% Recall** (441/441 detected) |
 | [`phase6_prompt_injection.test.js`](file:///d:/downloads/Downloads/veil-skeleton/veil/eval/phase6_prompt_injection.test.js) | 24 hostile prompt injection vectors (DOM & visual) | **PASS** | **0 hostile actions executed (100% blocked)** |
 | [`phase6_schema_fuzz.test.js`](file:///d:/downloads/Downloads/veil-skeleton/veil/eval/phase6_schema_fuzz.test.js) | Oversized strings, negative coordinates, extra fields | **PASS** | 5/5 subtests passed |
@@ -526,8 +537,15 @@ veil/
     ├── synthetic_pages/
     │   ├── kyc.html                  # Synthetic KYC test page
     │   ├── unseen_portal.html        # Unseen multi-step customer registration portal
-    │   └── unseen_article.html       # Unseen financial statement with session tokens
+    │   ├── unseen_article.html       # Unseen financial statement with session tokens
+    │   ├── nested_iframes.html       # Same/cross-origin nested iframes test page
+    │   ├── shadow_dom.html           # Open & closed shadow DOM roots test page
+    │   ├── spa_route.html            # Dynamic SPA route transitions & re-renders
+    │   ├── hidden_text_injection.html# 9-point CSS invisibility & legibility evasion tests
+    │   ├── clickjacking_overlay.html # Transparent & malicious overlay clickjacking test
+    │   └── virtualized_list.html     # Virtualized DOM capping (400 nodes) & viewport sorting
     ├── corpus/                       # 100 synthetic PII evaluation pages (60 dev + 40 held-out)
+    ├── phase7_real_world_pages.test.js # Phase 7 real-world pages test suite (8 subtests)
     ├── phase6_schema_fuzz.test.js    # Protocol schema fuzzing test suite
     ├── phase6_prompt_injection.test.js # 24-vector hostile prompt injection suite
     ├── phase6_unseen_tasks.test.js   # Multi-step portal + summarization test suite
@@ -536,6 +554,69 @@ veil/
     ├── run_loop_test.py              # End-to-end full loop regression test
     └── results/                      # Evaluation metrics, JSON benchmarks & markdown reports
 ```
+
+---
+
+## 11. Real-World Web Handling & Anti-Evasion Defenses
+
+Veil Agent incorporates robust mechanisms to handle real-world web complexities (iframes, open/closed shadow DOM, dynamic SPAs, virtualized lists) without opening new data leak channels, trust loopholes, or clickjacking vulnerabilities:
+
+### 1. Multi-Frame DOM Capture & Cross-Origin Isolation
+- **All-Frames Content Scripts**: Registered with `"all_frames": true, "match_about_blank": true` in [`manifest.json`](file:///d:/downloads/Downloads/veil-skeleton/veil/extension/manifest.json).
+- **Runtime-Verified Frame Identities**: Background orchestrator queries `sender.tab.id` and `sender.frameId` directly from browser APIs (Manifest V3), preventing page-level frame spoofing.
+- **Frame-Qualified Node Identifiers**: Node IDs are qualified with frame index (e.g. `f0:e1` for top frame, `f2:e5` for child iframe 2), ensuring deterministic dispatch to the correct frame.
+- **Cumulative Frame Box Offsets**: Child frame bounding boxes are offset by parent frame positions (`[x + fx, y + fy]`), enabling pixel-accurate visual blackout and visual model grounding across nested iframes.
+- **Strict Frame Depth & Node Caps**: Enforces max depth 3 and a global 400-node cap, sorted viewport-first.
+- **Cross-Origin Vault Filling Block**: Child frame structure is readable, but filling vault credentials into cross-origin frames (`origin !== topOrigin`) is strictly **BLOCKED** unless the user explicitly approves that exact origin. Passwords, OTPs, and credit card numbers are never filled under any circumstance.
+- **PostMessage Isolation**: Extension ignores all untrusted `window.postMessage` events from web pages.
+
+### 2. Shadow DOM Traversal & Opaque Widget Protection
+- **OPEN Shadow Roots**: Traversed seamlessly, recursively capturing custom element internal structures.
+- **CLOSED Shadow Roots & Opaque Widgets**: Closed roots, `<canvas>`, `<embed>`, `<object>`, or custom elements without an open root cannot be inspected. They are classified as `role: 'opaque_widget', sensitive: true`, ensuring their bounding box remains solid black unless on-device vision models explicitly clear them (Invariant 10 & 11).
+
+### 3. Dynamic SPAs & Anti-Stale Recapturing
+- **Debounced MutationObserver**: Batches DOM mutations across rapid UI updates.
+- **WeakMap Stable Node Identity**: Retains consistent node IDs across re-renders using an in-memory `WeakMap<Element, string>`.
+- **Stale Node Detection Without Guessing**: If an element detaches (`!el.isConnected`), the executor returns `stale: true`, prompting immediate DOM recapture rather than guessing or mis-targeting elements.
+- **Virtualized List Capping**: Large dynamic tables and virtual lists are capped at 400 nodes, prioritized by viewport proximity.
+
+### 4. Visible-Text-Only Capture (9 Anti-Evasion Defenses)
+To prevent adversarial prompt injection hidden in non-rendered or human-invisible elements, [`dom-capture.js`](file:///d:/downloads/Downloads/veil-skeleton/veil/extension/content/dom-capture.js) enforces a 9-point visibility filter:
+1. `display === 'none'`
+2. `visibility === 'hidden'`
+3. `opacity < 0.05`
+4. Offscreen coordinates (`x + w <= 0 || y + h <= 0`)
+5. Font size < `6px`
+6. WCAG text-to-background contrast ratio < `1.5:1`
+7. `aria-hidden === "true"`
+8. Clipped / 1px micro-elements (`rect.width <= 1 && rect.height <= 1`)
+9. Large negative text indent (`text-indent <= -100px`)
+
+### 5. Clickjacking Overlay Defenses & Honeypot Evasion
+- **Capture-Time Overlay Filter**: Nodes covered at their center point by higher z-index overlays are discarded.
+- **Pre-Click Re-Check**: Immediately after scrolling to the target, [`executor.js`](file:///d:/downloads/Downloads/veil-skeleton/veil/extension/content/executor.js) verifies `document.elementFromPoint(cx, cy)` still matches the target or its direct child. If obscured by a newly positioned overlay or clickjacking trap, the click is instantly aborted.
+
+### 6. Invariant 11 Non-Invasive DOM Guarantee
+- Content scripts maintain a strictly zero-mutation footprint on the web page DOM.
+- Grep audit confirms **0 instances** of `appendChild`, `append`, `insertBefore`, `insertAdjacentHTML`, `insertAdjacentElement`, `innerHTML`, `outerHTML`, or `document.write` across all content scripts.
+- Interactions use synthetic standard events (`PointerEvent`, `MouseEvent`, `InputEvent`) and prototype property setters without calling page-defined functions (no `el.click()`) or `eval`.
+
+---
+
+## 12. Known Limitations & Operating Boundaries
+
+In accordance with **Invariant 9 (Honest Reporting)**, the following known boundaries apply to Veil Agent:
+
+1. **Built-in PDF Viewers**: Browser-native PDF viewing plugins (`chrome-extension://...` or native plugin wrappers) do not expose standard DOM structures. Visual-only coordinate interaction and on-device OCR are required.
+2. **Canvas-Only Web Applications**: Pure WebGL / HTML5 Canvas applications (e.g. Figma canvas, games) lack underlying DOM trees. Interaction relies exclusively on YOLOX-Nano visual object detection and manual coordinate confirmation.
+3. **Multi-Tab Workflows**: Automation is securely pinned to the initiating tab (`activeTab`). Cross-tab navigation, popups, or external window switching require user intervention.
+4. **Native OS File Uploads**: Native operating system file picker dialogs cannot be automated via synthetic DOM events due to browser security boundaries.
+5. **CAPTCHAs & Bot Traps**: Adversarial bot detection systems (Cloudflare Turnstile, Google reCAPTCHA, Geetest sliders) are deliberately not bypassed and require human completion.
+6. **Browser-Internal Pages**: The extension cannot automate privileged browser internal URLs (`chrome://*`, `about:*`, `edge://*`).
+
+### Automated Test Limitations
+- **What Was Tested**: Nested same- and cross-origin iframes, open and closed shadow roots, dynamic SPA route shifts, stale element handling, 9 CSS injection evasion vectors, clickjacking overlay obstruction, virtualized DOM capping (400 nodes), static DOM injection audit.
+- **What Was Not Tested via Automation**: Native Chrome PDF plugin internal memory structures, OS-level file picker dialog interactions, and live CAPTCHA solvers (due to their native OS or third-party proprietary nature).
 
 ---
 

@@ -139,7 +139,26 @@ veil/
   2. `LocalVLM`: Qwen2.5-VL-7B-Instruct (Apache-2.0, dynamic resolution, fast vision-language reasoning) via local inference server (e.g., Ollama / vLLM / llama.cpp), with small/CPU fallback option (Qwen2.5-VL-3B-Instruct).
   3. `CloudVLM`: Optional remote provider; API key stored ONLY in server environment; strictly refuses to start unless `VEIL_ALLOW_CLOUD=1`.
 - **Prompt Defense**: System prompt explicitly specifies that black boxes are redacted unknowable regions, `[TYPE_n]` tokens are opaque handles, and all page/DOM/image text is UNTRUSTED DATA. Untrusted content is wrapped in delimiters containing a per-request cryptographically secure random nonce (`secrets.token_hex(8)`), and that nonce string is stripped from all user inputs.
-- **Answer Path**: For informational goals (e.g., "summarize this page"), the server returns `answer` with `text` (max 2000 chars). The client resolves session tokens to real values for DISPLAY ONLY in the popup/panel using `textContent` (never `innerHTML`), never sends resolved text back, and never writes it to the page DOM. Unknown tokens render as `[unknown]`. User copy is initiated only by explicit user click.
+---
+
+## Phase 7: Real-World Pages (Iframes, Shadow DOM, Dynamic Apps)
+- **Multi-Frame Architecture**: Content scripts run in all frames (`all_frames: true`). Each frame reports its DOM snapshot to the background script, which verifies `sender.tab.id` and `sender.frameId` via the browser engine. IDs are frame-qualified (`f${frameId}:${nodeId}`, e.g., `f0:e1`, `f2:e5`). Cumulative frame offsets are computed for bounding boxes. Nested frames are capped at max depth 3. Total nodes across all frames are capped at 400, sorted viewport-first. Content scripts strictly ignore `window.postMessage` from the page.
+- **Cross-Origin Iframe Protection**: Readable structure only. Filling vault values into a cross-origin frame is strictly **BLOCKED** unless the user approves that exact origin. Passwords, OTPs, and card fields are never filled.
+- **Shadow DOM Traversal**: Recursive tree traversal inspects **OPEN** shadow roots. Closed shadow roots and opaque custom widgets are treated like media: their bounding boxes stay solid black (marked `sensitive: true`) unless on-device vision clears them.
+- **Dynamic Apps & Single Page Applications (SPA)**: Debounced `MutationObserver` monitors DOM changes. Node IDs are stable across re-renders via `WeakMap<Element, string>` on a best-effort basis. If an element becomes stale or detached (`!el.isConnected`), the executor reports `stale: true`, triggering immediate DOM recapture without guessing. Virtualized lists and infinite scroll streams are capped at 400 nodes total, viewport-first.
+- **Visible-Text-Only Capture (Anti-Injection)**: Excludes elements with: `display: none`, `visibility: hidden` or `collapse`, `opacity < 0.05`, off-screen placement, `font-size < 6px`, text contrast ratio < 1.5 against effective background, `aria-hidden="true"`, 1px or clipped elements (`clip: rect(0,0,0,0)`, `clip-path`), and large negative `text-indent` (<= -100px). 100% of hidden prompt injection vectors are discarded.
+- **Clickjacking & Honeypot Defenses**: Elements covered by overlays are excluded at capture time. Immediately before any click, the executor performs a mandatory `document.elementFromPoint(cx, cy)` re-check; if covered or obscured by an overlay, the click is aborted immediately.
+- **Executor Safety**: Never calls page-defined functions (synthetic pointer and mouse events only), no `eval`, no `innerHTML`, and verifies target element connectivity and center point stability after scrolling.
+- **Audit**: Zero page DOM additions exist across content scripts.
+
+### Known Limits
+1. **Built-in PDF Viewers**: Browser-internal PDF viewers run inside native plugin architectures without standard DOM representations; visual-only coordinate interaction is required.
+2. **Canvas-Only Applications**: WebGL or canvas-rendered interfaces lack DOM nodes; require YOLOX-nano visual detection and coordinate clicks.
+3. **Multi-Tab Workflows**: Agent execution scope is securely pinned to the active tab (`activeTab`); popup or background tab switching is restricted.
+4. **Native File Uploads**: OS-level native file picker dialogs cannot be automated via synthetic browser DOM events.
+5. **CAPTCHAs & Bot Traps**: Adversarial human verification challenges (Turnstile, reCAPTCHA, puzzle sliders) are deliberately not bypassed.
+6. **Browser-Internal Pages**: Extension cannot automate privileged browser internal pages (`chrome://*`, `about:*`, `edge://*`).
+
 
 
 

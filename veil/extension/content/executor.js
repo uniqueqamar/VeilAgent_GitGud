@@ -1,24 +1,27 @@
 // Executes one action by element ID. Real PII values are substituted by the
 // background script from the local vault and never come from the server.
+// Strictly enforces synthetic events only, anti-clickjacking, and stale-element recapture.
 (() => {
   if (globalThis.__veil_executor_loaded) return;
   globalThis.__veil_executor_loaded = true;
 
   const api = globalThis.browser ?? globalThis.chrome;
 
+  // Native prototype property setter (Task 7: never invoke page-defined function overrides)
   function setValue(el, value) {
     const proto = el.tagName === 'TEXTAREA' ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
     const desc = Object.getOwnPropertyDescriptor(proto, 'value');
     if (desc && desc.set) {
-      desc.set.call(el, value); // works with React and frameworks
+      desc.set.call(el, value);
     } else {
       el.value = value;
     }
-    el.dispatchEvent(new Event('input', { bubbles: true }));
+    // Synthetic events only (Task 7)
+    el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true, data: value }));
     el.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
-  function waitForDomQuiet(quietMs = 300, maxTimeoutMs = 3000) {
+  function waitForDomQuiet(quietMs = 250, maxTimeoutMs = 2500) {
     return new Promise((resolve) => {
       let timer = null;
       let maxTimer = null;
@@ -41,19 +44,32 @@
           timer = setTimeout(done, quietMs);
         });
 
-        observer.observe(document.documentElement || document.body, {
-          childList: true,
-          subtree: true,
-          attributes: true,
-          characterData: true
-        });
-      } catch (_) {
-        // Fallback if MutationObserver fails
-      }
+        if (document.documentElement || document.body) {
+          observer.observe(document.documentElement || document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            characterData: true
+          });
+        }
+      } catch (_) {}
 
       timer = setTimeout(done, quietMs);
       maxTimer = setTimeout(done, maxTimeoutMs);
     });
+  }
+
+  // Resolve target element supporting both local ("e5") and frame-qualified ("f2:e5") IDs
+  function resolveTargetElement(targetId, idToEl) {
+    if (!targetId || !idToEl) return null;
+    if (idToEl.has(targetId)) return idToEl.get(targetId);
+
+    // If frame-qualified like "f0:e5" or "f2:e5", strip prefix and check
+    const m = targetId.match(/^f\d+:(.*)$/);
+    if (m && idToEl.has(m[1])) {
+      return idToEl.get(m[1]);
+    }
+    return null;
   }
 
   async function executeAction(action) {
@@ -67,15 +83,9 @@
     }
 
     if (action.action === 'scroll') {
-      window.scrollBy({ top: action.value === 'up' ? -600 : 600, behavior: 'smooth' });
-      await waitForDomQuiet(300, 3000);
+      window.scrollBy({ top: action.value === 'up' ? -600 : 600, behavior: 'instant' });
+      await waitForDomQuiet(200, 2000);
       return { ok: true };
-    }
-
-    // click, type, select require target_id
-    const { idToEl } = globalThis.__veil || {};
-    if (!idToEl) {
-      return { ok: false, error: 'DOM capture not initialized' };
     }
 
     // Coordinate click for visual_only nodes (Invariant 16 & Task 4)
@@ -85,11 +95,14 @@
       if (!targetEl) {
         return { ok: false, error: `no element found at coordinates (${px}, ${py})` };
       }
+      // Synthetic events only (Task 7)
       const evOpts = { clientX: px, clientY: py, bubbles: true, cancelable: true, view: window };
+      targetEl.dispatchEvent(new PointerEvent('pointerdown', evOpts));
       targetEl.dispatchEvent(new MouseEvent('mousedown', evOpts));
+      targetEl.dispatchEvent(new PointerEvent('pointerup', evOpts));
       targetEl.dispatchEvent(new MouseEvent('mouseup', evOpts));
       targetEl.dispatchEvent(new MouseEvent('click', evOpts));
-      await waitForDomQuiet(300, 3000);
+      await waitForDomQuiet(200, 2000);
       return { ok: true, coordinateClick: true, coords: [px, py] };
     }
 
@@ -97,9 +110,20 @@
       return { ok: false, error: `missing target_id for action ${action.action}` };
     }
 
-    const el = idToEl.get(action.target_id);
-    if (!el || !document.contains(el)) {
-      return { ok: false, error: `unknown target_id: ${action.target_id}` };
+    const { idToEl } = globalThis.__veil || {};
+    if (!idToEl) {
+      return { ok: false, error: 'DOM capture not initialized' };
+    }
+
+    const el = resolveTargetElement(action.target_id, idToEl);
+
+    // Task 4: Dynamic page stale check - if detached, signal stale and NEVER guess!
+    if (!el || !el.isConnected) {
+      return {
+        ok: false,
+        stale: true,
+        error: `target element ${action.target_id} is stale or detached from document (recapture required)`
+      };
     }
 
     // Element visible and non-zero size
@@ -109,18 +133,18 @@
       return { ok: false, error: `element ${action.target_id} is not visible or has zero size` };
     }
 
-    // Anti-honeypot checks (Task 2)
+    // Anti-honeypot checks (Task 2 & 5)
     const isOffscreen = r.left < -100 || r.top < -100 || r.left > window.innerWidth + 5000;
     const isZeroOpacity = s.opacity === '0' || parseFloat(s.opacity) < 0.05;
     const isHiddenAria = el.getAttribute('aria-hidden') === 'true' && el.tabIndex === -1;
-    const isIndented = parseInt(s.textIndent, 10) < -1000;
+    const isIndented = parseInt(s.textIndent, 10) <= -100;
     const isPointerBlocked = s.pointerEvents === 'none';
 
     if (isOffscreen || isZeroOpacity || isHiddenAria || isIndented || isPointerBlocked) {
       return { ok: false, error: `element ${action.target_id} detected as honeypot` };
     }
 
-    // Form same-origin post verification (Task 2)
+    // Form same-origin post verification
     if (el.form && el.form.action) {
       try {
         const formActionUrl = new URL(el.form.action, window.location.href);
@@ -166,34 +190,68 @@
 
       el.focus();
       setValue(el, action.value);
-      await waitForDomQuiet(300, 3000);
+      await waitForDomQuiet(200, 2000);
       return { ok: true };
     }
 
     if (action.action === 'click') {
+      // Task 7: Target stability across scroll
+      const preScrollEl = el;
       el.scrollIntoView({ block: 'center', behavior: 'instant' });
-      el.click();
-      await waitForDomQuiet(300, 3000);
+
+      // Verify target is unchanged and still connected after scroll (Task 7)
+      if (!preScrollEl.isConnected || preScrollEl !== el) {
+        return {
+          ok: false,
+          stale: true,
+          error: `target element ${action.target_id} changed or detached during scroll`
+        };
+      }
+
+      // Task 6: Clickjacking and honeypots immediately before click re-check
+      const curBox = el.getBoundingClientRect();
+      const cx = Math.round(curBox.left + curBox.width / 2);
+      const cy = Math.round(curBox.top + curBox.height / 2);
+
+      const topEl = document.elementFromPoint(cx, cy);
+      if (!topEl || (topEl !== el && !el.contains(topEl))) {
+        return {
+          ok: false,
+          error: `clickjacking overlay detected: elementFromPoint at center (${cx}, ${cy}) did not match target element`
+        };
+      }
+
+      // Task 7: Synthetic events only (never call el.click() to avoid malicious page overrides)
+      const evOpts = { clientX: cx, clientY: cy, bubbles: true, cancelable: true, view: window };
+      el.dispatchEvent(new PointerEvent('pointerdown', evOpts));
+      el.dispatchEvent(new MouseEvent('mousedown', evOpts));
+      el.focus();
+      el.dispatchEvent(new PointerEvent('pointerup', evOpts));
+      el.dispatchEvent(new MouseEvent('mouseup', evOpts));
+      el.dispatchEvent(new MouseEvent('click', evOpts));
+
+      await waitForDomQuiet(200, 2000);
       return { ok: true };
     }
 
     if (action.action === 'select') {
       el.value = action.value;
       el.dispatchEvent(new Event('change', { bubbles: true }));
-      await waitForDomQuiet(300, 3000);
+      await waitForDomQuiet(200, 2000);
       return { ok: true };
     }
 
     return { ok: false, error: `unsupported action: ${action.action}` };
   }
 
-  api.runtime.onMessage.addListener((msg, _s, reply) => {
+  // Content script execution listener (Never accepts window.postMessage from page)
+  api.runtime.onMessage.addListener((msg, sender, reply) => {
     if (msg?.type === 'PING') {
       reply({ ok: true });
       return false;
     }
     if (msg?.type === 'WAIT_QUIET') {
-      waitForDomQuiet(300, 3000).then(() => reply({ ok: true }));
+      waitForDomQuiet(250, 2500).then(() => reply({ ok: true }));
       return true;
     }
     if (msg?.type === 'EXECUTE') {
@@ -204,4 +262,3 @@
     }
   });
 })();
-

@@ -296,8 +296,61 @@ async function executeStep(tabId, action, rawAction, goal, step, history, nodes,
     await appendLog(`Auto-approved risky click: ${action.target_id}`);
   }
 
+  // Target frame handling (Task 1 & 2)
+  let targetFrameId = 0;
+  let localTargetId = action.target_id;
+  if (action.target_id) {
+    const m = action.target_id.match(/^f(\d+):(.*)$/);
+    if (m) {
+      targetFrameId = parseInt(m[1], 10);
+      localTargetId = m[2];
+    }
+  }
+
+  // Cross-origin iframe vault filling protection (Task 2)
+  const targetFrameOrigin = targetNode?.frameOrigin || frameOriginsMap.get(targetFrameId);
+  const topOrigin = options.topOrigin;
+  const isCrossOriginFrame = targetFrameOrigin && topOrigin && targetFrameOrigin !== topOrigin;
+
+  if (isCrossOriginFrame && action.action === 'type' && action.value) {
+    const isVaultValue = (rawAction.value && rawAction.value.includes('[')) ||
+                         (rawAction.value && rawAction.value.includes('{{')) ||
+                         action.value !== rawAction.value;
+    if (isVaultValue) {
+      const { approvedOrigins = [] } = await api.storage.local.get('approvedOrigins');
+      if (!approvedOrigins.includes(targetFrameOrigin)) {
+        await updateState({
+          status: 'waiting_approval',
+          pendingAction: action,
+          rawAction,
+          goal,
+          step,
+          history,
+          tabId,
+          approvalReason: `Cross-origin vault fill blocked for frame origin "${targetFrameOrigin}". User approval required.`
+        });
+        await appendLog(`Approval required: Filling vault credentials into cross-origin frame (${targetFrameOrigin}) is blocked by default.`);
+        return { waitingApproval: true };
+      }
+    }
+  }
+
   // Content script receives ONLY the single action with its specific value (never the vault!)
-  const result = await api.tabs.sendMessage(tabId, { type: 'EXECUTE', action });
+  const actionForContent = { ...action, target_id: localTargetId };
+  const msgOpts = targetFrameId > 0 ? { frameId: targetFrameId } : undefined;
+  let result;
+  try {
+    result = await api.tabs.sendMessage(tabId, { type: 'EXECUTE', action: actionForContent }, msgOpts);
+  } catch (execErr) {
+    result = await api.tabs.sendMessage(tabId, { type: 'EXECUTE', action: actionForContent });
+  }
+
+  // Dynamic page stale ID handling - recapture without guessing (Task 4)
+  if (result?.stale) {
+    await appendLog(`Stale element detected for ${action.target_id}: dynamic DOM changed. Recapturing without guessing.`);
+    return { ok: false, stale: true };
+  }
+
   if (!result?.ok) {
     const err = result?.error ?? 'unknown execution error';
     await appendLog('Execution failed: ' + err);
@@ -364,6 +417,120 @@ async function runAgent(goal) {
   await runLoopFrom(tab.id, goal, 1, history, tab.url);
 }
 
+// Frame origin map for security and vault protection (Task 1 & 2)
+const frameOriginsMap = new Map();
+
+async function captureAllFrames(tabId) {
+  frameOriginsMap.clear();
+  let frameSnapshots = [];
+
+  // Try scripting executeScript in all frames (Task 1)
+  if (api.scripting?.executeScript) {
+    try {
+      const results = await api.scripting.executeScript({
+        target: { tabId, allFrames: true },
+        func: () => {
+          return globalThis.__veil?.capture ? globalThis.__veil.capture() : null;
+        }
+      });
+      frameSnapshots = (results || [])
+        .filter((r) => r && r.result)
+        .map((r) => ({ frameId: r.frameId ?? 0, dom: r.result }));
+    } catch (_) {}
+  }
+
+  // Fallback to tabs.sendMessage if executeScript was empty or unavailable
+  if (frameSnapshots.length === 0) {
+    const single = await api.tabs.sendMessage(tabId, { type: 'CAPTURE' });
+    if (single?.ok && single?.dom) {
+      frameSnapshots = [{ frameId: 0, dom: single.dom }];
+    }
+  }
+
+  if (frameSnapshots.length === 0) {
+    throw new Error('no content script responding on active tab');
+  }
+
+  // Find top frame (frameId 0 or isTop)
+  const topSnapshot = frameSnapshots.find((f) => f.frameId === 0 || f.dom?.isTop) || frameSnapshots[0];
+  const topOrigin = topSnapshot.dom.origin || (new URL(topSnapshot.dom.url)).origin;
+  frameOriginsMap.set(topSnapshot.frameId, topOrigin);
+
+  const allNodes = [];
+  const topViewport = topSnapshot.dom.viewport || [1280, 800];
+
+  // Frame 0 nodes (qualified with f0: or frameId)
+  for (const node of (topSnapshot.dom.nodes || [])) {
+    const qualifiedId = node.id.startsWith('f') ? node.id : `f${topSnapshot.frameId}:${node.id}`;
+    allNodes.push({
+      ...node,
+      id: qualifiedId,
+      frameId: topSnapshot.frameId,
+      frameOrigin: topOrigin
+    });
+  }
+
+  // Subframes handling (Task 1 & 2) - max depth 3, cap 400 nodes
+  const childIframes = topSnapshot.dom.childFrames || [];
+  const subframes = frameSnapshots.filter((f) => f !== topSnapshot);
+
+  for (let i = 0; i < subframes.length; i++) {
+    const sub = subframes[i];
+    const subOrigin = sub.dom.origin || 'about:blank';
+    frameOriginsMap.set(sub.frameId, subOrigin);
+
+    // Compute frame offset from top frame's childIframes if available
+    let frameOffset = [0, 0];
+    if (i < childIframes.length && childIframes[i].bbox) {
+      frameOffset = [childIframes[i].bbox[0], childIframes[i].bbox[1]];
+    }
+
+    for (const node of (sub.dom.nodes || [])) {
+      const qualifiedId = node.id.startsWith('f') ? node.id : `f${sub.frameId}:${node.id}`;
+      const adjustedBox = [
+        node.bbox[0] + frameOffset[0],
+        node.bbox[1] + frameOffset[1],
+        node.bbox[2],
+        node.bbox[3]
+      ];
+      allNodes.push({
+        ...node,
+        id: qualifiedId,
+        frameId: sub.frameId,
+        frameOrigin: subOrigin,
+        bbox: adjustedBox
+      });
+    }
+  }
+
+  // Viewport-first sorting across all nodes (Task 1 & 5)
+  const vw = topViewport[0];
+  const vh = topViewport[1];
+  allNodes.sort((a, b) => {
+    const aInView = a.bbox[0] >= 0 && a.bbox[1] >= 0 && a.bbox[0] < vw && a.bbox[1] < vh;
+    const bInView = b.bbox[0] >= 0 && b.bbox[1] >= 0 && b.bbox[0] < vw && b.bbox[1] < vh;
+    if (aInView && !bInView) return -1;
+    if (!aInView && bInView) return 1;
+    return 0;
+  });
+
+  // Cap at 400 nodes total (Task 1 & 4)
+  const cappedNodes = allNodes.slice(0, 400);
+
+  return {
+    ok: true,
+    dom: {
+      url: topSnapshot.dom.url,
+      title: topSnapshot.dom.title,
+      viewport: topViewport,
+      scrollY: topSnapshot.dom.scrollY,
+      nodes: cappedNodes
+    },
+    topOrigin,
+    frameOrigins: frameOriginsMap
+  };
+}
+
 async function runLoopFrom(tabId, goal, startStep, history, tabUrl) {
   if (!tabUrl) {
     try {
@@ -389,10 +556,10 @@ async function runLoopFrom(tabId, goal, startStep, history, tabUrl) {
       return;
     }
 
-    // Capture sanitized DOM
+    // Capture sanitized DOM across all frames (Task 1)
     let cap;
     try {
-      cap = await api.tabs.sendMessage(tabId, { type: 'CAPTURE' });
+      cap = await captureAllFrames(tabId);
       if (!cap?.ok || !cap?.dom) throw new Error('invalid capture response');
     } catch (e) {
       const msg = 'Error: no content script responding on active tab (' + e.message + ')';
@@ -575,11 +742,15 @@ async function runLoopFrom(tabId, goal, startStep, history, tabUrl) {
         step,
         history,
         cap.dom.nodes,
-        { viewport: cap.dom.viewport, redactions: redactionManifest }
+        { viewport: cap.dom.viewport, redactions: redactionManifest, topOrigin: cap.topOrigin }
       );
       if (stepResult.stopped || stepResult.error) return;
       if (stepResult.waitingApproval) {
         return;
+      }
+      if (stepResult.stale) {
+        // Dynamic re-render: DOM will be refreshed on next step without guessing (Task 4)
+        continue;
       }
     }
   }
@@ -636,11 +807,30 @@ api.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       await appendLog(`Approved by user: ${state.pendingAction.action} on ${state.pendingAction.target_id}`);
       await updateState({ status: 'running' });
 
-      // Execute approved action
-      const result = await api.tabs.sendMessage(state.tabId, {
-        type: 'EXECUTE',
-        action: state.pendingAction
-      });
+      // Execute approved action with target frame routing
+      let targetFrameId = 0;
+      let localTargetId = state.pendingAction.target_id;
+      if (state.pendingAction.target_id) {
+        const m = state.pendingAction.target_id.match(/^f(\d+):(.*)$/);
+        if (m) {
+          targetFrameId = parseInt(m[1], 10);
+          localTargetId = m[2];
+        }
+      }
+      const actionForContent = { ...state.pendingAction, target_id: localTargetId };
+      const msgOpts = targetFrameId > 0 ? { frameId: targetFrameId } : undefined;
+      let result;
+      try {
+        result = await api.tabs.sendMessage(state.tabId, {
+          type: 'EXECUTE',
+          action: actionForContent
+        }, msgOpts);
+      } catch (_) {
+        result = await api.tabs.sendMessage(state.tabId, {
+          type: 'EXECUTE',
+          action: actionForContent
+        });
+      }
 
       if (!result?.ok) {
         const err = result?.error ?? 'execution error';
