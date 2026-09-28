@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "Veil Agent",
+  "version": "0.1.0",
+  "description": "Privacy-preserving on-device browser agent. Sensitive data never leaves the browser.",
+  "permissions": ["activeTab", "scripting", "storage", "tabs"],
+  "host_permissions": ["http://localhost:8000/*", "http://127.0.0.1:8000/*"],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background/orchestrator.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["workers/pii.js", "content/dom-capture.js", "content/executor.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "ui/popup.html",
+    "default_title": "Veil Agent",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["models/*", "lib/*", "workers/*"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": { "id": "veil-agent@example.com", "strict_min_version": "128.0" }
+  }
+}

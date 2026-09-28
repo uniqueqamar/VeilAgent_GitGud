@@ -1,0 +1,195 @@
+{
+  "sample_id": "template_table_vp1280x800_z75_light_1",
+  "template": "template_table",
+  "split": "train",
+  "viewport": [
+    1280,
+    800
+  ],
+  "zoom": 0.75,
+  "theme": "light",
+  "font": "system-ui, sans-serif",
+  "image": "template_table_vp1280x800_z75_light_1.png",
+  "elements": [
+    {
+      "class": "button",
+      "box": [
+        1184,
+        26,
+        78,
+        25
+      ],
+      "id": "btn-add"
+    },
+    {
+      "class": "button",
+      "box": [
+        1071,
+        222,
+        64,
+        25
+      ],
+      "id": "btn-prev"
+    },
+    {
+      "class": "button",
+      "box": [
+        1141,
+        222,
+        31,
+        25
+      ],
+      "id": "btn-page-1"
+    },
+    {
+      "class": "button",
+      "box": [
+        1179,
+        222,
+        31,
+        25
+      ],
+      "id": "btn-page-2"
+    },
+    {
+      "class": "button",
+      "box": [
+        1216,
+        222,
+        46,
+        25
+      ],
+      "id": "btn-next"
+    },
+    {
+      "class": "text_input",
+      "box": [
+        933,
+        26,
+        142,
+        25
+      ],
+      "id": "search-filter"
+    },
+    {
+      "class": "checkbox",
+      "box": [
+        34,
+        85,
+        10,
+        10
+      ],
+      "id": "select-all"
+    },
+    {
+      "class": "checkbox",
+      "box": [
+        34,
+        119,
+        10,
+        10
+      ],
+      "id": "row-1"
+    },
+    {
+      "class": "checkbox",
+      "box": [
+        34,
+        153,
+        10,
+        10
+      ],
+      "id": "row-2"
+    },
+    {
+      "class": "checkbox",
+      "box": [
+        34,
+        187,
+        10,
+        10
+      ],
+      "id": "row-3"
+    },
+    {
+      "class": "dropdown",
+      "box": [
+        1084,
+        26,
+        91,
+        25
+      ],
+      "id": "status-filter"
+    },
+    {
+      "class": "link",
+      "box": [
+        982,
+        118,
+        34,
+        14
+      ],
+      "id": "link-view-1"
+    },
+    {
+      "class": "link",
+      "box": [
+        1029,
+        118,
+        34,
+        14
+      ],
+      "id": "link-edit-1"
+    },
+    {
+      "class": "link",
+      "box": [
+        982,
+        152,
+        34,
+        14
+      ],
+      "id": "link-view-2"
+    },
+    {
+      "class": "link",
+      "box": [
+        1029,
+        152,
+        34,
+        14
+      ],
+      "id": "link-edit-2"
+    },
+    {
+      "class": "link",
+      "box": [
+        982,
+        186,
+        34,
+        14
+      ],
+      "id": "link-view-3"
+    },
+    {
+      "class": "link",
+      "box": [
+        1029,
+        186,
+        34,
+        14
+      ],
+      "id": "link-edit-3"
+    },
+    {
+      "class": "table",
+      "box": [
+        18,
+        73,
+        1244,
+        137
+      ],
+      "id": "records-table"
+    }
+  ]
+}

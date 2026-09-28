@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Veil Agent</title>
+<style>
+  :root {
+    --ink: #0f172a;
+    --paper: #f8fafc;
+    --card: #ffffff;
+    --line: #e2e8f0;
+    --primary: #0284c7;
+    --primary-hover: #0369a1;
+    --signal: #0d9488;
+    --danger: #e11d48;
+    --warning: #d97706;
+    --warning-bg: #fffbeb;
+    --warning-border: #fde68a;
+    --badge-bg: #f1f5f9;
+    --text-muted: #64748b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    width: 400px;
+    margin: 0;
+    padding: 14px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 13.5px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  h1 { font-size: 16px; margin: 0; font-weight: 700; letter-spacing: -0.2px; }
+  .status-badge {
+    padding: 3px 8px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--badge-bg);
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .status-badge.running { background: #e0f2fe; color: #0369a1; }
+  .status-badge.waiting { background: #fef3c7; color: #b45309; }
+  .status-badge.done { background: #dcfce7; color: #15803d; }
+  .status-badge.stopped { background: #f1f5f9; color: #64748b; }
+  .status-badge.error { background: #ffe4e6; color: #be123c; }
+
+  p.sub { margin: 0 0 10px; color: var(--text-muted); font-size: 12px; }
+
+  /* Mode Toggle */
+  .mode-container {
+    display: flex;
+    background: #e2e8f0;
+    padding: 3px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    gap: 4px;
+  }
+  .mode-btn {
+    flex: 1;
+    padding: 6px 10px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+  }
+  .mode-btn.active {
+    background: var(--card);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  textarea {
+    width: 100%;
+    height: 52px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font: inherit;
+    resize: none;
+    background: var(--card);
+    color: inherit;
+  }
+  textarea:focus-visible, button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+  .btn-row { display: flex; gap: 8px; margin-top: 8px; }
+  button.action-btn {
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--ink);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+  button.action-btn:hover { opacity: 0.9; }
+  button.action-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  #run { flex: 2; background: var(--primary); }
+  #run:hover { background: var(--primary-hover); }
+  #stop { flex: 1; background: #64748b; }
+  #stop.danger { background: var(--danger); }
+
+  #approval-box {
+    margin-top: 10px;
+    padding: 10px;
+    background: var(--warning-bg);
+    border: 1px solid var(--warning-border);
+    border-radius: 8px;
+    display: none;
+  }
+  #approval-box.visible { display: block; }
+  .approval-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--warning);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .approval-desc {
+    font-size: 12.5px;
+    margin-bottom: 8px;
+    word-break: break-word;
+  }
+  .approval-btns { display: flex; gap: 8px; }
+  #approve-btn { flex: 1; background: var(--signal); padding: 6px 10px; font-size: 12.5px; border-radius: 6px; }
+  #skip-btn { flex: 1; background: #64748b; padding: 6px 10px; font-size: 12.5px; border-radius: 6px; }
+
+  /* Receipt & Inspection Section */
+  .card {
+    margin-top: 10px;
+    padding: 10px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .card-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.4px;
+  }
+  .receipt-details {
+    font-size: 11.5px;
+    color: #334155;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .receipt-hash {
+    grid-column: span 2;
+    font-family: ui-monospace, Menlo, Monaco, Consolas, monospace;
+    font-size: 10.5px;
+    background: #f1f5f9;
+    padding: 3px 6px;
+    border-radius: 4px;
+    word-break: break-all;
+  }
+  .card-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .sec-btn {
+    flex: 1;
+    padding: 5px 8px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    text-align: center;
+  }
+  .sec-btn:hover { background: #edf2f7; }
+
+  /* Log Box */
+  #log {
+    margin-top: 10px;
+    padding: 8px 10px;
+    min-height: 70px;
+    max-height: 130px;
+    overflow-y: auto;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font: 11.5px/1.45 ui-monospace, Menlo, Monaco, Consolas, monospace;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: #334155;
+  }
+
+  /* Inspection Overlay Modal */
+  #inspect-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(2px);
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+    padding: 12px;
+  }
+  #inspect-modal.open { display: flex; }
+  .modal-content {
+    background: #fff;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  }
+  .modal-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+  }
+  .modal-title { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+  .close-btn {
+    border: 0;
+    background: transparent;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0 4px;
+  }
+  .modal-body {
+    padding: 12px;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .inspect-tabs {
+    display: flex;
+    gap: 6px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 6px;
+  }
+  .inspect-tab-btn {
+    padding: 4px 10px;
+    border: 0;
+    border-radius: 4px;
+    background: #e2e8f0;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .inspect-tab-btn.active {
+    background: var(--primary);
+    color: #fff;
+  }
+  .img-preview-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+  .img-preview-box {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #f1f5f9;
+    text-align: center;
+    padding: 4px;
+  }
+  .img-preview-box img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 4px;
+  }
+  .manifest-list {
+    font-family: ui-monospace, Menlo, Monaco, Consolas, monospace;
+    font-size: 11px;
+    background: #f8fafc;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 8px;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <img src="../icons/icon32.png" alt="Veil Agent" style="width: 22px; height: 22px; border-radius: 5px;">
+      <h1>Veil Agent</h1>
+    </div>
+    <span id="status-badge" class="status-badge">Ready</span>
+  </div>
+  <p class="sub">Privacy-preserving agent. Sensitive data never leaves your device.</p>
+
+  <!-- Mode Toggle -->
+  <div class="mode-container" role="radiogroup" aria-label="Privacy Operating Mode">
+    <button type="button" id="mode-balanced" class="mode-btn active" role="radio" aria-checked="true" title="Redacted screenshot + tokens">Balanced Mode</button>
+    <button type="button" id="mode-strict" class="mode-btn" role="radio" aria-checked="false" title="Tokens only, zero screenshots">Strict Mode</button>
+  </div>
+
+  <textarea id="goal" placeholder="Example: fill the KYC form and submit">fill the form and submit</textarea>
+  <div class="btn-row">
+    <button type="button" id="run" class="action-btn">Run task</button>
+    <button type="button" id="stop" class="action-btn" disabled>Stop</button>
+  </div>
+
+  <div id="approval-box">
+    <div class="approval-title">Approval Required</div>
+    <div id="approval-desc" class="approval-desc">Confirm action</div>
+    <div class="approval-btns">
+      <button type="button" id="approve-btn" class="action-btn">Approve</button>
+      <button type="button" id="skip-btn" class="action-btn">Skip</button>
+    </div>
+  </div>
+
+  <!-- Answer Display Card (Task 7) -->
+  <div class="card" id="answer-card" style="display:none; background: #f0fdf4; border-color: #bbf7d0;">
+    <div class="card-header">
+      <span class="card-title" style="color: #166534;">Answer</span>
+      <button type="button" id="copy-answer-btn" class="sec-btn" style="flex:none; padding: 2px 8px; font-size:11px;">Copy Answer</button>
+    </div>
+    <div id="answer-text" style="font-size: 13px; color: #14532d; white-space: pre-wrap; word-break: break-word; line-height: 1.45;"></div>
+  </div>
+
+  <!-- On-Device Vision Engine Card (Task 9) -->
+  <div class="card" id="vision-card">
+    <div class="card-header">
+      <span class="card-title">On-Device Vision</span>
+      <span id="vision-backend-badge" style="font-size: 10.5px; font-weight: 600; color: var(--primary);">WASM SIMD</span>
+    </div>
+    <div class="receipt-details">
+      <div>Models: <strong id="vision-models-status">UltraFace + PaddleOCR</strong></div>
+      <div>Latency: <strong id="vision-latency">—</strong></div>
+      <div>Cleared: <strong id="vision-cleared-count">0</strong></div>
+      <div>Blacked Out: <strong id="vision-blacked-count">0</strong></div>
+    </div>
+  </div>
+
+  <!-- Tamper-evident Audit Receipt Card -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Latest Receipt (Tamper-Evident)</span>
+      <span id="receipt-mode-badge" style="font-size: 10.5px; font-weight: 600; color: var(--signal);">None</span>
+    </div>
+    <div class="receipt-details">
+      <div>Bytes Sent: <strong id="receipt-bytes">0 B</strong></div>
+      <div>PII Blocked: <strong id="receipt-pii">None</strong></div>
+      <div id="receipt-hash-container" class="receipt-hash">SHA-256 Hash: &mdash;</div>
+    </div>
+    <div class="card-actions">
+      <button type="button" id="inspect-btn" class="sec-btn">What Server Sees</button>
+      <button type="button" id="export-receipts-btn" class="sec-btn">Export Receipts</button>
+    </div>
+  </div>
+
+  <div id="log" aria-live="polite">Ready.</div>
+
+  <!-- What the server sees modal -->
+  <div id="inspect-modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span id="modal-heading" class="modal-title">What the Server Sees</span>
+        <button type="button" id="close-modal-btn" class="close-btn" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="inspect-tabs">
+          <button type="button" id="tab-overlays" class="inspect-tab-btn active">Box Overlays</button>
+          <button type="button" id="tab-redacted" class="inspect-tab-btn">Redacted Image</button>
+          <button type="button" id="tab-original" class="inspect-tab-btn">Original</button>
+          <button type="button" id="tab-manifest" class="inspect-tab-btn">Manifest</button>
+        </div>
+
+        <div id="panel-overlays" class="img-preview-container">
+          <div class="img-preview-box" style="position:relative;">
+            <canvas id="overlay-canvas" style="max-width:100%; height:auto; display:none; border-radius:4px;"></canvas>
+            <div id="overlay-canvas-placeholder" style="padding: 30px; color: var(--text-muted); font-size: 12px;">No screenshot or overlays recorded.</div>
+          </div>
+          <div style="font-size: 10.5px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 4px;">
+            <span><strong style="color:#ef4444;">■</strong> Face</span>
+            <span><strong style="color:#f97316;">■</strong> PII Text</span>
+            <span><strong style="color:#a855f7;">■</strong> DOM PII</span>
+            <span><strong style="color:#22c55e;">▢</strong> Media Cleared</span>
+            <span><strong style="color:#0f172a;">■</strong> Media Blacked</span>
+          </div>
+        </div>
+
+        <div id="panel-redacted" class="img-preview-container" style="display:none;">
+          <div class="img-preview-box">
+            <img id="redacted-img" alt="Redacted screenshot as sent to server" src="">
+            <div id="redacted-img-placeholder" style="padding: 30px; color: var(--text-muted); font-size: 12px;">No redacted image captured yet (Strict mode or idle).</div>
+          </div>
+        </div>
+
+        <div id="panel-original" class="img-preview-container" style="display:none;">
+          <div class="img-preview-box">
+            <img id="original-img" alt="Original screenshot kept in memory only" src="">
+            <div id="original-img-placeholder" style="padding: 30px; color: var(--text-muted); font-size: 12px;">Original is dereferenced or captured in Strict mode.</div>
+          </div>
+          <p style="font-size: 11px; color: var(--text-muted); margin: 0;">Original screenshot resides strictly in volatile memory and is purged on view close.</p>
+        </div>
+
+        <div id="panel-manifest" style="display:none;">
+          <div class="manifest-list" id="manifest-content">No redaction manifest recorded.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

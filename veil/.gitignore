@@ -1,0 +1,33 @@
+# Secrets and Environment Variables (Invariant 11)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.token
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+env/
+
+# Node / Extension artifacts
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,85 @@
+{
+  "sample_id": "template_finance_table_vp1920x1080_z75_dark_10",
+  "template": "template_finance_table",
+  "split": "held_out",
+  "viewport": [
+    1920,
+    1080
+  ],
+  "zoom": 0.75,
+  "theme": "dark",
+  "font": "system-ui, sans-serif",
+  "image": "template_finance_table_vp1920x1080_z75_dark_10.png",
+  "elements": [
+    {
+      "class": "button",
+      "box": [
+        1795,
+        30,
+        102,
+        25
+      ],
+      "id": "btn-download-statement"
+    },
+    {
+      "class": "text_input",
+      "box": [
+        1560,
+        30,
+        142,
+        25
+      ],
+      "id": "txn-search"
+    },
+    {
+      "class": "dropdown",
+      "box": [
+        1711,
+        30,
+        75,
+        25
+      ],
+      "id": "currency-select"
+    },
+    {
+      "class": "link",
+      "box": [
+        1554,
+        136,
+        59,
+        14
+      ],
+      "id": "link-rec-1"
+    },
+    {
+      "class": "link",
+      "box": [
+        1554,
+        171,
+        59,
+        14
+      ],
+      "id": "link-rec-2"
+    },
+    {
+      "class": "link",
+      "box": [
+        1554,
+        206,
+        59,
+        14
+      ],
+      "id": "link-rec-3"
+    },
+    {
+      "class": "table",
+      "box": [
+        23,
+        94,
+        1875,
+        136
+      ],
+      "id": "finance-table"
+    }
+  ]
+}

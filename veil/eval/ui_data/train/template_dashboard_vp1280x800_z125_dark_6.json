@@ -1,0 +1,185 @@
+{
+  "sample_id": "template_dashboard_vp1280x800_z125_dark_6",
+  "template": "template_dashboard",
+  "split": "train",
+  "viewport": [
+    1280,
+    800
+  ],
+  "zoom": 1.25,
+  "theme": "dark",
+  "font": "Courier New, monospace",
+  "image": "template_dashboard_vp1280x800_z125_dark_6.png",
+  "elements": [
+    {
+      "class": "button",
+      "box": [
+        1037,
+        30,
+        42,
+        40
+      ],
+      "id": "btn-refresh"
+    },
+    {
+      "class": "button",
+      "box": [
+        1092,
+        30,
+        148,
+        40
+      ],
+      "id": "btn-export"
+    },
+    {
+      "class": "button",
+      "box": [
+        381,
+        542,
+        149,
+        41
+      ],
+      "id": "btn-filter-24h"
+    },
+    {
+      "class": "button",
+      "box": [
+        545,
+        542,
+        94,
+        41
+      ],
+      "id": "btn-filter-7d"
+    },
+    {
+      "class": "button",
+      "box": [
+        655,
+        542,
+        158,
+        41
+      ],
+      "id": "btn-audit"
+    },
+    {
+      "class": "text_input",
+      "box": [
+        371,
+        39,
+        350,
+        24
+      ],
+      "id": "query-input"
+    },
+    {
+      "class": "link",
+      "box": [
+        20,
+        86,
+        275,
+        40
+      ],
+      "id": "nav-overview"
+    },
+    {
+      "class": "link",
+      "box": [
+        20,
+        141,
+        275,
+        40
+      ],
+      "id": "nav-traffic"
+    },
+    {
+      "class": "link",
+      "box": [
+        20,
+        196,
+        275,
+        40
+      ],
+      "id": "nav-settings"
+    },
+    {
+      "class": "icon",
+      "box": [
+        20,
+        26,
+        25,
+        25
+      ],
+      "id": ""
+    },
+    {
+      "class": "icon",
+      "box": [
+        35,
+        96,
+        20,
+        20
+      ],
+      "id": ""
+    },
+    {
+      "class": "icon",
+      "box": [
+        35,
+        151,
+        20,
+        20
+      ],
+      "id": ""
+    },
+    {
+      "class": "icon",
+      "box": [
+        35,
+        206,
+        20,
+        20
+      ],
+      "id": ""
+    },
+    {
+      "class": "image",
+      "box": [
+        381,
+        345,
+        835,
+        177
+      ],
+      "id": ""
+    },
+    {
+      "class": "label",
+      "box": [
+        381,
+        127,
+        226,
+        38
+      ],
+      "id": ""
+    },
+    {
+      "class": "label",
+      "box": [
+        684,
+        127,
+        226,
+        19
+      ],
+      "id": ""
+    },
+    {
+      "class": "label",
+      "box": [
+        988,
+        127,
+        226,
+        38
+      ],
+      "id": ""
+    }
+  ]
+}

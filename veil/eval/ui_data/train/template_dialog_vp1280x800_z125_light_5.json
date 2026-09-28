@@ -1,0 +1,95 @@
+{
+  "sample_id": "template_dialog_vp1280x800_z125_light_5",
+  "template": "template_dialog",
+  "split": "train",
+  "viewport": [
+    1280,
+    800
+  ],
+  "zoom": 1.25,
+  "theme": "light",
+  "font": "Georgia, serif",
+  "image": "template_dialog_vp1280x800_z125_light_5.png",
+  "elements": [
+    {
+      "class": "button",
+      "box": [
+        40,
+        125,
+        210,
+        43
+      ],
+      "id": "btn-open-modal"
+    },
+    {
+      "class": "button",
+      "box": [
+        900,
+        248,
+        40,
+        43
+      ],
+      "id": "btn-close-dialog"
+    },
+    {
+      "class": "button",
+      "box": [
+        672,
+        511,
+        104,
+        41
+      ],
+      "id": "btn-dialog-cancel"
+    },
+    {
+      "class": "button",
+      "box": [
+        791,
+        511,
+        149,
+        41
+      ],
+      "id": "btn-dialog-confirm"
+    },
+    {
+      "class": "text_input",
+      "box": [
+        340,
+        395,
+        600,
+        42
+      ],
+      "id": "confirm-reason"
+    },
+    {
+      "class": "checkbox",
+      "box": [
+        345,
+        461,
+        16,
+        16
+      ],
+      "id": "notify-admins"
+    },
+    {
+      "class": "label",
+      "box": [
+        340,
+        369,
+        600,
+        19
+      ],
+      "id": ""
+    },
+    {
+      "class": "dialog",
+      "box": [
+        309,
+        217,
+        662,
+        366
+      ],
+      "id": ""
+    }
+  ]
+}

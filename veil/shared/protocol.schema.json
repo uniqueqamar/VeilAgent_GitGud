@@ -1,0 +1,204 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://veil-agent.local/schemas/v1/protocol.schema.json",
+  "title": "VeilAgentProtocol",
+  "description": "Versioned communication protocol between Veil extension client and planner server",
+  "version": "1.0.0",
+  "definitions": {
+    "Node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "tag", "sensitive", "bbox"],
+      "properties": {
+        "id": { "type": "string", "maxLength": 50 },
+        "tag": { "type": "string", "maxLength": 20 },
+        "role": { "type": ["string", "null"], "maxLength": 30 },
+        "type": { "type": ["string", "null"], "maxLength": 30 },
+        "label": { "type": "string", "maxLength": 100 },
+        "text": { "type": ["string", "null"], "maxLength": 200 },
+        "autocomplete": { "type": ["string", "null"], "maxLength": 50 },
+        "sensitive": { "type": "boolean" },
+        "bbox": {
+          "type": "array",
+          "items": { "type": "integer" },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "pii": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 30 }
+        }
+      }
+    },
+    "Dom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "viewport", "scrollY", "nodes"],
+      "properties": {
+        "url": { "type": "string", "maxLength": 200 },
+        "title": { "type": "string", "maxLength": 100 },
+        "viewport": {
+          "type": "array",
+          "items": { "type": "integer" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "scrollY": { "type": "integer" },
+        "nodes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Node" },
+          "maxItems": 1000
+        }
+      }
+    },
+    "ManifestItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "bbox"],
+      "properties": {
+        "id": { "type": "string", "maxLength": 50 },
+        "type": { "type": "string", "maxLength": 50 },
+        "bbox": {
+          "type": "array",
+          "items": { "type": "integer" },
+          "minItems": 4,
+          "maxItems": 4
+        }
+      }
+    },
+    "HistoryItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "maxLength": 20 },
+        "action": { "type": "string", "maxLength": 20 },
+        "target_id": { "type": ["string", "null"], "maxLength": 50 },
+        "coords": {
+          "type": ["array", "null"],
+          "items": { "type": "integer" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "value": { "type": ["string", "null"], "maxLength": 200 },
+        "text": { "type": ["string", "null"], "maxLength": 2000 },
+        "question": { "type": ["string", "null"], "maxLength": 500 },
+        "reason": { "type": "string", "maxLength": 200 }
+      }
+    },
+    "Request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["v", "mode", "goal", "step", "history", "dom", "manifest", "legend_version"],
+      "properties": {
+        "v": {
+          "type": "string",
+          "pattern": "^[0-9]+(\\.[0-9]+)*$",
+          "maxLength": 10
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["Strict", "Balanced"]
+        },
+        "goal": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "step": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "history": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/HistoryItem" },
+          "maxItems": 8
+        },
+        "dom": {
+          "$ref": "#/definitions/Dom"
+        },
+        "image": {
+          "type": ["string", "null"],
+          "maxLength": 2000000
+        },
+        "manifest": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ManifestItem" },
+          "maxItems": 500
+        },
+        "legend_version": {
+          "type": "string",
+          "maxLength": 20
+        }
+      }
+    },
+    "ActionResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "action", "reason"],
+      "properties": {
+        "type": { "const": "action" },
+        "action": {
+          "type": "string",
+          "enum": ["click", "type", "select", "scroll"]
+        },
+        "target_id": { "type": ["string", "null"], "maxLength": 50 },
+        "coords": {
+          "type": ["array", "null"],
+          "items": { "type": "integer" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "value": { "type": ["string", "null"], "maxLength": 200 },
+        "reason": { "type": "string", "maxLength": 200 }
+      }
+    },
+    "AnswerResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "text", "reason"],
+      "properties": {
+        "type": { "const": "answer" },
+        "text": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "reason": { "type": "string", "maxLength": 200 }
+      }
+    },
+    "AskUserResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "question", "reason"],
+      "properties": {
+        "type": { "const": "ask_user" },
+        "question": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "reason": { "type": "string", "maxLength": 200 }
+      }
+    },
+    "DoneResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "reason"],
+      "properties": {
+        "type": { "const": "done" },
+        "reason": { "type": "string", "maxLength": 200 }
+      }
+    },
+    "FailResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "reason"],
+      "properties": {
+        "type": { "const": "fail" },
+        "reason": { "type": "string", "maxLength": 200 }
+      }
+    },
+    "Response": {
+      "oneOf": [
+        { "$ref": "#/definitions/ActionResponse" },
+        { "$ref": "#/definitions/AnswerResponse" },
+        { "$ref": "#/definitions/AskUserResponse" },
+        { "$ref": "#/definitions/DoneResponse" },
+        { "$ref": "#/definitions/FailResponse" }
+      ]
+    }
+  }
+}
