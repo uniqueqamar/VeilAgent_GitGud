@@ -1,148 +1,67 @@
-# Veil Agent
+# Veil Agent — Privacy-Preserving Smart Form Autofill
 
-> **Zero PII Leakage • On-Device Visual Redaction • Zero-Trust Server Architecture**
+> **Zero PII Leakage • On-Device Encrypted Vault • Safe Form Autofill with Review-Before-Submit**
 
-Veil Agent is a privacy-preserving browser automation system that allows Large Vision-Language Models (VLMs) and AI planners to perform complex web automation tasks without ever seeing sensitive personal information (PII).
-
----
-
-## Key Highlights
-
-- **Local-First Vault (`WebCrypto AES-GCM`)**: Real credentials, names, emails, cards, and national IDs reside strictly in the browser. They are resolved into input fields in volatile memory immediately at execution time.
-- **On-Device Visual Redactor**: Screenshots are captured and redacted entirely in-memory using an `OffscreenCanvas`. Sensitive form inputs, faces (`UltraFace`), and media are replaced with solid black boxes (`#000000`) before transmission.
-- **Fail-Closed Privacy Gatekeeper**: The client-side gatekeeper ([`veil/extension/privacy/gate.js`](file:///d:/downloads/Downloads/veil-skeleton/veil/extension/privacy/gate.js)) is the only module permitted to make network requests. It validates schemas, audits redaction coverage, and terminates the session if unredacted data is detected.
-- **Dual Zero-Trust Boundary**: An independent Python PII Tripwire ([`veil/server/tripwire.py`](file:///d:/downloads/Downloads/veil-skeleton/veil/server/tripwire.py)) on the server scans every incoming string with Luhn, Verhoeff, and pattern algorithms, returning HTTP 422 if an anomaly is found.
-- **Operating Modes**:
-  - **Strict**: Tokenized structural DOM only (zero screenshots transmitted).
-  - **Balanced**: Tokenized DOM + on-device redacted screenshots.
-  - **Open**: Full-fidelity DOM + high-resolution redacted screenshots for visually dense pages.
+Veil Agent is an on-device, privacy-preserving browser extension that automates filling web forms (Google Forms, Job Applications, Government Portals, Signups, KYC) directly from your personal encrypted vault without any external servers or complex model downloads.
 
 ---
 
-## Architecture & Execution Flow
+## 🚀 The Pipeline Flow
 
 ```text
-Browser Page ──> DOM Capture & PII Tokenization ([EMAIL_1], [PHONE_1])
-                      │
-                      ▼
-               Visual Redactor (Solid black boxes over faces, media & sensitive fields)
-                      │
-                      ▼
-               Privacy Gate (Schema validation & redaction coverage verification)
-                      │  POST /plan (Redacted context + tokens only)
-                      ▼
-               Server Planner (Qwen2.5-VL / Deterministic Planner + PII Tripwire)
-                      │  Returns Action (e.g. type f0:e1 {{EMAIL}})
-                      ▼
-               Local Vault Resolution (Resolves token/placeholder inside browser)
-                      │
-                      ▼
-               Safe Execution (Coordinates, boundaries, & consent verified)
+One-time setup:  You → fill vault with all your details
+                        ↓
+Every form:      Agent reads form → matches fields to vault keys → fills automatically
+                        ↓
+                 Password/Aadhaar/PAN → skipped (sensitive)
+                 Submit → asks for approval
 ```
+
+1. **One-Time Setup (`My Vault`)**:
+   Enter every personal, contact, address, education, and career detail once. All details are encrypted on-device using WebCrypto (`AES-GCM` 256-bit with PBKDF2) and stored locally.
+2. **Every Form**:
+   Agent scans the web form, extracts questions and field titles (including Google Forms, React SPAs, and standard HTML5), matches them against your Vault keys, and fills them automatically.
+3. **Sensitive Fields Skipped**:
+   High-risk credentials (`Password`, `Aadhaar`, `PAN`, `SSN`, `Card Number`, `CVV`, `OTP`) are **strictly skipped** and left untouched for maximum security.
+4. **Submit Asks for Approval**:
+   The agent **never** automatically submits forms. When all fields are filled, it generates an interactive review card in the popup showing all filled fields and skipped sensitive fields, requiring your explicit **"Approve & Submit"** before clicking the form's submit button.
 
 ---
 
-## Quickstart Guide
+## 📦 How to Install and Run in Google Chrome
 
-### 1. Prerequisites
-- **Node.js** 18+
-- **Python** 3.10+
-- **Google Chrome**, **Brave**, or **Mozilla Firefox**
-
-### 2. Start the Backend Server
-```bash
-cd veil/server
-
-# Install dependencies
-pip install -r requirements.txt
-
-# (Optional) Copy template environment configuration
-cp .env.example .env
-
-# Launch the FastAPI planning server on 127.0.0.1:8000
-python main.py
-```
-*The server will start at `http://127.0.0.1:8000` with the shared secret token `veil-shared-secret-token`.*
-
-### 3. Load the Browser Extension
-1. Open your browser and navigate to `chrome://extensions/` (or `about:debugging` in Firefox).
-2. Enable **Developer mode** (top-right toggle).
-3. Click **Load unpacked** and select the [`veil/extension`](file:///d:/downloads/Downloads/veil-skeleton/veil/extension) directory.
-4. Pin the **Veil Agent** icon to your toolbar.
-
-### 4. Run an Automation Session
-1. Open any web form or target page (e.g. [`veil/eval/synthetic_pages/kyc.html`](file:///d:/downloads/Downloads/veil-skeleton/veil/eval/synthetic_pages/kyc.html)).
-2. Click the Veil Agent extension icon to open the popup.
-3. Select your desired mode (**Balanced** or **Strict**).
-4. Enter your goal (e.g., `"Complete the KYC verification form"`) and click **Run Agent**.
-5. Inspect the live audit trail and click **What Server Sees** to verify that all sensitive data is masked.
+1. Open Google Chrome.
+2. Navigate to `chrome://extensions/`.
+3. Enable **Developer mode** (toggle in the top-right corner).
+4. Click **Load unpacked**.
+5. Select the `veil/extension` directory:
+   ```
+   d:\downloads\Downloads\veil-skeleton\veil\extension
+   ```
+6. Pin **Veil Agent** to your Chrome toolbar.
 
 ---
 
-## Configuration
+## 💡 How to Use
 
-| Environment Variable | Default | Purpose |
-|:---|:---|:---|
-| `VEIL_SERVER_TOKEN` | `veil-shared-secret-token` | Shared authentication secret sent via `X-Veil-Token` header. |
-| `VEIL_PLANNER_BACKEND` | `deterministic` | Planner engine: `deterministic`, `local_vlm`, or `cloud_vlm`. |
-| `LOCAL_VLM_URL` | `http://127.0.0.1:11434/v1/chat/completions` | Local Ollama/VLLM endpoint for Qwen2.5-VL. |
-| `LOCAL_VLM_MODEL` | `qwen2.5-vl:7b` | Model name for local vision-language inference. |
-| `VEIL_ALLOW_CLOUD` | `0` | Set to `1` only if cloud inference fallback is explicitly authorized. |
+### 1. Fill Your Vault (One-Time Setup)
+1. Click the **Veil Agent** icon in Chrome.
+2. Open the **🔐 My Vault (One-Time Setup)** tab.
+3. Fill in your details (or click **📋 Demo Data** to populate sample data).
+4. Click **💾 Save Vault**.
 
-*In the browser extension, the Server URL and Shared Secret Token can also be configured directly via the **Backend Connection** panel in the popup UI.*
-
----
-
-## Evaluation & Testing
-
-Run the full evaluation and security test suites from the repository root:
-
-```bash
-# Run unit, integration, and security evaluation suites
-node --test veil/eval/phase3_redactor.test.js veil/eval/phase3_unit.test.js veil/eval/phase3_gate_leak.test.js veil/eval/phase4_vision.test.js veil/eval/phase6_schema_fuzz.test.js veil/eval/phase8_form_filling.test.js veil/eval/phase9_production.test.js
-
-# Run server security, tripwire & authentication tests
-python veil/eval/test_server_security.py
-```
-
-### Build Production Packages
-To generate audited, production-ready extension zips for Chrome and Firefox:
-```bash
-python veil/scripts/build_release.py
-```
-Output packages will be validated and placed into `veil/dist/`:
-- `veil/dist/veil-chrome.zip`
-- `veil/dist/veil-firefox.zip`
+### 2. Autofill Any Form
+1. Open any web form in your browser (e.g. Google Forms, job portal, signup page).
+2. Click the **Veil Agent** icon.
+3. Click **⚡ Auto-Fill This Form**.
+4. Watch the agent detect, match, and fill all fields in real-time.
+5. Review the summary in the popup and click **🚀 Approve & Submit Form** to finalize.
 
 ---
 
-## Repository Structure
+## 🛡️ Security & Privacy Invariants
 
-```text
-veil/
-├── extension/             # Browser extension (MV3)
-│   ├── background/        # Background orchestrator & event loops
-│   ├── content/           # DOM capture & action executor scripts
-│   ├── privacy/           # Gatekeeper, Redactor, Vault & Domain Guard
-│   ├── workers/           # PII detector & local field matcher
-│   ├── ui/                # Extension popup UI and inspection views
-│   └── manifest.json      # Chromium & Firefox MV3 manifest
-├── server/                # Hardened FastAPI planning server
-│   ├── main.py            # API endpoints & security middleware
-│   ├── planner.py         # Deterministic & VLM planning backends
-│   ├── tripwire.py        # Independent server-side PII detector
-│   └── schema.py          # Strict Pydantic protocol request/response models
-├── eval/                  # Test suites, benchmarks, and synthetic pages
-├── scripts/               # Release build and packaging scripts
-└── shared/                # Canonical JSON Schema definitions
-```
-
----
-
-## Core Security Invariants
-
-1. **Zero Raw PII Egress**: Real identity values never leave the browser client.
-2. **Single Network Egress**: Only [`privacy/gate.js`](file:///d:/downloads/Downloads/veil-skeleton/veil/extension/privacy/gate.js) is permitted to make outbound HTTP requests.
-3. **In-Memory Volatility**: Screen captures and audio buffers are held in volatile memory only and are never written to disk.
-4. **Fail-Closed Gatekeeper**: If redaction verification fails or anomalous keys are detected, the gate aborts the session immediately.
-5. **No Blind Trust**: Actions received from the server planner are validated for boundary bounds, clickjacking overlays, and sensitive targets before execution.
+- **100% Local Execution**: Runs entirely in your browser using Chrome Extension APIs. Zero external servers required.
+- **Zero Network Egress**: Your personal data never leaves your device.
+- **Sensitive Credentials Protected**: Password, Aadhaar, and PAN inputs are strictly bypassed and never filled automatically.
+- **User in Full Control**: Form submissions always require explicit user review and approval.

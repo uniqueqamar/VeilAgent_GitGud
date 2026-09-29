@@ -2,517 +2,672 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Veil Agent</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veil Agent - Smart Form Autofill</title>
 <style>
   :root {
-    --ink: #0f172a;
-    --paper: #f8fafc;
-    --card: #ffffff;
-    --line: #e2e8f0;
-    --primary: #0284c7;
-    --primary-hover: #0369a1;
-    --signal: #0d9488;
-    --danger: #e11d48;
-    --warning: #d97706;
-    --warning-bg: #fffbeb;
-    --warning-border: #fde68a;
-    --badge-bg: #f1f5f9;
-    --text-muted: #64748b;
+    --bg-base: #0f172a;
+    --bg-surface: #1e293b;
+    --bg-card: #273549;
+    --bg-input: #0f172a;
+    --border: #334155;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --primary: #6366f1;
+    --primary-hover: #4f46e5;
+    --success: #10b981;
+    --success-hover: #059669;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --radius: 8px;
   }
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    width: 400px;
-    margin: 0;
-    padding: 14px;
-    background: var(--paper);
-    color: var(--ink);
-    font: 13.5px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    width: 480px;
+    max-height: 590px;
+    background: var(--bg-base);
+    color: var(--text-main);
+    font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
-  .header {
+
+  /* Header */
+  .app-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    padding: 12px 16px;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
-  h1 { font-size: 16px; margin: 0; font-weight: 700; letter-spacing: -0.2px; }
-  .status-badge {
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand-icon {
+    font-size: 18px;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+  }
+  .brand-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  .badge {
     padding: 3px 8px;
-    border-radius: 9999px;
+    border-radius: 999px;
     font-size: 11px;
     font-weight: 600;
-    background: var(--badge-bg);
-    color: var(--text-muted);
     text-transform: uppercase;
   }
-  .status-badge.running { background: #e0f2fe; color: #0369a1; }
-  .status-badge.waiting { background: #fef3c7; color: #b45309; }
-  .status-badge.done { background: #dcfce7; color: #15803d; }
-  .status-badge.stopped { background: #f1f5f9; color: #64748b; }
-  .status-badge.error { background: #ffe4e6; color: #be123c; }
+  .badge-idle { background: #334155; color: #94a3b8; }
+  .badge-running { background: rgba(99, 102, 241, 0.2); color: #818cf8; border: 1px solid #6366f1; }
+  .badge-approval { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-done { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-error { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
 
-  p.sub { margin: 0 0 10px; color: var(--text-muted); font-size: 12px; }
-
-  /* Mode Toggle */
-  .mode-container {
+  /* Navigation Tabs */
+  .nav-tabs {
     display: flex;
-    background: #e2e8f0;
-    padding: 3px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    gap: 4px;
+    background: var(--bg-surface);
+    padding: 4px 16px 8px;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
   }
-  .mode-btn {
+  .tab-btn {
     flex: 1;
-    padding: 6px 10px;
+    padding: 7px 12px;
     border: 0;
     border-radius: 6px;
     background: transparent;
     color: var(--text-muted);
-    font-size: 12px;
     font-weight: 600;
+    font-size: 12px;
     cursor: pointer;
     transition: all 0.15s ease;
-    text-align: center;
-  }
-  .mode-btn.active {
-    background: var(--card);
-    color: var(--ink);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  }
-
-  textarea {
-    width: 100%;
-    height: 52px;
-    padding: 8px 10px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    font: inherit;
-    resize: none;
-    background: var(--card);
-    color: inherit;
-  }
-  textarea:focus-visible, button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-
-  .btn-row { display: flex; gap: 8px; margin-top: 8px; }
-  button.action-btn {
-    padding: 8px 12px;
-    border: 0;
-    border-radius: 8px;
-    background: var(--ink);
-    color: #fff;
-    font: inherit;
-    font-weight: 600;
-    font-size: 13px;
-    cursor: pointer;
-    transition: opacity 0.15s ease;
-  }
-  button.action-btn:hover { opacity: 0.9; }
-  button.action-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-  #run { flex: 2; background: var(--primary); }
-  #run:hover { background: var(--primary-hover); }
-  #stop { flex: 1; background: #64748b; }
-  #stop.danger { background: var(--danger); }
-
-  #approval-box {
-    margin-top: 10px;
-    padding: 10px;
-    background: var(--warning-bg);
-    border: 1px solid var(--warning-border);
-    border-radius: 8px;
-    display: none;
-  }
-  #approval-box.visible { display: block; }
-  .approval-title {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--warning);
-    margin-bottom: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .approval-desc {
-    font-size: 12.5px;
-    margin-bottom: 8px;
-    word-break: break-word;
-  }
-  .approval-btns { display: flex; gap: 8px; }
-  #approve-btn { flex: 1; background: var(--signal); padding: 6px 10px; font-size: 12.5px; border-radius: 6px; }
-  #skip-btn { flex: 1; background: #64748b; padding: 6px 10px; font-size: 12.5px; border-radius: 6px; }
-
-  /* Receipt & Inspection Section */
-  .card {
-    margin-top: 10px;
-    padding: 10px;
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-  }
-  .card-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 6px;
+    justify-content: center;
+    gap: 6px;
+  }
+  .tab-btn.active {
+    background: var(--bg-card);
+    color: var(--text-main);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  .content-view {
+    display: none;
+    padding: 14px 16px;
+  }
+  .content-view.active {
+    display: block;
+  }
+
+  /* Form Elements */
+  .card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 12px;
   }
   .card-title {
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
     color: var(--text-muted);
-    letter-spacing: 0.4px;
-  }
-  .receipt-details {
-    font-size: 11.5px;
-    color: #334155;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4px;
     margin-bottom: 8px;
-  }
-  .receipt-hash {
-    grid-column: span 2;
-    font-family: ui-monospace, Menlo, Monaco, Consolas, monospace;
-    font-size: 10.5px;
-    background: #f1f5f9;
-    padding: 3px 6px;
-    border-radius: 4px;
-    word-break: break-all;
-  }
-  .card-actions {
     display: flex;
-    gap: 6px;
+    align-items: center;
+    justify-content: space-between;
   }
-  .sec-btn {
-    flex: 1;
-    padding: 5px 8px;
-    border: 1px solid var(--line);
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 14px;
     border-radius: 6px;
-    background: #f8fafc;
-    color: #334155;
-    font-size: 11.5px;
+    border: 0;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.15s ease;
-    text-align: center;
+    transition: all 0.15s ease;
   }
-  .sec-btn:hover { background: #edf2f7; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover { background: var(--success-hover); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-secondary { background: var(--border); color: var(--text-main); }
+  .btn-secondary:hover { background: #475569; }
+  .btn-sm { padding: 4px 8px; font-size: 11px; }
 
-  /* Log Box */
-  #log {
-    margin-top: 10px;
-    padding: 8px 10px;
-    min-height: 70px;
-    max-height: 130px;
+  /* Submit Approval Card */
+  .approval-card {
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid var(--warning);
+    border-radius: var(--radius);
+    padding: 12px;
+    margin-bottom: 12px;
+    display: none;
+  }
+  .approval-card.visible { display: block; }
+  .approval-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--warning);
+    margin-bottom: 6px;
+  }
+  .approval-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .review-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+    margin-bottom: 10px;
+  }
+  .review-table th, .review-table td {
+    padding: 5px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .review-table th { color: var(--text-muted); font-weight: 600; }
+  .review-table td { color: var(--text-main); }
+  .skipped-chip {
+    display: inline-block;
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10.5px;
+    margin: 2px;
+  }
+
+  /* Log Viewer */
+  #log-viewer {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px;
+    height: 180px;
     overflow-y: auto;
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 8px;
     font: 11.5px/1.45 ui-monospace, Menlo, Monaco, Consolas, monospace;
+    color: #cbd5e1;
     white-space: pre-wrap;
     word-break: break-all;
-    color: #334155;
   }
 
-  /* Inspection Overlay Modal */
-  #inspect-modal {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(15, 23, 42, 0.75);
-    backdrop-filter: blur(2px);
-    display: none;
-    flex-direction: column;
-    z-index: 1000;
-    padding: 12px;
-  }
-  #inspect-modal.open { display: flex; }
-  .modal-content {
-    background: #fff;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+  /* Vault Form Grid */
+  .vault-section {
+    margin-bottom: 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-surface);
     overflow: hidden;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
   }
-  .modal-header {
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--line);
+  .section-header {
+    padding: 9px 12px;
+    background: var(--bg-card);
+    font-size: 12px;
+    font-weight: 700;
+    color: #cbd5e1;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #f8fafc;
-  }
-  .modal-title { font-size: 13.5px; font-weight: 700; color: var(--ink); }
-  .close-btn {
-    border: 0;
-    background: transparent;
-    font-size: 18px;
     cursor: pointer;
-    color: var(--text-muted);
-    padding: 0 4px;
   }
-  .modal-body {
+  .section-body {
     padding: 12px;
-    overflow-y: auto;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .inspect-tabs {
-    display: flex;
-    gap: 6px;
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 6px;
-  }
-  .inspect-tab-btn {
-    padding: 4px 10px;
-    border: 0;
-    border-radius: 4px;
-    background: #e2e8f0;
-    font-size: 11.5px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .inspect-tab-btn.active {
-    background: var(--primary);
-    color: #fff;
-  }
-  .img-preview-container {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
-    align-items: center;
   }
-  .img-preview-box {
-    width: 100%;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    overflow: hidden;
-    background: #f1f5f9;
-    text-align: center;
-    padding: 4px;
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
-  .img-preview-box img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 4px;
-  }
-  .manifest-list {
-    font-family: ui-monospace, Menlo, Monaco, Consolas, monospace;
+  .form-group.col-full { grid-column: span 2; }
+  .form-label {
     font-size: 11px;
-    background: #f8fafc;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 8px;
-    max-height: 120px;
-    overflow-y: auto;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+  .form-input, .form-select {
+    padding: 6px 8px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text-main);
+    font: inherit;
+    font-size: 12px;
+  }
+  .form-input:focus, .form-select:focus {
+    outline: 1px solid var(--primary);
+    border-color: var(--primary);
+  }
+  .toast {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--success);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    display: none;
+    z-index: 1000;
   }
 </style>
 </head>
 <body>
-  <div class="header">
-    <div style="display: flex; align-items: center; gap: 8px;">
-      <img src="../icons/icon32.png" alt="Veil Agent" style="width: 22px; height: 22px; border-radius: 5px;">
-      <h1>Veil Agent</h1>
-    </div>
-    <span id="status-badge" class="status-badge">Ready</span>
-  </div>
-  <p class="sub">Privacy-preserving agent. Sensitive data never leaves your device.</p>
 
-  <!-- Mode Toggle (Privacy Dial: Strict / Balanced / Open) -->
-  <div class="mode-container" role="radiogroup" aria-label="Privacy Operating Mode">
-    <button type="button" id="mode-strict" class="mode-btn" role="radio" aria-checked="false" title="Tokens only, zero screenshots">Strict</button>
-    <button type="button" id="mode-balanced" class="mode-btn active" role="radio" aria-checked="true" title="Redacted screenshot + tokens">Balanced</button>
-    <button type="button" id="mode-open" class="mode-btn" role="radio" aria-checked="false" title="Full resolution & extended DOM text (all tokenized)">Open</button>
-  </div>
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon">🛡️</div>
+      <div class="brand-title">Veil Agent</div>
+    </div>
+    <span id="status-badge" class="badge badge-idle">Ready</span>
+  </header>
 
-  <textarea id="goal" placeholder="Example: fill the KYC form and submit">fill the form and submit</textarea>
-  <div class="btn-row">
-    <button type="button" id="run" class="action-btn">Run task</button>
-    <button type="button" id="stop" class="action-btn" disabled>Stop</button>
-  </div>
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs">
+    <button type="button" id="tab-autofill" class="tab-btn active">⚡ Form Autofill</button>
+    <button type="button" id="tab-vault" class="tab-btn">🔐 My Vault (One-Time Setup)</button>
+  </nav>
 
-  <div id="approval-box">
-    <div class="approval-title">Approval Required</div>
-    <div id="approval-desc" class="approval-desc">Confirm action</div>
-    <div class="approval-btns">
-      <button type="button" id="approve-btn" class="action-btn">Approve</button>
-      <button type="button" id="skip-btn" class="action-btn">Skip</button>
-    </div>
-  </div>
-
-  <!-- Review-Before-Submit Table Card (Task 7) -->
-  <div id="review-box" class="card" style="display:none; background: #fff; border: 2px solid var(--primary); margin-top: 10px;">
-    <div class="card-header">
-      <span class="card-title" style="color: var(--primary); font-weight:700;">Review Before Submit</span>
-      <span id="review-field-count" style="font-size: 11px; font-weight:600; color:var(--primary);">0 fields</span>
-    </div>
-    <p style="font-size: 11.5px; color: var(--text-muted); margin: 0 0 8px;">Please verify your data before final submission. Click [Reveal] to inspect sensitive values.</p>
-    <div style="max-height: 180px; overflow-y: auto; border: 1px solid var(--line); border-radius: 6px; margin-bottom: 8px;">
-      <table style="width: 100%; border-collapse: collapse; font-size: 11.5px;">
-        <thead>
-          <tr style="background: #f1f5f9; text-align: left; border-bottom: 1px solid var(--line);">
-            <th style="padding: 5px 8px;">Field</th>
-            <th style="padding: 5px 8px;">Value</th>
-            <th style="padding: 5px 8px;">Source</th>
-          </tr>
-        </thead>
-        <tbody id="review-tbody"></tbody>
-      </table>
-    </div>
-    <div class="btn-row">
-      <button type="button" id="approve-review-btn" class="action-btn" style="flex:2; background: var(--signal);">Approve & Submit</button>
-      <button type="button" id="skip-review-btn" class="action-btn" style="flex:1; background: #64748b;">Cancel</button>
-    </div>
-  </div>
-
-  <!-- Manual Action Stop Condition Box (Task 4) -->
-  <div id="manual-resume-box" style="display:none; margin-top: 10px; padding: 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;">
-    <div style="font-size: 11.5px; font-weight: 700; color: #1e40af; margin-bottom: 4px;">MANUAL ACTION REQUIRED</div>
-    <div id="manual-resume-desc" style="font-size: 12px; color: #1e3a8a; margin-bottom: 8px; line-height: 1.4;"></div>
-    <button type="button" id="resume-task-btn" class="action-btn" style="width: 100%; background: var(--primary);">Resume Task</button>
-  </div>
-
-  <!-- Clarification Needed Box (Task 2 & 9) -->
-  <div id="ask-user-box" style="display:none; margin-top: 10px; padding: 10px; background: #fefce8; border: 1px solid #fef08a; border-radius: 8px;">
-    <div style="font-size: 11.5px; font-weight: 700; color: #854d0e; margin-bottom: 4px;">CLARIFICATION NEEDED</div>
-    <div id="ask-user-question" style="font-size: 12px; color: #713f12; margin-bottom: 6px;"></div>
-    <input type="text" id="ask-user-input" placeholder="Type your response..." style="width: 100%; padding: 6px; border: 1px solid var(--line); border-radius: 6px; font-size: 12px; margin-bottom: 6px;">
-    <button type="button" id="submit-answer-btn" class="action-btn" style="width: 100%; background: var(--primary);">Submit Response</button>
-  </div>
-
-  <!-- Answer Display Card (Task 7) -->
-  <div class="card" id="answer-card" style="display:none; background: #f0fdf4; border-color: #bbf7d0;">
-    <div class="card-header">
-      <span class="card-title" style="color: #166534;">Answer</span>
-      <button type="button" id="copy-answer-btn" class="sec-btn" style="flex:none; padding: 2px 8px; font-size:11px;">Copy Answer</button>
-    </div>
-    <div id="answer-text" style="font-size: 13px; color: #14532d; white-space: pre-wrap; word-break: break-word; line-height: 1.45;"></div>
-  </div>
-
-  <!-- On-Device Vision Engine Card (Task 9) -->
-  <div class="card" id="vision-card">
-    <div class="card-header">
-      <span class="card-title">On-Device Vision</span>
-      <span id="vision-backend-badge" style="font-size: 10.5px; font-weight: 600; color: var(--primary);">WASM SIMD</span>
-    </div>
-    <div class="receipt-details">
-      <div>Models: <strong id="vision-models-status">UltraFace + PaddleOCR</strong></div>
-      <div>Latency: <strong id="vision-latency">—</strong></div>
-      <div>Cleared: <strong id="vision-cleared-count">0</strong></div>
-      <div>Blacked Out: <strong id="vision-blacked-count">0</strong></div>
-    </div>
-  </div>
-
-  <!-- Live Last Step Telemetry Panel (Part A Task 1) -->
-  <div class="card" id="live-panel" style="background: #f8fafc; border: 1px solid var(--line);">
-    <div class="card-header">
-      <span class="card-title">Last Step Telemetry</span>
-      <span id="live-mode-badge" style="font-size: 10.5px; font-weight: 700; color: var(--primary);">Balanced</span>
-    </div>
-    <div class="receipt-details" style="grid-template-columns: 1fr 1fr 1fr; font-size: 11px;">
-      <div>Latency: <strong id="live-latency">—</strong></div>
-      <div>Payload: <strong id="live-payload">0 B</strong></div>
-      <div>Redactions: <strong id="live-redactions">0</strong></div>
-    </div>
-  </div>
-
-  <!-- Tamper-evident Audit Receipt Card -->
-  <div class="card">
-    <div class="card-header">
-      <span class="card-title">Latest Receipt (Tamper-Evident)</span>
-      <span id="receipt-mode-badge" style="font-size: 10.5px; font-weight: 600; color: var(--signal);">None</span>
-    </div>
-    <div class="receipt-details">
-      <div>Bytes Sent: <strong id="receipt-bytes">0 B</strong></div>
-      <div>PII Blocked: <strong id="receipt-pii">None</strong></div>
-      <div id="receipt-hash-container" class="receipt-hash">SHA-256 Hash: &mdash;</div>
-    </div>
-    <div class="card-actions">
-      <button type="button" id="inspect-btn" class="sec-btn">What Server Sees</button>
-      <button type="button" id="export-receipts-btn" class="sec-btn">Receipts JSON</button>
-      <button type="button" id="export-report-btn" class="sec-btn">Privacy Report</button>
-    </div>
-  </div>
-
-  <!-- Server Connection Settings Card -->
-  <div class="card" id="settings-card" style="margin-top: 10px;">
-    <div class="card-header" style="cursor: pointer;" id="toggle-settings-header">
-      <span class="card-title">Backend Connection</span>
-      <span id="settings-toggle-icon" style="font-size: 11px; color: var(--primary); font-weight: 600;">⚙ Configure</span>
-    </div>
-    <div id="settings-content" style="display: none; margin-top: 8px;">
-      <div style="margin-bottom: 6px;">
-        <label for="server-url-input" style="display: block; font-weight: 600; font-size: 11px; margin-bottom: 2px; color: var(--text-muted);">Server URL</label>
-        <input type="text" id="server-url-input" value="http://127.0.0.1:8000" style="width: 100%; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; font-size: 11.5px; box-sizing: border-box;">
+  <!-- TAB 1: FORM AUTOFILL -->
+  <main id="view-autofill" class="content-view active">
+    <!-- Action Banner -->
+    <div class="card" style="text-align: center; padding: 14px 12px;">
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+        Agent will read the active web form, match fields to your Vault dataset, and fill them automatically.
+      </p>
+      <div style="display: flex; gap: 8px;">
+        <button type="button" id="btn-run" class="btn btn-primary" style="flex: 2;">
+          ⚡ Auto-Fill This Form
+        </button>
+        <button type="button" id="btn-stop" class="btn btn-secondary" style="flex: 1;" disabled>
+          Stop
+        </button>
       </div>
-      <div style="margin-bottom: 8px;">
-        <label for="server-token-input" style="display: block; font-weight: 600; font-size: 11px; margin-bottom: 2px; color: var(--text-muted);">Shared Secret (X-Veil-Token)</label>
-        <input type="password" id="server-token-input" value="veil-shared-secret-token" style="width: 100%; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; font-size: 11.5px; box-sizing: border-box;">
+    </div>
+
+    <!-- Domain Approval Card (If needed) -->
+    <div id="domain-approval-box" class="approval-card">
+      <div class="approval-header">🔒 Domain Approval Required</div>
+      <p id="domain-approval-desc" class="approval-sub">Allow Veil Agent to autofill on this domain?</p>
+      <div style="display: flex; gap: 8px;">
+        <button type="button" id="btn-approve-domain" class="btn btn-primary btn-sm" style="flex: 1;">Allow Domain</button>
+        <button type="button" id="btn-cancel-domain" class="btn btn-secondary btn-sm" style="flex: 1;">Cancel</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: SUBMIT -> ASKS FOR APPROVAL -->
+    <div id="submit-approval-box" class="approval-card">
+      <div class="approval-header">✋ Submit Approval Required</div>
+      <p class="approval-sub">
+        All matching fields have been filled automatically! Please review below before final submission.
+      </p>
+
+      <!-- Review Table -->
+      <div style="max-height: 140px; overflow-y: auto; border: 1px solid var(--border); border-radius: 4px; margin-bottom: 8px;">
+        <table class="review-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Matched Value</th>
+            </tr>
+          </thead>
+          <tbody id="review-table-body"></tbody>
+        </table>
+      </div>
+
+      <!-- Skipped Sensitive List -->
+      <div id="skipped-container" style="margin-bottom: 10px;">
+        <div style="font-size: 11px; font-weight: 600; color: #f87171; margin-bottom: 4px;">
+          🛡️ Skipped Sensitive Fields (Password / Aadhaar / PAN untouched):
+        </div>
+        <div id="skipped-chips-list"></div>
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button type="button" id="btn-approve-submit" class="btn btn-success" style="flex: 2;">
+          🚀 Approve & Submit Form
+        </button>
+        <button type="button" id="btn-skip-submit" class="btn btn-secondary" style="flex: 1;">
+          Done (No Submit)
+        </button>
+      </div>
+    </div>
+
+    <!-- Real-time Activity Log -->
+    <div class="card" style="padding: 10px 12px; margin-bottom: 0;">
+      <div class="card-title">
+        <span>Activity Log</span>
+        <button type="button" id="btn-clear-log" class="btn-sm btn-secondary" style="font-size: 10px; padding: 2px 6px;">Clear</button>
+      </div>
+      <div id="log-viewer">Ready. Click "Auto-Fill This Form" to begin.</div>
+    </div>
+  </main>
+
+  <!-- TAB 2: MY VAULT (ONE-TIME SETUP) -->
+  <main id="view-vault" class="content-view">
+    <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h2 style="font-size: 13.5px; font-weight: 700;">Personal Vault Dataset</h2>
+        <p style="font-size: 11.5px; color: var(--text-muted);">Fill once — agent uses this to fill all forms.</p>
       </div>
       <div style="display: flex; gap: 6px;">
-        <button type="button" id="save-settings-btn" class="sec-btn" style="flex: 1; padding: 4px 8px; font-size: 11px;">Save Settings</button>
-        <button type="button" id="test-connection-btn" class="sec-btn" style="flex: 1; padding: 4px 8px; font-size: 11px;">Test Connection</button>
-      </div>
-      <div id="settings-status" style="margin-top: 6px; font-size: 11px; display: none;"></div>
-    </div>
-  </div>
-
-  <div id="log" aria-live="polite">Ready.</div>
-
-  <!-- What the server sees modal -->
-  <div id="inspect-modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span id="modal-heading" class="modal-title">What the Server Sees</span>
-        <button type="button" id="close-modal-btn" class="close-btn" aria-label="Close">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="inspect-tabs">
-          <button type="button" id="tab-overlays" class="inspect-tab-btn active">Box Overlays</button>
-          <button type="button" id="tab-redacted" class="inspect-tab-btn">Redacted Image</button>
-          <button type="button" id="tab-original" class="inspect-tab-btn">Original</button>
-          <button type="button" id="tab-manifest" class="inspect-tab-btn">Manifest</button>
-        </div>
-
-        <div id="panel-overlays" class="img-preview-container">
-          <div class="img-preview-box" style="position:relative;">
-            <canvas id="overlay-canvas" style="max-width:100%; height:auto; display:none; border-radius:4px;"></canvas>
-            <div id="overlay-canvas-placeholder" style="padding: 30px; color: var(--text-muted); font-size: 12px;">No screenshot or overlays recorded.</div>
-          </div>
-          <div style="font-size: 10.5px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 4px;">
-            <span><strong style="color:#ef4444;">■</strong> Face</span>
-            <span><strong style="color:#f97316;">■</strong> PII Text</span>
-            <span><strong style="color:#a855f7;">■</strong> DOM PII</span>
-            <span><strong style="color:#22c55e;">▢</strong> Media Cleared</span>
-            <span><strong style="color:#0f172a;">■</strong> Media Blacked</span>
-          </div>
-        </div>
-
-        <div id="panel-redacted" class="img-preview-container" style="display:none;">
-          <div class="img-preview-box">
-            <img id="redacted-img" alt="Redacted screenshot as sent to server" src="">
-            <div id="redacted-img-placeholder" style="padding: 30px; color: var(--text-muted); font-size: 12px;">No redacted image captured yet (Strict mode or idle).</div>
-          </div>
-        </div>
-
-        <div id="panel-original" class="img-preview-container" style="display:none;">
-          <div class="img-preview-box">
-            <img id="original-img" alt="Original screenshot kept in memory only" src="">
-            <div id="original-img-placeholder" style="padding: 30px; color: var(--text-muted); font-size: 12px;">Original is dereferenced or captured in Strict mode.</div>
-          </div>
-          <p style="font-size: 11px; color: var(--text-muted); margin: 0;">Original screenshot resides strictly in volatile memory and is purged on view close.</p>
-        </div>
-
-        <div id="panel-manifest" style="display:none;">
-          <div class="manifest-list" id="manifest-content">No redaction manifest recorded.</div>
-        </div>
+        <button type="button" id="btn-load-demo" class="btn btn-secondary btn-sm" title="Populate with sample data">📋 Demo Data</button>
+        <button type="button" id="btn-save-vault" class="btn btn-success btn-sm">💾 Save Vault</button>
       </div>
     </div>
-  </div>
 
-  <script src="../privacy/privacy-report.js"></script>
+    <form id="vault-form">
+      <!-- 1. PERSONAL DETAILS -->
+      <div class="vault-section">
+        <div class="section-header">
+          <span>👤 Personal Details</span>
+        </div>
+        <div class="section-body">
+          <div class="form-group col-full">
+            <label class="form-label" for="v_FULL_NAME">Full Name</label>
+            <input type="text" id="v_FULL_NAME" class="form-input" placeholder="e.g. Tanisha Choudhary">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_FIRST_NAME">First Name</label>
+            <input type="text" id="v_FIRST_NAME" class="form-input" placeholder="First Name">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_LAST_NAME">Last Name</label>
+            <input type="text" id="v_LAST_NAME" class="form-input" placeholder="Last Name">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_DOB">Date of Birth</label>
+            <input type="date" id="v_DOB" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_GENDER">Gender</label>
+            <select id="v_GENDER" class="form-select">
+              <option value="">Select Gender</option>
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Other">Other</option>
+              <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_FATHER_NAME">Father's Name</label>
+            <input type="text" id="v_FATHER_NAME" class="form-input" placeholder="Father's Full Name">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_MOTHER_NAME">Mother's Name</label>
+            <input type="text" id="v_MOTHER_NAME" class="form-input" placeholder="Mother's Full Name">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_NATIONALITY">Nationality</label>
+            <input type="text" id="v_NATIONALITY" class="form-input" placeholder="e.g. Indian">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_CATEGORY">Category / Caste</label>
+            <select id="v_CATEGORY" class="form-select">
+              <option value="General">General</option>
+              <option value="OBC">OBC</option>
+              <option value="SC">SC</option>
+              <option value="ST">ST</option>
+              <option value="EWS">EWS</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_BLOOD_GROUP">Blood Group</label>
+            <input type="text" id="v_BLOOD_GROUP" class="form-input" placeholder="e.g. O+, A+">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_MARITAL_STATUS">Marital Status</label>
+            <select id="v_MARITAL_STATUS" class="form-select">
+              <option value="Single">Single</option>
+              <option value="Married">Married</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. CONTACT DETAILS -->
+      <div class="vault-section">
+        <div class="section-header">
+          <span>📞 Contact Information</span>
+        </div>
+        <div class="section-body">
+          <div class="form-group col-full">
+            <label class="form-label" for="v_EMAIL">Primary Email</label>
+            <input type="email" id="v_EMAIL" class="form-input" placeholder="name@example.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_MOBILE">Mobile / Phone Number</label>
+            <input type="tel" id="v_MOBILE" class="form-input" placeholder="10-digit number">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_ALT_MOBILE">Alternate Phone</label>
+            <input type="tel" id="v_ALT_MOBILE" class="form-input" placeholder="Alternate phone">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_WORK_EMAIL">Work / Alt Email</label>
+            <input type="email" id="v_WORK_EMAIL" class="form-input" placeholder="alt@work.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_MOBILE_CC">Country Dial Code</label>
+            <input type="text" id="v_MOBILE_CC" class="form-input" placeholder="+91">
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. CURRENT / RESIDENTIAL ADDRESS -->
+      <div class="vault-section">
+        <div class="section-header">
+          <span>🏠 Current / Residential Address</span>
+        </div>
+        <div class="section-body">
+          <div class="form-group col-full">
+            <label class="form-label" for="v_ADDRESS_LINE1">Current Address (Street / Flat / House No)</label>
+            <input type="text" id="v_ADDRESS_LINE1" class="form-input" placeholder="Flat No, Building, Street">
+          </div>
+          <div class="form-group col-full">
+            <label class="form-label" for="v_ADDRESS_LINE2">Address Line 2 (Area / Landmark)</label>
+            <input type="text" id="v_ADDRESS_LINE2" class="form-input" placeholder="Landmark, Sector, Area">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_CITY">City / Town</label>
+            <input type="text" id="v_CITY" class="form-input" placeholder="City">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_DISTRICT">District</label>
+            <input type="text" id="v_DISTRICT" class="form-input" placeholder="District">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_STATE">State / Province</label>
+            <input type="text" id="v_STATE" class="form-input" placeholder="State">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_PIN">PIN / ZIP Code</label>
+            <input type="text" id="v_PIN" class="form-input" placeholder="PIN Code">
+          </div>
+          <div class="form-group col-full">
+            <label class="form-label" for="v_COUNTRY">Country</label>
+            <input type="text" id="v_COUNTRY" class="form-input" placeholder="Country">
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. PERMANENT ADDRESS -->
+      <div class="vault-section">
+        <div class="section-header">
+          <span>🏛️ Permanent Address</span>
+          <button type="button" id="btn-copy-address" class="btn btn-secondary btn-sm" style="font-size: 10px; padding: 2px 6px;">Same as Current</button>
+        </div>
+        <div class="section-body">
+          <div class="form-group col-full">
+            <label class="form-label" for="v_PERMANENT_ADDRESS_LINE1">Permanent Address (Street)</label>
+            <input type="text" id="v_PERMANENT_ADDRESS_LINE1" class="form-input" placeholder="Permanent Street">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_PERMANENT_CITY">City</label>
+            <input type="text" id="v_PERMANENT_CITY" class="form-input" placeholder="City">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_PERMANENT_STATE">State</label>
+            <input type="text" id="v_PERMANENT_STATE" class="form-input" placeholder="State">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_PERMANENT_PIN">PIN / Postal Code</label>
+            <input type="text" id="v_PERMANENT_PIN" class="form-input" placeholder="PIN">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_PERMANENT_COUNTRY">Country</label>
+            <input type="text" id="v_PERMANENT_COUNTRY" class="form-input" placeholder="Country">
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. EDUCATION & ACADEMICS -->
+      <div class="vault-section">
+        <div class="section-header">
+          <span>🎓 Education & Academics</span>
+        </div>
+        <div class="section-body">
+          <div class="form-group">
+            <label class="form-label" for="v_DEGREE">Highest Degree</label>
+            <input type="text" id="v_DEGREE" class="form-input" placeholder="e.g. B.Tech / B.Sc / MBA">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_MAJOR">Stream / Branch</label>
+            <input type="text" id="v_MAJOR" class="form-input" placeholder="e.g. Computer Science">
+          </div>
+          <div class="form-group col-full">
+            <label class="form-label" for="v_COLLEGE">College / University</label>
+            <input type="text" id="v_COLLEGE" class="form-input" placeholder="Institution Name">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_GRADUATION_YEAR">Graduation Year</label>
+            <input type="text" id="v_GRADUATION_YEAR" class="form-input" placeholder="e.g. 2026">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_CGPA">CGPA / Percentage</label>
+            <input type="text" id="v_CGPA" class="form-input" placeholder="e.g. 9.2 or 88%">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_SCHOOL_12TH">12th School / Board</label>
+            <input type="text" id="v_SCHOOL_12TH" class="form-input" placeholder="12th School Name">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_SCHOOL_10TH">10th School / Board</label>
+            <input type="text" id="v_SCHOOL_10TH" class="form-input" placeholder="10th School Name">
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. WORK & PROFESSIONAL -->
+      <div class="vault-section">
+        <div class="section-header">
+          <span>💼 Career & Employment</span>
+        </div>
+        <div class="section-body">
+          <div class="form-group">
+            <label class="form-label" for="v_JOB_TITLE">Job Title / Designation</label>
+            <input type="text" id="v_JOB_TITLE" class="form-input" placeholder="e.g. Software Engineer">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_COMPANY">Company / Employer</label>
+            <input type="text" id="v_COMPANY" class="form-input" placeholder="Company Name">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_EXPERIENCE_YEARS">Experience (Years)</label>
+            <input type="text" id="v_EXPERIENCE_YEARS" class="form-input" placeholder="e.g. 2">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_ANNUAL_SALARY">Annual CTC / Salary</label>
+            <input type="text" id="v_ANNUAL_SALARY" class="form-input" placeholder="e.g. 800000">
+          </div>
+          <div class="form-group col-full">
+            <label class="form-label" for="v_LINKEDIN_URL">LinkedIn URL</label>
+            <input type="url" id="v_LINKEDIN_URL" class="form-input" placeholder="https://linkedin.com/in/username">
+          </div>
+          <div class="form-group col-full">
+            <label class="form-label" for="v_GITHUB_URL">GitHub URL</label>
+            <input type="url" id="v_GITHUB_URL" class="form-input" placeholder="https://github.com/username">
+          </div>
+          <div class="form-group col-full">
+            <label class="form-label" for="v_PORTFOLIO_URL">Portfolio / Website</label>
+            <input type="url" id="v_PORTFOLIO_URL" class="form-input" placeholder="https://portfolio.com">
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. SENSITIVE CREDENTIALS (ALWAYS SKIPPED ON FORMS) -->
+      <div class="vault-section" style="border-color: rgba(239, 68, 68, 0.4);">
+        <div class="section-header" style="background: rgba(239, 68, 68, 0.15); color: #f87171;">
+          <span>🛡️ Sensitive Identifiers (Always Skipped on Web Forms)</span>
+        </div>
+        <div class="section-body">
+          <p style="grid-column: span 2; font-size: 11px; color: #f87171; line-height: 1.4;">
+            🔒 <strong>Security Policy:</strong> Stored encrypted in your browser vault for your convenience, but <em>strictly skipped</em> by the agent during autofill.
+          </p>
+          <div class="form-group">
+            <label class="form-label" for="v_PASSWORD">Password (Skipped)</label>
+            <input type="password" id="v_PASSWORD" class="form-input" placeholder="••••••••">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_AADHAAR">Aadhaar Card (Skipped)</label>
+            <input type="text" id="v_AADHAAR" class="form-input" placeholder="XXXX XXXX XXXX">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_PAN">PAN Card (Skipped)</label>
+            <input type="text" id="v_PAN" class="form-input" placeholder="ABCDE1234F">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="v_PASSPORT">Passport No (Skipped)</label>
+            <input type="text" id="v_PASSPORT" class="form-input" placeholder="Passport No">
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 10px; margin-bottom: 20px;">
+        <button type="button" id="btn-save-vault-bottom" class="btn btn-success" style="width: 100%;">
+          💾 Save Vault Details
+        </button>
+      </div>
+    </form>
+  </main>
+
+  <div id="toast" class="toast">Vault saved successfully!</div>
+
   <script src="popup.js"></script>
 </body>
 </html>

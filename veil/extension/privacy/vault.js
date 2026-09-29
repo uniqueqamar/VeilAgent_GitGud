@@ -2,7 +2,7 @@
 // Standalone script: WebCrypto (PBKDF2 + AES-GCM) with no external dependencies.
 (() => {
   const subtle = globalThis.crypto?.subtle;
-  const SCHEMA_VERSION = '1.0';
+  const SCHEMA_VERSION = '2.0';
 
   function bytesToBase64(bytes) {
     let bin = '';
@@ -101,41 +101,113 @@
     }
   }
 
-  // --- 2. Vault Schema, Sensitivity Classification & Multiple Profiles ---
+  // --- 2. Vault Schema, Sensitivity Classification & All Categories ---
+
+  const SENSITIVE_KEYS = new Set([
+    'PASSWORD',
+    'AADHAAR',
+    'PAN',
+    'PASSPORT',
+    'VOTER_ID',
+    'DRIVING_LICENCE',
+    'ACCOUNT_NO',
+    'IFSC',
+    'CARD_NUMBER',
+    'CVV',
+    'OTP'
+  ]);
 
   const SENSITIVITY_MAP = {
-    // Low sensitivity (general demographic, location)
-    GENDER: 'low',
-    CATEGORY: 'low',
-    STATE: 'low',
-    CITY: 'low',
-    DISTRICT: 'low',
-    PIN: 'low',
-    ADDRESS_LINE1: 'low',
-    ADDRESS_LINE2: 'low',
-    ADDRESS: 'low',
+    // Sensitive - ALWAYS SKIPPED on web forms for security & privacy
+    PASSWORD: 'sensitive_skip',
+    AADHAAR: 'sensitive_skip',
+    PAN: 'sensitive_skip',
+    PASSPORT: 'sensitive_skip',
+    VOTER_ID: 'sensitive_skip',
+    DRIVING_LICENCE: 'sensitive_skip',
+    ACCOUNT_NO: 'sensitive_skip',
+    IFSC: 'sensitive_skip',
+    CARD_NUMBER: 'sensitive_skip',
+    CVV: 'sensitive_skip',
+    OTP: 'sensitive_skip',
 
-    // Medium sensitivity (direct contact and parent identifiers)
+    // Personal & Demographic
     FULL_NAME: 'medium',
     FIRST_NAME: 'medium',
+    MIDDLE_NAME: 'medium',
     LAST_NAME: 'medium',
-    EMAIL: 'medium',
-    MOBILE: 'medium',
-    MOBILE_CC: 'medium',
-    MOBILE_PART1: 'medium',
-    MOBILE_PART2: 'medium',
+    DOB: 'medium',
+    DOB_DAY: 'medium',
+    DOB_MONTH: 'medium',
+    DOB_YEAR: 'medium',
+    GENDER: 'low',
+    AGE: 'low',
+    BLOOD_GROUP: 'low',
+    MARITAL_STATUS: 'low',
+    NATIONALITY: 'low',
+    CATEGORY: 'low',
     FATHER_NAME: 'medium',
     MOTHER_NAME: 'medium',
+    SPOUSE_NAME: 'medium',
 
-    // High sensitivity (national IDs, banking, exact birthdate)
-    DOB: 'high',
-    DOB_DAY: 'high',
-    DOB_MONTH: 'high',
-    DOB_YEAR: 'high',
-    AADHAAR: 'high',
-    PAN: 'high',
-    IFSC: 'high',
-    ACCOUNT_NO: 'high'
+    // Contact
+    EMAIL: 'medium',
+    ALT_EMAIL: 'medium',
+    WORK_EMAIL: 'medium',
+    MOBILE: 'medium',
+    PHONE: 'medium',
+    ALT_MOBILE: 'medium',
+    WHATSAPP_NUMBER: 'medium',
+    MOBILE_CC: 'low',
+
+    // Current Address
+    ADDRESS: 'low',
+    CURRENT_ADDRESS: 'low',
+    ADDRESS_LINE1: 'low',
+    ADDRESS_LINE2: 'low',
+    STREET_ADDRESS: 'low',
+    LANDMARK: 'low',
+    CITY: 'low',
+    DISTRICT: 'low',
+    STATE: 'low',
+    PIN: 'low',
+    ZIP: 'low',
+    COUNTRY: 'low',
+
+    // Permanent Address
+    PERMANENT_ADDRESS: 'low',
+    PERMANENT_ADDRESS_LINE1: 'low',
+    PERMANENT_ADDRESS_LINE2: 'low',
+    PERMANENT_CITY: 'low',
+    PERMANENT_DISTRICT: 'low',
+    PERMANENT_STATE: 'low',
+    PERMANENT_PIN: 'low',
+    PERMANENT_COUNTRY: 'low',
+
+    // Education & Academics
+    DEGREE: 'low',
+    QUALIFICATION: 'low',
+    MAJOR: 'low',
+    STREAM: 'low',
+    COLLEGE: 'low',
+    UNIVERSITY: 'low',
+    GRADUATION_YEAR: 'low',
+    CGPA: 'low',
+    PERCENTAGE: 'low',
+    SCHOOL_12TH: 'low',
+    SCHOOL_10TH: 'low',
+
+    // Employment & Career
+    JOB_TITLE: 'low',
+    DESIGNATION: 'low',
+    COMPANY: 'low',
+    ORGANIZATION: 'low',
+    EXPERIENCE_YEARS: 'low',
+    ANNUAL_SALARY: 'medium',
+    LINKEDIN_URL: 'low',
+    GITHUB_URL: 'low',
+    PORTFOLIO_URL: 'low',
+    WEBSITE: 'low'
   };
 
   const DEFAULT_PROFILES = {
@@ -143,64 +215,103 @@
     active_profile: 'default',
     profiles: {
       default: {
-        FULL_NAME: 'Asha Verma',
-        FIRST_NAME: 'Asha',
-        LAST_NAME: 'Verma',
-        DOB: '1995-08-15',
+        // Personal
+        FULL_NAME: 'Tanisha Choudhary',
+        FIRST_NAME: 'Tanisha',
+        MIDDLE_NAME: '',
+        LAST_NAME: 'Choudhary',
+        DOB: '2005-09-04',
         GENDER: 'Female',
-        EMAIL: 'asha@example.com',
-        MOBILE: '9876543210',
-        ADDRESS_LINE1: 'Flat 402, Shanti Niketan',
-        ADDRESS_LINE2: 'MG Road',
-        CITY: 'Bangalore',
-        DISTRICT: 'Bangalore Urban',
-        STATE: 'Karnataka',
-        PIN: '560001',
-        FATHER_NAME: 'Ramesh Verma',
-        MOTHER_NAME: 'Sunita Verma',
+        AGE: '19',
+        BLOOD_GROUP: 'O+',
+        MARITAL_STATUS: 'Single',
+        NATIONALITY: 'Indian',
         CATEGORY: 'General',
-        AADHAAR: '367598346012',
-        PAN: 'ABCDE1234F',
-        IFSC: 'SBIN0001234',
-        ACCOUNT_NO: '12345678901'
-      },
-      parent: {
-        FULL_NAME: 'Ramesh Verma',
-        FIRST_NAME: 'Ramesh',
-        LAST_NAME: 'Verma',
-        DOB: '1965-04-12',
-        GENDER: 'Male',
-        EMAIL: 'ramesh.verma@example.com',
-        MOBILE: '9876543211',
-        ADDRESS_LINE1: 'Flat 402, Shanti Niketan',
-        CITY: 'Bangalore',
+        FATHER_NAME: 'Rajesh Choudhary',
+        MOTHER_NAME: 'Sunita Choudhary',
+        SPOUSE_NAME: '',
+
+        // Contact
+        EMAIL: 'tanishachoudhary090405@gmail.com',
+        ALT_EMAIL: 'tanisha.alt@gmail.com',
+        WORK_EMAIL: 'tanisha@work.com',
+        MOBILE: '9876543210',
+        ALT_MOBILE: '9876543211',
+        WHATSAPP_NUMBER: '9876543210',
+        MOBILE_CC: '+91',
+
+        // Current Address
+        ADDRESS_LINE1: 'Flat 402, Green Glen Heights, Outer Ring Road',
+        ADDRESS_LINE2: 'Near Bellandur Junction',
+        CITY: 'Bengaluru',
+        DISTRICT: 'Bengaluru Urban',
         STATE: 'Karnataka',
-        PIN: '560001',
-        AADHAAR: '548792134560',
-        PAN: 'PQRST5678G'
+        PIN: '560103',
+        COUNTRY: 'India',
+
+        // Permanent Address
+        PERMANENT_ADDRESS_LINE1: 'Flat 402, Green Glen Heights, Outer Ring Road',
+        PERMANENT_ADDRESS_LINE2: 'Near Bellandur Junction',
+        PERMANENT_CITY: 'Bengaluru',
+        PERMANENT_DISTRICT: 'Bengaluru Urban',
+        PERMANENT_STATE: 'Karnataka',
+        PERMANENT_PIN: '560103',
+        PERMANENT_COUNTRY: 'India',
+
+        // Education
+        DEGREE: 'Bachelor of Technology (B.Tech)',
+        MAJOR: 'Computer Science and Engineering',
+        COLLEGE: 'National Institute of Technology',
+        GRADUATION_YEAR: '2026',
+        CGPA: '9.2',
+        SCHOOL_12TH: 'Delhi Public School',
+        SCHOOL_10TH: 'Delhi Public School',
+
+        // Work
+        JOB_TITLE: 'Software Engineer Intern',
+        COMPANY: 'Tech Solutions Inc',
+        EXPERIENCE_YEARS: '1',
+        ANNUAL_SALARY: '800000',
+        LINKEDIN_URL: 'https://linkedin.com/in/tanisha-choudhary',
+        GITHUB_URL: 'https://github.com/tanisha-choudhary',
+        PORTFOLIO_URL: 'https://tanisha.dev',
+
+        // Sensitive (Saved securely in Vault, but ALWAYS SKIPPED during autofill)
+        PASSWORD: 'ExamplePassword#2026',
+        AADHAAR: '3675 9834 6012',
+        PAN: 'ABCDE1234F',
+        PASSPORT: '',
+        VOTER_ID: '',
+        DRIVING_LICENCE: '',
+        ACCOUNT_NO: '',
+        IFSC: ''
       }
     }
   };
 
+  function isSensitive(key) {
+    if (!key || typeof key !== 'string') return false;
+    const norm = key.toUpperCase().trim();
+    return SENSITIVE_KEYS.has(norm) || SENSITIVITY_MAP[norm] === 'sensitive_skip';
+  }
+
   function getSensitivity(key) {
     if (!key || typeof key !== 'string') return 'medium';
     const norm = key.toUpperCase().trim();
-    return SENSITIVITY_MAP[norm] || 'medium';
+    return SENSITIVITY_MAP[norm] || (SENSITIVE_KEYS.has(norm) ? 'sensitive_skip' : 'medium');
   }
 
   function isHighSensitivity(key) {
-    return getSensitivity(key) === 'high';
+    return isSensitive(key);
   }
 
   function getProfile(vaultObj, profileName) {
     if (!vaultObj) return {};
-    // Backward compatibility: flat vault structure
     if (!vaultObj.profiles) return vaultObj;
     const target = profileName || vaultObj.active_profile || 'default';
     return vaultObj.profiles[target] || vaultObj.profiles['default'] || {};
   }
 
-  // Parse date into { year, month, day }
   function parseDateComponents(dateStr) {
     if (!dateStr || typeof dateStr !== 'string') return null;
     const s = dateStr.trim();
@@ -215,7 +326,7 @@
     return null;
   }
 
-  // --- 3. Derived Value Compose Function (Task 1) ---
+  // --- 3. Derived Value Compose Function ---
 
   function compose(key, profileData = {}, options = {}) {
     if (!key || typeof key !== 'string') return '';
@@ -244,7 +355,6 @@
         if (fmt === 'DD/MM/YYYY') return `${parts.day}/${parts.month}/${parts.year}`;
         if (fmt === 'DD-MM-YYYY') return `${parts.day}-${parts.month}-${parts.year}`;
         if (fmt === 'MM/DD/YYYY') return `${parts.month}/${parts.day}/${parts.year}`;
-        if (fmt === 'DD.MM.YYYY') return `${parts.day}.${parts.month}.${parts.year}`;
         return `${parts.year}-${parts.month}-${parts.day}`;
       }
       return rawVal || '';
@@ -254,8 +364,9 @@
     if (normKey === 'FULL_NAME') {
       if (rawVal) return rawVal;
       const fn = profileData.FIRST_NAME || '';
+      const mn = profileData.MIDDLE_NAME ? `${profileData.MIDDLE_NAME} ` : '';
       const ln = profileData.LAST_NAME || '';
-      return `${fn} ${ln}`.trim();
+      return `${fn} ${mn}${ln}`.trim();
     }
 
     if (normKey === 'FIRST_NAME') {
@@ -273,179 +384,89 @@
       return '';
     }
 
-    // Mobile split components
-    if (normKey === 'MOBILE_CC') {
-      return profileData.MOBILE_CC || '+91';
+    // Contact
+    if (normKey === 'MOBILE' || normKey === 'PHONE') {
+      return profileData.MOBILE || profileData.PHONE || profileData.WHATSAPP_NUMBER || '';
     }
 
-    if (normKey === 'MOBILE_PART1' || normKey === 'MOBILE_PART2' || normKey === 'MOBILE_PART3') {
-      const cleanPhone = (profileData.MOBILE || '').replace(/\D/g, '').slice(-10);
-      if (cleanPhone.length === 10) {
-        if (options.split === '3-3-4') {
-          if (normKey === 'MOBILE_PART1') return cleanPhone.slice(0, 3);
-          if (normKey === 'MOBILE_PART2') return cleanPhone.slice(3, 6);
-          if (normKey === 'MOBILE_PART3') return cleanPhone.slice(6, 10);
-        } else {
-          // Default 5-5 split
-          if (normKey === 'MOBILE_PART1') return cleanPhone.slice(0, 5);
-          if (normKey === 'MOBILE_PART2') return cleanPhone.slice(5, 10);
+    if (normKey === 'EMAIL') {
+      return profileData.EMAIL || profileData.WORK_EMAIL || profileData.ALT_EMAIL || '';
+    }
+
+    // Address
+    if (normKey === 'ADDRESS' || normKey === 'CURRENT_ADDRESS' || normKey === 'ADDRESS_LINE1' || normKey === 'STREET_ADDRESS') {
+      if (profileData.ADDRESS_LINE1) {
+        if (normKey === 'ADDRESS' || normKey === 'CURRENT_ADDRESS') {
+          return [profileData.ADDRESS_LINE1, profileData.ADDRESS_LINE2].filter(Boolean).join(', ');
         }
+        return profileData.ADDRESS_LINE1;
       }
+      if (profileData.CURRENT_ADDRESS) return profileData.CURRENT_ADDRESS;
+      if (profileData.ADDRESS) return profileData.ADDRESS;
       return rawVal || '';
     }
 
-    // Combined address
-    if (normKey === 'ADDRESS') {
-      if (rawVal) return rawVal;
-      const l1 = profileData.ADDRESS_LINE1 || '';
-      const l2 = profileData.ADDRESS_LINE2 || '';
-      return [l1, l2].filter(Boolean).join(', ');
+    if (normKey === 'PERMANENT_ADDRESS') {
+      if (profileData.PERMANENT_ADDRESS) return profileData.PERMANENT_ADDRESS;
+      return [profileData.PERMANENT_ADDRESS_LINE1, profileData.PERMANENT_ADDRESS_LINE2].filter(Boolean).join(', ') || profileData.ADDRESS_LINE1 || '';
+    }
+
+    // PIN / ZIP
+    if (normKey === 'PIN' || normKey === 'ZIP' || normKey === 'PINCODE') {
+      return profileData.PIN || profileData.ZIP || '';
+    }
+
+    // College / Degree / Company
+    if (normKey === 'COLLEGE' || normKey === 'UNIVERSITY') {
+      return profileData.COLLEGE || profileData.UNIVERSITY || '';
+    }
+    if (normKey === 'DEGREE' || normKey === 'QUALIFICATION') {
+      return profileData.DEGREE || profileData.QUALIFICATION || '';
+    }
+    if (normKey === 'COMPANY' || normKey === 'ORGANIZATION') {
+      return profileData.COMPANY || profileData.ORGANIZATION || '';
+    }
+    if (normKey === 'JOB_TITLE' || normKey === 'DESIGNATION') {
+      return profileData.JOB_TITLE || profileData.DESIGNATION || '';
     }
 
     return rawVal || '';
   }
 
-  // Domain approval check for high sensitivity keys
-  const _memoryDomainApprovals = {};
+  // --- 4. Masking for Preview ---
 
-  function isKeyApprovedForDomain(arg1, arg2, domainApprovals = _memoryDomainApprovals) {
-    let domain = arg1;
-    let key = arg2;
-    if (SENSITIVITY_MAP[arg1?.toUpperCase?.()] || (arg2?.includes?.('.') && !arg1?.includes?.('.'))) {
-      key = arg1;
-      domain = arg2;
-    }
-    if (!domain || !key) return false;
-    const cleanDomain = domain.toLowerCase().trim();
-    const approvedKeys = domainApprovals[cleanDomain] || [];
-    return approvedKeys.includes(key.toUpperCase().trim());
-  }
-
-  function approveKeyForDomain(arg1, arg2, domainApprovals = _memoryDomainApprovals) {
-    let domain = arg1;
-    let key = arg2;
-    if (SENSITIVITY_MAP[arg1?.toUpperCase?.()] || (arg2?.includes?.('.') && !arg1?.includes?.('.'))) {
-      key = arg1;
-      domain = arg2;
-    }
-    if (!domain || !key) return domainApprovals;
-    const cleanDomain = domain.toLowerCase().trim();
-    const normKey = key.toUpperCase().trim();
-    const current = domainApprovals[cleanDomain] ? [...domainApprovals[cleanDomain]] : [];
-    if (!current.includes(normKey)) {
-      current.push(normKey);
-    }
-    domainApprovals[cleanDomain] = current;
-    return domainApprovals;
-  }
-
-  // --- 4. Session Tokenizer & Masking ---
-
-  function maskValue(val, type, showLast4 = false) {
-    if (typeof val !== 'string') return 'XXXX';
+  function maskValue(val, type) {
+    if (typeof val !== 'string') return '••••';
     const clean = val.trim();
-    if (!showLast4) {
-      if (type === 'email') return 'XXXX@XXXX.XXX';
-      if (type === 'aadhaar') return 'XXXX XXXX XXXX';
-      if (type === 'card') return 'XXXX XXXX XXXX XXXX';
-      if (type === 'mobile') return 'XXXXXXXXXX';
-      if (type === 'pan') return 'XXXXXXXXXX';
-      if (type === 'account_no') return 'XXXXXXXXXXXX';
-      if (type === 'dob') return 'XXXX-XX-XX';
-      return 'X'.repeat(Math.max(4, Math.min(clean.length, 16)));
+    if (!clean) return '';
+    if (type === 'password') return '••••••••';
+    if (type === 'aadhaar') return 'XXXX XXXX ' + (clean.replace(/\D/g, '').slice(-4) || 'XXXX');
+    if (type === 'pan') return clean.slice(0, 2) + 'XXXXX' + clean.slice(-1);
+    if (type === 'email') {
+      const parts = clean.split('@');
+      if (parts.length === 2) {
+        return parts[0].slice(0, 2) + '•••@' + parts[1];
+      }
     }
-
-    // showLast4 === true
-    const digitsOnly = clean.replace(/\D/g, '');
-    if (digitsOnly.length >= 4) {
-      const last4 = digitsOnly.slice(-4);
-      if (type === 'aadhaar') return `XXXX XXXX ${last4}`;
-      if (type === 'card') return `XXXX XXXX XXXX ${last4}`;
-      if (type === 'mobile') return `XXXXXX${last4}`;
-      if (type === 'account_no') return `XXXXXXX${last4}`;
-    }
-    if (clean.length > 4) {
-      return 'X'.repeat(clean.length - 4) + clean.slice(-4);
+    if (clean.length > 8) {
+      return clean.slice(0, 3) + '•••' + clean.slice(-3);
     }
     return clean;
   }
 
-  function createSessionTokenizer(options = {}) {
-    const showLast4 = !!options.showLast4;
-    const valueToToken = new Map();
-    const tokenToValue = new Map();
-    const typeCounters = new Map();
-
-    function tokenize(value, type = 'VALUE') {
-      if (typeof value !== 'string') return value;
-      const cleanVal = value.trim();
-      const normType = type.toUpperCase().replace(/[^A-Z0-9_]/g, '');
-
-      if (valueToToken.has(cleanVal)) {
-        return valueToToken.get(cleanVal);
-      }
-
-      const count = (typeCounters.get(normType) || 0) + 1;
-      typeCounters.set(normType, count);
-      const token = `[${normType}_${count}]`;
-
-      valueToToken.set(cleanVal, token);
-      tokenToValue.set(token, cleanVal);
-      return token;
-    }
-
-    function resolve(token) {
-      if (typeof token !== 'string') return null;
-      const clean = token.trim();
-      return tokenToValue.get(clean) ?? null;
-    }
-
-    function isSessionToken(token) {
-      if (typeof token !== 'string') return false;
-      return tokenToValue.has(token.trim());
-    }
-
-    function getIssuedTokens() {
-      const out = {};
-      for (const [token, val] of tokenToValue.entries()) {
-        out[token] = {
-          token,
-          masked: maskValue(val, token.split('_')[0].replace('[', '').toLowerCase(), showLast4)
-        };
-      }
-      return out;
-    }
-
-    function reset() {
-      valueToToken.clear();
-      tokenToValue.clear();
-      typeCounters.clear();
-    }
-
-    return {
-      tokenize,
-      resolve,
-      isSessionToken,
-      mask: (val, type) => maskValue(val, type, showLast4),
-      getIssuedTokens,
-      reset
-    };
-  }
-
   const VeilVault = {
     SCHEMA_VERSION,
+    SENSITIVE_KEYS,
     SENSITIVITY_MAP,
     DEFAULT_PROFILES,
     encryptVault,
     decryptVault,
     maskValue,
-    createSessionTokenizer,
     getSensitivity,
+    isSensitive,
     isHighSensitivity,
     getProfile,
-    compose,
-    isKeyApprovedForDomain,
-    approveKeyForDomain
+    compose
   };
 
   if (typeof globalThis !== 'undefined') {

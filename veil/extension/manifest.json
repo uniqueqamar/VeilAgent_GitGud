@@ -1,10 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Veil Agent",
-  "version": "0.1.0",
-  "description": "Privacy-preserving on-device browser agent. Sensitive data never leaves the browser.",
+  "name": "Veil Agent - Smart Form Autofill",
+  "version": "0.2.0",
+  "description": "Privacy-preserving on-device form autofill agent. Vault details stay 100% on your device.",
   "permissions": ["activeTab", "scripting", "storage", "tabs"],
-  "host_permissions": ["http://localhost:8000/*", "http://127.0.0.1:8000/*"],
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
@@ -33,16 +32,10 @@
       "128": "icons/icon128.png"
     }
   },
-  "content_security_policy": {
-    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
-  },
   "web_accessible_resources": [
     {
-      "resources": ["models/*", "lib/*", "workers/*"],
+      "resources": ["workers/*"],
       "matches": ["<all_urls>"]
     }
-  ],
-  "browser_specific_settings": {
-    "gecko": { "id": "veil-agent@example.com", "strict_min_version": "128.0" }
-  }
+  ]
 }

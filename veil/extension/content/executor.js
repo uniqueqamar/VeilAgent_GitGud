@@ -39,6 +39,10 @@
   // Native prototype property setter (Invariant: never invoke page-defined function overrides)
   function setValue(el, value) {
     const win = el.ownerDocument?.defaultView || globalThis.window || window;
+    try {
+      if (typeof el.focus === 'function') el.focus();
+    } catch (_) {}
+
     const proto = el.tagName === 'TEXTAREA'
       ? (win.HTMLTextAreaElement?.prototype || HTMLTextAreaElement.prototype)
       : (win.HTMLInputElement?.prototype || HTMLInputElement.prototype);
@@ -48,9 +52,11 @@
     } else {
       el.value = value;
     }
-    // Synthetic events only (Task 7)
     dispatchSyntheticEvent(el, 'input', { data: value });
     dispatchSyntheticEvent(el, 'change');
+    try {
+      if (typeof el.blur === 'function') el.blur();
+    } catch (_) {}
   }
 
   function waitForDomQuiet(quietMs = 200, maxTimeoutMs = 2000) {

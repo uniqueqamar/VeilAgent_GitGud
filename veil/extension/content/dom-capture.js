@@ -181,25 +181,101 @@
     return false;
   }
 
+  function cleanLabelText(str) {
+    if (!str || typeof str !== 'string') return '';
+    return str
+      .replace(/\*/g, ' ')
+      .replace(/\b(this is a required question|required question|your answer|enter your|please enter|type here)\b/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
   function labelFor(el) {
     let lbl = '';
-    if (el.labels && el.labels[0]) {
-      lbl = el.labels[0].innerText || el.labels[0].textContent || '';
-    } else {
-      lbl =
-        el.getAttribute('aria-label') ||
-        el.getAttribute('placeholder') ||
-        el.getAttribute('title') ||
-        el.getAttribute('alt') ||
-        el.getAttribute('name') ||
-        '';
-      if (!lbl && (el.tagName === 'BUTTON' || el.getAttribute('role') === 'button')) {
-        lbl = el.innerText || el.textContent || '';
-      } else if (!lbl && el.tagName === 'INPUT' && (el.type === 'button' || el.type === 'submit')) {
-        lbl = el.getAttribute('value') || '';
+
+    // 1. Google Forms & ARIA labelledby
+    const ariaLabelledBy = el.getAttribute('aria-labelledby');
+    if (ariaLabelledBy) {
+      const ids = ariaLabelledBy.split(/\s+/).filter(Boolean);
+      const textParts = [];
+      for (const id of ids) {
+        const refEl = document.getElementById(id);
+        if (refEl) {
+          const t = cleanLabelText(refEl.innerText || refEl.textContent || '');
+          if (t && !textParts.includes(t)) textParts.push(t);
+        }
+      }
+      if (textParts.length > 0) return textParts.join(' ').slice(0, 200);
+    }
+
+    // 2. Standard HTML <label for="id">
+    if (el.id) {
+      try {
+        const lEl = document.querySelector(`label[for="${CSS.escape(el.id)}"]`);
+        if (lEl) {
+          lbl = cleanLabelText(lEl.innerText || lEl.textContent || '');
+          if (lbl) return lbl.slice(0, 200);
+        }
+      } catch (_) {}
+    }
+
+    // 3. Native el.labels
+    if (el.labels && el.labels.length > 0) {
+      lbl = cleanLabelText(Array.from(el.labels).map(l => l.innerText || l.textContent || '').join(' '));
+      if (lbl) return lbl.slice(0, 200);
+    }
+
+    // 4. Closest <label> wrapper
+    const parentLabel = el.closest ? el.closest('label') : null;
+    if (parentLabel) {
+      lbl = cleanLabelText(parentLabel.innerText || parentLabel.textContent || '');
+      if (lbl) return lbl.slice(0, 200);
+    }
+
+    // 5. Attributes: aria-label, placeholder, title
+    lbl = cleanLabelText(
+      el.getAttribute('aria-label') ||
+      el.getAttribute('placeholder') ||
+      el.getAttribute('title') ||
+      ''
+    );
+    if (lbl) return lbl.slice(0, 200);
+
+    // 6. Google Forms Question Containers (Crucial for Google Forms)
+    const gContainer = el.closest ? el.closest('[role="listitem"], .Qr7Oae, .geS5n, .freebirdFormviewerViewNumberedItemContainer, [data-params]') : null;
+    if (gContainer) {
+      const heading = gContainer.querySelector('[role="heading"], .M7eMe, .exportItemTitle, .HoPnR, [dir="auto"]');
+      if (heading) {
+        lbl = cleanLabelText(heading.innerText || heading.textContent || '');
+        if (lbl) return lbl.slice(0, 200);
       }
     }
-    return (lbl || '').trim().replace(/\s+/g, ' ').slice(0, 200);
+
+    // 7. General form group / field containers
+    const fieldContainer = el.closest ? el.closest('.form-group, .form-field, .field, .input-group, .ant-form-item, fieldset, tr') : null;
+    if (fieldContainer) {
+      const lOrH = fieldContainer.querySelector('label, [role="heading"], legend, .label, dt, th, .form-label');
+      if (lOrH && lOrH !== el && !el.contains(lOrH)) {
+        lbl = cleanLabelText(lOrH.innerText || lOrH.textContent || '');
+        if (lbl) return lbl.slice(0, 200);
+      }
+    }
+
+    // 8. Buttons or inputs with value
+    if (el.tagName === 'BUTTON' || el.getAttribute('role') === 'button') {
+      lbl = cleanLabelText(el.innerText || el.textContent || '');
+    } else if (el.tagName === 'INPUT' && (el.type === 'button' || el.type === 'submit')) {
+      lbl = cleanLabelText(el.getAttribute('value') || '');
+    }
+
+    // 9. Preceding sibling
+    if (!lbl && el.previousElementSibling) {
+      const prev = el.previousElementSibling;
+      const t = cleanLabelText(prev.innerText || prev.textContent || '');
+      if (t && t.length < 80) lbl = t;
+    }
+
+    return (lbl || '').slice(0, 200);
   }
 
   // Recursive tree walker supporting OPEN Shadow DOM (Task 3)
@@ -336,22 +412,30 @@
           'password', 'otp', 'card', 'aadhaar', 'pan', 'passport', 'voter_id', 'driving_licence'
         ]);
         const hasSensitivePII = allPiiTypes.some((t) => SENSITIVE_PII_TYPES.has(t));
-
         const isSensitive =
           classification.sensitive ||
           type === 'password' ||
           /cc-|one-time-code/.test(ac) ||
-          hasSensitivePII;
+          hasSensitivePII ||
+          /password|aadhaar|aadhar|pan card|pan number/i.test(rawLabel || '');
+
+        const isSubmit =
+          type === 'submit' ||
+          tag === 'button' && /submit|apply|register|send|next|proceed|save|continue/i.test(rawLabel || '') ||
+          tag === 'input' && (type === 'button' || type === 'submit') && /submit|apply|register|send|next|proceed/i.test(rawLabel || '');
 
         nodes.push({
           id: idFor(el),
           tag,
           role: role || null,
           type: type || null,
-          label: redactedLabel.text.slice(0, 40),
+          name: name || null,
+          placeholder: placeholder || null,
+          label: (rawLabel || redactedLabel.text || '').slice(0, 150),
           text: redactedLabel.text.slice(0, textLimit),
           autocomplete: ac || null,
           sensitive: isSensitive,
+          isSubmit,
           pii: allPiiTypes,
           bbox: [Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height)]
         });
