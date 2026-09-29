@@ -808,7 +808,8 @@ async function runLoopFrom(tabId, goal, startStep, history, tabUrl) {
 
           if (match && match.vaultKey && match.confidence >= 0.70) {
             const vaultKey = match.vaultKey;
-            const val = getVaultValue(vault, vaultKey);
+            const currentVault = await getDecryptedVault();
+            const val = getVaultValue(currentVault, vaultKey);
             if (val) {
               // Task 5: Data minimization check
               const isLowStakes = /newsletter|subscribe|contact|feedback|survey/i.test(cap.dom.title || '');
@@ -860,10 +861,18 @@ async function runLoopFrom(tabId, goal, startStep, history, tabUrl) {
       continue;
     }
 
+    const cleanDom = {
+      url: cap.dom.url,
+      title: cap.dom.title,
+      viewport: cap.dom.viewport,
+      scrollY: cap.dom.scrollY,
+      nodes: cap.dom.nodes
+    };
+
     const payload = {
       goal,
       step,
-      dom: cap.dom,
+      dom: cleanDom,
       screenshot: screenshotData,
       redactions: redactionManifest,
       cleared_media: redactResult?.clearedMediaIds || [],

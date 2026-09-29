@@ -22,8 +22,9 @@
     const buffer = await blob.arrayBuffer();
     const bytes = new Uint8Array(buffer);
     let bin = '';
-    for (let i = 0; i < bytes.byteLength; i++) {
-      bin += String.fromCharCode(bytes[i]);
+    const chunk = 8192;
+    for (let i = 0; i < bytes.length; i += chunk) {
+      bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
     }
     return 'data:image/jpeg;base64,' + btoa(bin);
   }
@@ -111,12 +112,23 @@
       let metrics2 = null;
       let stable = false;
 
+      const tab = (api.tabs && typeof api.tabs.get === 'function')
+        ? await api.tabs.get(tabId).catch(() => null)
+        : null;
+      const windowId = tab && typeof tab.windowId === 'number' ? tab.windowId : undefined;
+
       for (let attempt = 0; attempt < 3; attempt++) {
         metrics1 = await api.tabs.sendMessage(tabId, { type: 'GET_METRICS_AND_BOXES' }).catch(() => null);
         if (!metrics1) break;
 
         // Take visible tab screenshot
-        rawScreenshotUrl = await api.tabs.captureVisibleTab(null, { format: 'png' }).catch(() => null);
+        rawScreenshotUrl = await (windowId !== undefined
+          ? api.tabs.captureVisibleTab(windowId, { format: 'png' })
+          : api.tabs.captureVisibleTab({ format: 'png' })
+        ).catch((err) => {
+          console.warn('[VeilRedactor] captureVisibleTab failed:', err?.message || err);
+          return null;
+        });
         if (!rawScreenshotUrl) break;
 
         // Re-read scroll, zoom, dpr, and boxes
@@ -140,6 +152,9 @@
 
       if (!stable || !rawScreenshotUrl) {
         // Degrade cleanly to Strict mode if motion detected or capture failed
+        const failReason = !rawScreenshotUrl
+          ? 'Screenshot capture unavailable on this tab (e.g. file:/// URL without permission or restricted tab); operating in Strict mode (tokenized DOM only).'
+          : 'Sync check failed: page scrolled or elements moved during capture';
         return {
           image: null,
           original: null,
@@ -148,7 +163,7 @@
           clearedMediaIds: [],
           vision: null,
           degraded: true,
-          reason: 'Sync check failed: page scrolled or elements moved during capture'
+          reason: failReason
         };
       }
 
@@ -254,7 +269,15 @@
         w = Math.min(viewportWidth - x, w);
         h = Math.min(viewportHeight - y, h);
 
-        if (w <= 0 || h <= 0) continue;
+        if (w <= 0 || h <= 0) {
+          manifest.push({
+            id: item.id,
+            type: item.type,
+            bbox: [0, 0, 0, 0],
+            ...(item.parentId ? { parentId: item.parentId } : {})
+          });
+          continue;
+        }
 
         // Scale by DPR / viewport ratio
         const sx = Math.round(x * scaleX);
@@ -292,9 +315,15 @@
       }
 
       // 6. Encode redacted canvas as JPEG (Open mode uses 0.95 full resolution quality)
-      const jpegQuality = options.mode === 'Open' ? 0.95 : (options.quality || 0.85);
+      const jpegQuality = options.mode === 'Open' ? 0.90 : (options.quality || 0.80);
       const redactedBlob = await canvas.convertToBlob({ type: 'image/jpeg', quality: jpegQuality });
-      const redactedBase64 = await blobToDataUrl(redactedBlob);
+      let redactedBase64 = await blobToDataUrl(redactedBlob);
+
+      // Guardrail: if base64 exceeds protocol 2MB limit, re-encode with lower quality
+      if (redactedBase64.length > 1900000) {
+        const fallbackBlob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.60 });
+        redactedBase64 = await blobToDataUrl(fallbackBlob);
+      }
 
       return {
         image: redactedBase64,

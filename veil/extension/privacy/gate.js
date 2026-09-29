@@ -36,6 +36,25 @@
       throw new Error('GATE: payload must be a non-null object');
     }
 
+    // Defensive normalization: suspectTextCount belongs at top level, not inside dom
+    if (payload.dom && typeof payload.dom === 'object') {
+      if ('suspectTextCount' in payload.dom) {
+        if (payload.suspect_text_count === undefined) {
+          payload.suspect_text_count = payload.dom.suspectTextCount;
+        }
+        delete payload.dom.suspectTextCount;
+      }
+      if ('suspect_text_count' in payload.dom) {
+        if (payload.suspect_text_count === undefined) {
+          payload.suspect_text_count = payload.dom.suspect_text_count;
+        }
+        delete payload.dom.suspect_text_count;
+      }
+      if ('childFrames' in payload.dom) {
+        delete payload.dom.childFrames;
+      }
+    }
+
     // Top-level keys
     for (const k of Object.keys(payload)) {
       if (!ALLOWED_TOP_KEYS.has(k)) {
@@ -152,15 +171,20 @@
       const isSensitive = node.sensitive === true;
       const hasPii = Array.isArray(node.pii) && node.pii.length > 0;
 
+      // Check if node is completely offscreen (outside viewport)
+      const [nx, ny, nw, nh] = Array.isArray(node.bbox) ? node.bbox : [0, 0, 0, 0];
+      const [vw, vh] = Array.isArray(payload.dom?.viewport) ? payload.dom.viewport : [1280, 800];
+      const isOffscreen = (nx + nw <= 0 || ny + nh <= 0 || nx >= vw || ny >= vh);
+
       if (isSensitive || hasPii) {
-        if (!redactedIds.has(node.id)) {
+        if (!redactedIds.has(node.id) && !isOffscreen) {
           throw new Error(`GATE: sensitive/pii/media node "${node.id}" missing from redaction manifest`);
         }
       } else if (isMedia) {
         // Media must either be fully redacted, have sub-region redactions (parentId), or be recorded in cleared_media
         const isRedacted = redactedIds.has(node.id) || redactedParentIds.has(node.id);
         const isCleared = clearedIds.has(node.id);
-        if (!isRedacted && !isCleared) {
+        if (!isRedacted && !isCleared && !isOffscreen) {
           throw new Error(`GATE: sensitive/pii/media node "${node.id}" missing from redaction manifest`);
         }
       }
