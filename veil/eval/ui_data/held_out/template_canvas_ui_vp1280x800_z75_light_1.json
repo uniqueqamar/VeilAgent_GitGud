@@ -1,0 +1,25 @@
+{
+  "sample_id": "template_canvas_ui_vp1280x800_z75_light_1",
+  "template": "template_canvas_ui",
+  "split": "held_out",
+  "viewport": [
+    1280,
+    800
+  ],
+  "zoom": 0.75,
+  "theme": "light",
+  "font": "system-ui, sans-serif",
+  "image": "template_canvas_ui_vp1280x800_z75_light_1.png",
+  "elements": [
+    {
+      "class": "button",
+      "box": [
+        843,
+        46,
+        112,
+        23
+      ],
+      "id": "btn-dom-reset"
+    }
+  ]
+}

@@ -1,0 +1,215 @@
+{
+  "date": "2026-09-28",
+  "evaluation_split": "held_out_templates (zero template leakage)",
+  "num_held_out_samples": 48,
+  "mean_mAP_0.5": 0.0828,
+  "context_accuracy": 0.2567,
+  "canvas_widget_recall": 1.0,
+  "non_pii_ocr_accuracy": 0.968,
+  "latency_ms": {
+    "avg_step_ms": 42.92,
+    "p95_step_ms": 51.37
+  },
+  "per_class_metrics": [
+    {
+      "class": "button",
+      "precision": 0.0917,
+      "recall": 0.6875,
+      "mAP_0.5": 0.3896,
+      "gt_count": 96,
+      "tp": 66,
+      "fp": 654,
+      "fn": 30
+    },
+    {
+      "class": "text_input",
+      "precision": 0.0418,
+      "recall": 0.1667,
+      "mAP_0.5": 0.1043,
+      "gt_count": 60,
+      "tp": 10,
+      "fp": 229,
+      "fn": 50
+    },
+    {
+      "class": "checkbox",
+      "precision": 0.0,
+      "recall": 0.0,
+      "mAP_0.5": 0.0,
+      "gt_count": 12,
+      "tp": 0,
+      "fp": 4,
+      "fn": 12
+    },
+    {
+      "class": "radio",
+      "precision": 0.0,
+      "recall": 0.0,
+      "mAP_0.5": 0.0,
+      "gt_count": 36,
+      "tp": 0,
+      "fp": 0,
+      "fn": 36
+    },
+    {
+      "class": "dropdown",
+      "precision": 0.0061,
+      "recall": 0.0417,
+      "mAP_0.5": 0.0239,
+      "gt_count": 24,
+      "tp": 1,
+      "fp": 164,
+      "fn": 23
+    },
+    {
+      "class": "link",
+      "precision": 0.0,
+      "recall": 0.0,
+      "mAP_0.5": 0.0,
+      "gt_count": 72,
+      "tp": 0,
+      "fp": 3,
+      "fn": 72
+    },
+    {
+      "class": "icon",
+      "precision": 0.0,
+      "recall": 0.0,
+      "mAP_0.5": 0.0,
+      "gt_count": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0
+    },
+    {
+      "class": "image",
+      "precision": 0.0,
+      "recall": 0.0,
+      "mAP_0.5": 0.0,
+      "gt_count": 0,
+      "tp": 0,
+      "fp": 52,
+      "fn": 0
+    },
+    {
+      "class": "table",
+      "precision": 0.1203,
+      "recall": 0.6667,
+      "mAP_0.5": 0.3935,
+      "gt_count": 24,
+      "tp": 16,
+      "fp": 117,
+      "fn": 8
+    },
+    {
+      "class": "label",
+      "precision": 0.0,
+      "recall": 0.0,
+      "mAP_0.5": 0.0,
+      "gt_count": 108,
+      "tp": 0,
+      "fp": 62,
+      "fn": 108
+    },
+    {
+      "class": "dialog",
+      "precision": 0.0,
+      "recall": 0.0,
+      "mAP_0.5": 0.0,
+      "gt_count": 0,
+      "tp": 0,
+      "fp": 49,
+      "fn": 0
+    }
+  ],
+  "failure_cases": [
+    {
+      "template": "template_support_form",
+      "class": "checkbox",
+      "box": [
+        219,
+        463,
+        13,
+        13
+      ],
+      "reason": "Tiny widget below anchor receptive threshold (<16px)"
+    },
+    {
+      "template": "template_support_form",
+      "class": "radio",
+      "box": [
+        220,
+        288,
+        13,
+        13
+      ],
+      "reason": "Tiny widget below anchor receptive threshold (<16px)"
+    },
+    {
+      "template": "template_support_form",
+      "class": "radio",
+      "box": [
+        316,
+        288,
+        13,
+        13
+      ],
+      "reason": "Tiny widget below anchor receptive threshold (<16px)"
+    },
+    {
+      "template": "template_support_form",
+      "class": "radio",
+      "box": [
+        402,
+        288,
+        13,
+        13
+      ],
+      "reason": "Tiny widget below anchor receptive threshold (<16px)"
+    },
+    {
+      "template": "template_support_form",
+      "class": "checkbox",
+      "box": [
+        219,
+        450,
+        13,
+        13
+      ],
+      "reason": "Tiny widget below anchor receptive threshold (<16px)"
+    },
+    {
+      "template": "template_support_form",
+      "class": "radio",
+      "box": [
+        220,
+        276,
+        13,
+        13
+      ],
+      "reason": "Tiny widget below anchor receptive threshold (<16px)"
+    },
+    {
+      "template": "template_support_form",
+      "class": "radio",
+      "box": [
+        345,
+        276,
+        13,
+        13
+      ],
+      "reason": "Tiny widget below anchor receptive threshold (<16px)"
+    },
+    {
+      "template": "template_support_form",
+      "class": "radio",
+      "box": [
+        438,
+        276,
+        13,
+        13
+      ],
+      "reason": "Tiny widget below anchor receptive threshold (<16px)"
+    }
+  ]
+}

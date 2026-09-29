@@ -1,0 +1,115 @@
+{
+  "sample_id": "template_analytics_dashboard_vp1920x1080_z100_dark_12",
+  "template": "template_analytics_dashboard",
+  "split": "held_out",
+  "viewport": [
+    1920,
+    1080
+  ],
+  "zoom": 1.0,
+  "theme": "dark",
+  "font": "Courier New, monospace",
+  "image": "template_analytics_dashboard_vp1920x1080_z100_dark_12.png",
+  "elements": [
+    {
+      "class": "button",
+      "box": [
+        1622,
+        26,
+        122,
+        29
+      ],
+      "id": "btn-cluster-refresh"
+    },
+    {
+      "class": "button",
+      "box": [
+        1754,
+        26,
+        146,
+        29
+      ],
+      "id": "btn-drain"
+    },
+    {
+      "class": "button",
+      "box": [
+        1553,
+        251,
+        74,
+        29
+      ],
+      "id": "btn-reboot-01"
+    },
+    {
+      "class": "button",
+      "box": [
+        1553,
+        301,
+        74,
+        29
+      ],
+      "id": "btn-reboot-02"
+    },
+    {
+      "class": "text_input",
+      "box": [
+        1428,
+        26,
+        184,
+        29
+      ],
+      "id": "node-search"
+    },
+    {
+      "class": "table",
+      "box": [
+        20,
+        204,
+        1880,
+        137
+      ],
+      "id": "node-status-table"
+    },
+    {
+      "class": "label",
+      "box": [
+        37,
+        114,
+        424,
+        14
+      ],
+      "id": ""
+    },
+    {
+      "class": "label",
+      "box": [
+        511,
+        114,
+        424,
+        14
+      ],
+      "id": ""
+    },
+    {
+      "class": "label",
+      "box": [
+        985,
+        114,
+        424,
+        14
+      ],
+      "id": ""
+    },
+    {
+      "class": "label",
+      "box": [
+        1459,
+        114,
+        424,
+        14
+      ],
+      "id": ""
+    }
+  ]
+}

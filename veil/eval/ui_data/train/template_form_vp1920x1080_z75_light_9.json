@@ -1,0 +1,175 @@
+{
+  "sample_id": "template_form_vp1920x1080_z75_light_9",
+  "template": "template_form",
+  "split": "train",
+  "viewport": [
+    1920,
+    1080
+  ],
+  "zoom": 0.75,
+  "theme": "light",
+  "font": "Courier New, monospace",
+  "image": "template_form_vp1920x1080_z75_light_9.png",
+  "elements": [
+    {
+      "class": "button",
+      "box": [
+        720,
+        366,
+        125,
+        29
+      ],
+      "id": "btn-submit"
+    },
+    {
+      "class": "button",
+      "box": [
+        854,
+        366,
+        61,
+        29
+      ],
+      "id": "btn-cancel"
+    },
+    {
+      "class": "text_input",
+      "box": [
+        720,
+        114,
+        480,
+        29
+      ],
+      "id": "fullname"
+    },
+    {
+      "class": "text_input",
+      "box": [
+        720,
+        174,
+        480,
+        29
+      ],
+      "id": "email"
+    },
+    {
+      "class": "checkbox",
+      "box": [
+        723,
+        329,
+        10,
+        10
+      ],
+      "id": "terms"
+    },
+    {
+      "class": "radio",
+      "box": [
+        724,
+        297,
+        10,
+        10
+      ],
+      "id": ""
+    },
+    {
+      "class": "radio",
+      "box": [
+        819,
+        297,
+        10,
+        10
+      ],
+      "id": ""
+    },
+    {
+      "class": "radio",
+      "box": [
+        908,
+        297,
+        10,
+        10
+      ],
+      "id": ""
+    },
+    {
+      "class": "dropdown",
+      "box": [
+        720,
+        235,
+        480,
+        29
+      ],
+      "id": "region"
+    },
+    {
+      "class": "link",
+      "box": [
+        831,
+        413,
+        170,
+        11
+      ],
+      "id": "link-support"
+    },
+    {
+      "class": "link",
+      "box": [
+        1019,
+        413,
+        70,
+        11
+      ],
+      "id": "link-faq"
+    },
+    {
+      "class": "image",
+      "box": [
+        720,
+        43,
+        36,
+        36
+      ],
+      "id": ""
+    },
+    {
+      "class": "label",
+      "box": [
+        720,
+        97,
+        480,
+        12
+      ],
+      "id": ""
+    },
+    {
+      "class": "label",
+      "box": [
+        720,
+        158,
+        480,
+        12
+      ],
+      "id": ""
+    },
+    {
+      "class": "label",
+      "box": [
+        720,
+        218,
+        480,
+        12
+      ],
+      "id": ""
+    },
+    {
+      "class": "label",
+      "box": [
+        720,
+        279,
+        480,
+        12
+      ],
+      "id": ""
+    }
+  ]
+}

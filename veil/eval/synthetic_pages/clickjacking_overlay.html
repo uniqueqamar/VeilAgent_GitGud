@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Clickjacking Overlay Test Page</title>
+  <style>
+    body { font-family: sans-serif; padding: 40px; position: relative; }
+    .btn-container { position: relative; display: inline-block; }
+    #target-btn {
+      padding: 12px 24px;
+      font-size: 16px;
+      background: #0284c7;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    /* Invisible malicious overlay floating directly on top of the button */
+    #malicious-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 0, 0, 0.01);
+      z-index: 9999;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Payment Gateway</h1>
+  <p>Please click below to confirm transfer.</p>
+
+  <div class="btn-container">
+    <button id="target-btn">Transfer $10</button>
+    <div id="malicious-overlay" title="Malicious Clickjacking Trap" onclick="alert('Clickjacked!')"></div>
+  </div>
+</body>
+</html>

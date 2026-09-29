@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Veil Agent - Smart Form Autofill",
-  "version": "0.2.0",
-  "description": "Privacy-preserving on-device form autofill agent. Vault details stay 100% on your device.",
+  "name": "Veil Agent - Privacy-Preserving Vision Agent & Smart Autofill",
+  "version": "1.0.0",
+  "description": "Privacy-preserving on-device vision agent (SIH PS 26171). Client-side ViT/face redaction, tamper-evident SHA-256 gate, encrypted vault, and secure VLM planner.",
   "permissions": ["activeTab", "scripting", "storage", "tabs"],
+  "host_permissions": ["http://localhost:8000/*", "http://127.0.0.1:8000/*"],
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
@@ -38,9 +39,12 @@
       "128": "icons/icon128.png"
     }
   },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
   "web_accessible_resources": [
     {
-      "resources": ["workers/*"],
+      "resources": ["models/*", "lib/*", "workers/*"],
       "matches": ["<all_urls>"]
     }
   ]

@@ -1,0 +1,195 @@
+{
+  "sample_id": "template_support_form_vp1920x1080_z100_light_11",
+  "template": "template_support_form",
+  "split": "held_out",
+  "viewport": [
+    1920,
+    1080
+  ],
+  "zoom": 1.0,
+  "theme": "light",
+  "font": "Georgia, serif",
+  "image": "template_support_form_vp1920x1080_z100_light_11.png",
+  "elements": [
+    {
+      "class": "button",
+      "box": [
+        535,
+        483,
+        143,
+        38
+      ],
+      "id": "btn-create-ticket"
+    },
+    {
+      "class": "button",
+      "box": [
+        690,
+        483,
+        111,
+        38
+      ],
+      "id": "btn-save-draft"
+    },
+    {
+      "class": "text_input",
+      "box": [
+        535,
+        117,
+        534,
+        38
+      ],
+      "id": "ticket-subject"
+    },
+    {
+      "class": "text_input",
+      "box": [
+        535,
+        334,
+        534,
+        90
+      ],
+      "id": "ticket-details"
+    },
+    {
+      "class": "text_input",
+      "box": [
+        1143,
+        223,
+        242,
+        38
+      ],
+      "id": "kb-search"
+    },
+    {
+      "class": "checkbox",
+      "box": [
+        539,
+        449,
+        13,
+        13
+      ],
+      "id": "attach-telemetry"
+    },
+    {
+      "class": "radio",
+      "box": [
+        540,
+        276,
+        13,
+        13
+      ],
+      "id": ""
+    },
+    {
+      "class": "radio",
+      "box": [
+        647,
+        276,
+        13,
+        13
+      ],
+      "id": ""
+    },
+    {
+      "class": "radio",
+      "box": [
+        740,
+        276,
+        13,
+        13
+      ],
+      "id": ""
+    },
+    {
+      "class": "dropdown",
+      "box": [
+        535,
+        194,
+        534,
+        40
+      ],
+      "id": "ticket-category"
+    },
+    {
+      "class": "link",
+      "box": [
+        1143,
+        86,
+        242,
+        32
+      ],
+      "id": "link-doc-1"
+    },
+    {
+      "class": "link",
+      "box": [
+        1143,
+        118,
+        242,
+        32
+      ],
+      "id": "link-doc-2"
+    },
+    {
+      "class": "link",
+      "box": [
+        1143,
+        150,
+        242,
+        32
+      ],
+      "id": "link-doc-3"
+    },
+    {
+      "class": "label",
+      "box": [
+        535,
+        96,
+        534,
+        15
+      ],
+      "id": ""
+    },
+    {
+      "class": "label",
+      "box": [
+        535,
+        173,
+        534,
+        15
+      ],
+      "id": ""
+    },
+    {
+      "class": "label",
+      "box": [
+        535,
+        252,
+        534,
+        15
+      ],
+      "id": ""
+    },
+    {
+      "class": "label",
+      "box": [
+        535,
+        313,
+        534,
+        15
+      ],
+      "id": ""
+    },
+    {
+      "class": "label",
+      "box": [
+        1143,
+        202,
+        242,
+        15
+      ],
+      "id": ""
+    }
+  ]
+}

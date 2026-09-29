@@ -1,0 +1,421 @@
+{
+  "date": "2026-09-28_200055",
+  "dev": {
+    "set_name": "Dev Set (60 pages)",
+    "total_expected": 257,
+    "total_findings": 269,
+    "per_type_metrics": {
+      "email": {
+        "TP": 25,
+        "FP": 0,
+        "FN": 0,
+        "Precision": 1.0,
+        "Recall": 1.0,
+        "F1": 1.0
+      },
+      "mobile": {
+        "TP": 27,
+        "FP": 0,
+        "FN": 5,
+        "Precision": 1.0,
+        "Recall": 0.8438,
+        "F1": 0.9153
+      },
+      "aadhaar": {
+        "TP": 28,
+        "FP": 9,
+        "FN": 0,
+        "Precision": 0.7568,
+        "Recall": 1.0,
+        "F1": 0.8615
+      },
+      "pan": {
+        "TP": 24,
+        "FP": 0,
+        "FN": 0,
+        "Precision": 1.0,
+        "Recall": 1.0,
+        "F1": 1.0
+      },
+      "ifsc": {
+        "TP": 20,
+        "FP": 0,
+        "FN": 0,
+        "Precision": 1.0,
+        "Recall": 1.0,
+        "F1": 1.0
+      },
+      "upi": {
+        "TP": 29,
+        "FP": 0,
+        "FN": 0,
+        "Precision": 1.0,
+        "Recall": 1.0,
+        "F1": 1.0
+      },
+      "passport": {
+        "TP": 11,
+        "FP": 0,
+        "FN": 2,
+        "Precision": 1.0,
+        "Recall": 0.8462,
+        "F1": 0.9167
+      },
+      "voter_id": {
+        "TP": 23,
+        "FP": 0,
+        "FN": 0,
+        "Precision": 1.0,
+        "Recall": 1.0,
+        "F1": 1.0
+      },
+      "driving_licence": {
+        "TP": 11,
+        "FP": 0,
+        "FN": 0,
+        "Precision": 1.0,
+        "Recall": 1.0,
+        "F1": 1.0
+      },
+      "plate": {
+        "TP": 20,
+        "FP": 0,
+        "FN": 0,
+        "Precision": 1.0,
+        "Recall": 1.0,
+        "F1": 1.0
+      },
+      "card": {
+        "TP": 32,
+        "FP": 10,
+        "FN": 0,
+        "Precision": 0.7619,
+        "Recall": 1.0,
+        "F1": 0.8649
+      }
+    },
+    "macro_f1": 0.9599,
+    "micro_precision": 0.9294,
+    "micro_recall": 0.9728,
+    "micro_f1": 0.9506,
+    "hard_negative_false_positives": {
+      "order_id": 0,
+      "timestamp": 0,
+      "verhoeff_fail": 0,
+      "luhn_fail": 0,
+      "isbn": 10,
+      "pan_lookalike": 0
+    },
+    "unmatched_findings_sample": [
+      {
+        "page": "page_024.html",
+        "type": "card",
+        "value": "978-3-16-935457-0",
+        "confidence": 0.9,
+        "location": "p"
+      },
+      {
+        "page": "page_020.html",
+        "type": "card",
+        "value": "978-3-16-551524-0",
+        "confidence": 0.9,
+        "location": "p"
+      },
+      {
+        "page": "page_048.html",
+        "type": "card",
+        "value": "978-3-16-454245-0",
+        "confidence": 0.9,
+        "location": "p"
+      },
+      {
+        "page": "page_022.html",
+        "type": "card",
+        "value": "978-3-16-705748-0",
+        "confidence": 0.9,
+        "location": "p"
+      },
+      {
+        "page": "page_034.html",
+        "type": "card",
+        "value": "978-3-16-559450-0",
+        "confidence": 0.9,
+        "location": "p"
+      },
+      {
+        "page": "page_023.html",
+        "type": "card",
+        "value": "978-3-16-234913-0",
+        "confidence": 0.9,
+        "location": "p"
+      },
+      {
+        "page": "page_045.html",
+        "type": "aadhaar",
+        "value": "4246 2996 0653",
+        "confidence": 0.9,
+        "location": "p"
+      },
+      {
+        "page": "page_055.html",
+        "type": "aadhaar",
+        "value": "5550 3731 4530",
+        "confidence": 0.9,
+        "location": "p"
+      },
+      {
+        "page": "page_005.html",
+        "type": "aadhaar",
+        "value": "5554 1458 6850",
+        "confidence": 0.9,
+        "location": "p"
+      },
+      {
+        "page": "page_021.html",
+        "type": "aadhaar",
+        "value": "4323 7058 9578",
+        "confidence": 0.9,
+        "location": "p"
+      }
+    ],
+    "unmatched_expected_sample": [
+      {
+        "page": "page_060.html",
+        "type": "mobile",
+        "value": "918386632270",
+        "location": "p",
+        "category": "positive"
+      },
+      {
+        "page": "page_044.html",
+        "type": "mobile",
+        "value": "919205061497",
+        "location": "p",
+        "category": "positive"
+      },
+      {
+        "page": "page_056.html",
+        "type": "mobile",
+        "value": "918577908272",
+        "location": "p",
+        "category": "positive"
+      },
+      {
+        "page": "page_056.html",
+        "type": "passport",
+        "value": "Z1312392",
+        "location": "p",
+        "category": "positive"
+      },
+      {
+        "page": "page_048.html",
+        "type": "mobile",
+        "value": "918717099917",
+        "location": "p",
+        "category": "positive"
+      },
+      {
+        "page": "page_007.html",
+        "type": "passport",
+        "value": "Z1327691",
+        "location": "p",
+        "category": "positive"
+      },
+      {
+        "page": "page_046.html",
+        "type": "mobile",
+        "value": "916373678508",
+        "location": "p",
+        "category": "positive"
+      }
+    ]
+  },
+  "held_out": {
+    "set_name": "Held-Out Set (40 pages)",
+    "total_expected": 184,
+    "total_findings": 189,
+    "per_type_metrics": {
+      "email": {
+        "TP": 16,
+        "FP": 0,
+        "FN": 0,
+        "Precision": 1.0,
+        "Recall": 1.0,
+        "F1": 1.0
+      },
+      "mobile": {
+        "TP": 20,
+        "FP": 0,
+        "FN": 3,
+        "Precision": 1.0,
+        "Recall": 0.8696,
+        "F1": 0.9302
+      },
+      "aadhaar": {
+        "TP": 18,
+        "FP": 2,
+        "FN": 0,
+        "Precision": 0.9,
+        "Recall": 1.0,
+        "F1": 0.9474
+      },
+      "pan": {
+        "TP": 18,
+        "FP": 0,
+        "FN": 0,
+        "Precision": 1.0,
+        "Recall": 1.0,
+        "F1": 1.0
+      },
+      "ifsc": {
+        "TP": 18,
+        "FP": 0,
+        "FN": 0,
+        "Precision": 1.0,
+        "Recall": 1.0,
+        "F1": 1.0
+      },
+      "upi": {
+        "TP": 20,
+        "FP": 0,
+        "FN": 0,
+        "Precision": 1.0,
+        "Recall": 1.0,
+        "F1": 1.0
+      },
+      "passport": {
+        "TP": 12,
+        "FP": 0,
+        "FN": 0,
+        "Precision": 1.0,
+        "Recall": 1.0,
+        "F1": 1.0
+      },
+      "voter_id": {
+        "TP": 14,
+        "FP": 0,
+        "FN": 0,
+        "Precision": 1.0,
+        "Recall": 1.0,
+        "F1": 1.0
+      },
+      "driving_licence": {
+        "TP": 9,
+        "FP": 0,
+        "FN": 0,
+        "Precision": 1.0,
+        "Recall": 1.0,
+        "F1": 1.0
+      },
+      "plate": {
+        "TP": 15,
+        "FP": 0,
+        "FN": 0,
+        "Precision": 1.0,
+        "Recall": 1.0,
+        "F1": 1.0
+      },
+      "card": {
+        "TP": 21,
+        "FP": 6,
+        "FN": 0,
+        "Precision": 0.7778,
+        "Recall": 1.0,
+        "F1": 0.875
+      }
+    },
+    "macro_f1": 0.9775,
+    "micro_precision": 0.9577,
+    "micro_recall": 0.9837,
+    "micro_f1": 0.9705,
+    "hard_negative_false_positives": {
+      "order_id": 0,
+      "timestamp": 0,
+      "verhoeff_fail": 0,
+      "luhn_fail": 0,
+      "isbn": 6,
+      "pan_lookalike": 0
+    },
+    "unmatched_findings_sample": [
+      {
+        "page": "page_038.html",
+        "type": "card",
+        "value": "978-3-16-725751-0",
+        "confidence": 0.9,
+        "location": "p"
+      },
+      {
+        "page": "page_033.html",
+        "type": "card",
+        "value": "978-3-16-299339-0",
+        "confidence": 0.9,
+        "location": "p"
+      },
+      {
+        "page": "page_024.html",
+        "type": "card",
+        "value": "978-3-16-603472-0",
+        "confidence": 0.9,
+        "location": "p"
+      },
+      {
+        "page": "page_028.html",
+        "type": "card",
+        "value": "978-3-16-508540-0",
+        "confidence": 0.9,
+        "location": "p"
+      },
+      {
+        "page": "page_025.html",
+        "type": "aadhaar",
+        "value": "5131 4176 4609",
+        "confidence": 0.9,
+        "location": "p"
+      },
+      {
+        "page": "page_021.html",
+        "type": "card",
+        "value": "978-3-16-939139-0",
+        "confidence": 0.9,
+        "location": "p"
+      },
+      {
+        "page": "page_035.html",
+        "type": "card",
+        "value": "978-3-16-369247-0",
+        "confidence": 0.9,
+        "location": "p"
+      },
+      {
+        "page": "page_009.html",
+        "type": "aadhaar",
+        "value": "5161 3833 9554",
+        "confidence": 0.9,
+        "location": "p"
+      }
+    ],
+    "unmatched_expected_sample": [
+      {
+        "page": "page_033.html",
+        "type": "mobile",
+        "value": "919131469564",
+        "location": "p",
+        "category": "positive"
+      },
+      {
+        "page": "page_034.html",
+        "type": "mobile",
+        "value": "918536097039",
+        "location": "p",
+        "category": "positive"
+      },
+      {
+        "page": "page_007.html",
+        "type": "mobile",
+        "value": "916251965183",
+        "location": "p",
+        "category": "positive"
+      }
+    ]
+  }
+}

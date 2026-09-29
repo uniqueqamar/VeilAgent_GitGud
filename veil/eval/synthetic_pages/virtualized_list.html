@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Virtualized List & Infinite Scroll Test Page</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .list-container { width: 400px; }
+    .list-item { padding: 8px 12px; margin: 4px 0; border: 1px solid #e2e8f0; border-radius: 4px; }
+    .in-view { background: #dbeafe; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Virtualized Data Stream</h1>
+  <p>Displaying stream of 600 items</p>
+  <div class="list-container" id="list">
+    <!-- Generated dynamically -->
+  </div>
+
+  <script>
+    const list = document.getElementById('list');
+    for (let i = 1; i <= 600; i++) {
+      const div = document.createElement('div');
+      div.className = 'list-item' + (i <= 10 ? ' in-view' : '');
+      div.id = 'stream-item-' + i;
+      div.innerHTML = `<span role="text">Item Record #${i}: Data payload</span> <button id="item-btn-${i}">Action ${i}</button>`;
+      list.appendChild(div);
+    }
+  </script>
+</body>
+</html>

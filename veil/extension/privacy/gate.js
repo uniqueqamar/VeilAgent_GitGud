@@ -471,8 +471,23 @@
     };
   }
 
+  async function checkServerHealth() {
+    try {
+      const baseUrl = await getServerUrl();
+      const targetUrl = baseUrl + '/health';
+      checkServerUrl(targetUrl);
+      const res = await fetch(targetUrl, { method: 'GET' });
+      if (res.ok) {
+        const json = await res.json();
+        return { ok: true, connected: true, model: json.model };
+      }
+    } catch (_) {}
+    return { ok: true, connected: false };
+  }
+
   const VeilGate = {
     sendSanitized,
+    checkServerHealth,
     assertClean,
     assertAllowlist,
     assertRedactionManifest,

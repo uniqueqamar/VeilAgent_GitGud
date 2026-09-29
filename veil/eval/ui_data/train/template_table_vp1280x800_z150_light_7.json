@@ -1,0 +1,195 @@
+{
+  "sample_id": "template_table_vp1280x800_z150_light_7",
+  "template": "template_table",
+  "split": "train",
+  "viewport": [
+    1280,
+    800
+  ],
+  "zoom": 1.5,
+  "theme": "light",
+  "font": "system-ui, sans-serif",
+  "image": "template_table_vp1280x800_z150_light_7.png",
+  "elements": [
+    {
+      "class": "button",
+      "box": [
+        1089,
+        51,
+        155,
+        50
+      ],
+      "id": "btn-add"
+    },
+    {
+      "class": "button",
+      "box": [
+        870,
+        435,
+        126,
+        49
+      ],
+      "id": "btn-prev"
+    },
+    {
+      "class": "button",
+      "box": [
+        1008,
+        435,
+        61,
+        49
+      ],
+      "id": "btn-page-1"
+    },
+    {
+      "class": "button",
+      "box": [
+        1081,
+        435,
+        61,
+        49
+      ],
+      "id": "btn-page-2"
+    },
+    {
+      "class": "button",
+      "box": [
+        1154,
+        435,
+        90,
+        49
+      ],
+      "id": "btn-next"
+    },
+    {
+      "class": "text_input",
+      "box": [
+        598,
+        51,
+        281,
+        50
+      ],
+      "id": "search-filter"
+    },
+    {
+      "class": "checkbox",
+      "box": [
+        67,
+        170,
+        20,
+        20
+      ],
+      "id": "select-all"
+    },
+    {
+      "class": "checkbox",
+      "box": [
+        67,
+        236,
+        20,
+        20
+      ],
+      "id": "row-1"
+    },
+    {
+      "class": "checkbox",
+      "box": [
+        67,
+        302,
+        20,
+        20
+      ],
+      "id": "row-2"
+    },
+    {
+      "class": "checkbox",
+      "box": [
+        67,
+        368,
+        20,
+        20
+      ],
+      "id": "row-3"
+    },
+    {
+      "class": "dropdown",
+      "box": [
+        897,
+        51,
+        174,
+        50
+      ],
+      "id": "status-filter"
+    },
+    {
+      "class": "link",
+      "box": [
+        985,
+        232,
+        69,
+        28
+      ],
+      "id": "link-view-1"
+    },
+    {
+      "class": "link",
+      "box": [
+        1078,
+        232,
+        68,
+        28
+      ],
+      "id": "link-edit-1"
+    },
+    {
+      "class": "link",
+      "box": [
+        985,
+        298,
+        69,
+        28
+      ],
+      "id": "link-view-2"
+    },
+    {
+      "class": "link",
+      "box": [
+        1078,
+        298,
+        68,
+        28
+      ],
+      "id": "link-edit-2"
+    },
+    {
+      "class": "link",
+      "box": [
+        985,
+        364,
+        69,
+        28
+      ],
+      "id": "link-view-3"
+    },
+    {
+      "class": "link",
+      "box": [
+        1078,
+        364,
+        68,
+        28
+      ],
+      "id": "link-edit-3"
+    },
+    {
+      "class": "table",
+      "box": [
+        36,
+        146,
+        1208,
+        265
+      ],
+      "id": "records-table"
+    }
+  ]
+}

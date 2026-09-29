@@ -740,7 +740,7 @@
       statusPill.textContent = 'Filling...';
       btnRun.disabled = true;
       btnStop.disabled = false;
-    } else if (status === 'waiting_submit_approval') {
+    } else if (status === 'waiting_submit_approval' || (status === 'waiting_approval' && state.pendingSubmitAction)) {
       statusPill.classList.add('approval');
       statusPill.textContent = 'Approval Needed';
       btnRun.disabled = false;

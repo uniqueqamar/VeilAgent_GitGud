@@ -1,0 +1,2270 @@
+{
+  "images": {
+    "aadhaar_en_clean.png": {
+      "type": "aadhaar_en",
+      "variant": "clean",
+      "width": 500,
+      "height": 310,
+      "pii": [
+        {
+          "type": "aadhaar",
+          "text": "304332181964",
+          "bbox": [
+            140,
+            210,
+            190,
+            25
+          ]
+        },
+        {
+          "type": "mobile",
+          "text": "+91 98765 43210",
+          "bbox": [
+            150,
+            155,
+            140,
+            18
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            60,
+            110,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "aadhaar_en_rotated.png": {
+      "type": "aadhaar_en",
+      "variant": "rotated",
+      "width": 518,
+      "height": 340,
+      "pii": [
+        {
+          "type": "aadhaar",
+          "text": "304332181964",
+          "bbox": [
+            140,
+            210,
+            190,
+            25
+          ]
+        },
+        {
+          "type": "mobile",
+          "text": "+91 98765 43210",
+          "bbox": [
+            150,
+            155,
+            140,
+            18
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            60,
+            110,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "aadhaar_en_blur.png": {
+      "type": "aadhaar_en",
+      "variant": "blur",
+      "width": 500,
+      "height": 310,
+      "pii": [
+        {
+          "type": "aadhaar",
+          "text": "304332181964",
+          "bbox": [
+            140,
+            210,
+            190,
+            25
+          ]
+        },
+        {
+          "type": "mobile",
+          "text": "+91 98765 43210",
+          "bbox": [
+            150,
+            155,
+            140,
+            18
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            60,
+            110,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "aadhaar_en_lowres.png": {
+      "type": "aadhaar_en",
+      "variant": "lowres",
+      "width": 500,
+      "height": 310,
+      "pii": [
+        {
+          "type": "aadhaar",
+          "text": "304332181964",
+          "bbox": [
+            140,
+            210,
+            190,
+            25
+          ]
+        },
+        {
+          "type": "mobile",
+          "text": "+91 98765 43210",
+          "bbox": [
+            150,
+            155,
+            140,
+            18
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            60,
+            110,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "aadhaar_en_jpeg.jpg": {
+      "type": "aadhaar_en",
+      "variant": "jpeg",
+      "width": 500,
+      "height": 310,
+      "pii": [
+        {
+          "type": "aadhaar",
+          "text": "304332181964",
+          "bbox": [
+            140,
+            210,
+            190,
+            25
+          ]
+        },
+        {
+          "type": "mobile",
+          "text": "+91 98765 43210",
+          "bbox": [
+            150,
+            155,
+            140,
+            18
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            60,
+            110,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "aadhaar_en_darkmode.png": {
+      "type": "aadhaar_en",
+      "variant": "darkmode",
+      "width": 500,
+      "height": 310,
+      "pii": [
+        {
+          "type": "aadhaar",
+          "text": "304332181964",
+          "bbox": [
+            140,
+            210,
+            190,
+            25
+          ]
+        },
+        {
+          "type": "mobile",
+          "text": "+91 98765 43210",
+          "bbox": [
+            150,
+            155,
+            140,
+            18
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            60,
+            110,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "aadhaar_en_smallfont.png": {
+      "type": "aadhaar_en",
+      "variant": "smallfont",
+      "width": 350,
+      "height": 217,
+      "pii": [
+        {
+          "type": "aadhaar",
+          "text": "304332181964",
+          "bbox": [
+            98,
+            147,
+            133,
+            17
+          ]
+        },
+        {
+          "type": "mobile",
+          "text": "+91 98765 43210",
+          "bbox": [
+            105,
+            108,
+            98,
+            12
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            14,
+            42,
+            77,
+            91
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "aadhaar_en_screen_photo.png": {
+      "type": "aadhaar_en",
+      "variant": "screen_photo",
+      "width": 500,
+      "height": 310,
+      "pii": [
+        {
+          "type": "aadhaar",
+          "text": "304332181964",
+          "bbox": [
+            140,
+            210,
+            190,
+            25
+          ]
+        },
+        {
+          "type": "mobile",
+          "text": "+91 98765 43210",
+          "bbox": [
+            150,
+            155,
+            140,
+            18
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            60,
+            110,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "aadhaar_hi_clean.png": {
+      "type": "aadhaar_hi",
+      "variant": "clean",
+      "width": 500,
+      "height": 310,
+      "pii": [
+        {
+          "type": "aadhaar",
+          "text": "333890838631",
+          "bbox": [
+            140,
+            210,
+            190,
+            25
+          ]
+        },
+        {
+          "type": "mobile",
+          "text": "+91 91234 56789",
+          "bbox": [
+            150,
+            155,
+            140,
+            18
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            60,
+            110,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "aadhaar_hi_rotated.png": {
+      "type": "aadhaar_hi",
+      "variant": "rotated",
+      "width": 518,
+      "height": 340,
+      "pii": [
+        {
+          "type": "aadhaar",
+          "text": "333890838631",
+          "bbox": [
+            140,
+            210,
+            190,
+            25
+          ]
+        },
+        {
+          "type": "mobile",
+          "text": "+91 91234 56789",
+          "bbox": [
+            150,
+            155,
+            140,
+            18
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            60,
+            110,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "aadhaar_hi_blur.png": {
+      "type": "aadhaar_hi",
+      "variant": "blur",
+      "width": 500,
+      "height": 310,
+      "pii": [
+        {
+          "type": "aadhaar",
+          "text": "333890838631",
+          "bbox": [
+            140,
+            210,
+            190,
+            25
+          ]
+        },
+        {
+          "type": "mobile",
+          "text": "+91 91234 56789",
+          "bbox": [
+            150,
+            155,
+            140,
+            18
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            60,
+            110,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "aadhaar_hi_lowres.png": {
+      "type": "aadhaar_hi",
+      "variant": "lowres",
+      "width": 500,
+      "height": 310,
+      "pii": [
+        {
+          "type": "aadhaar",
+          "text": "333890838631",
+          "bbox": [
+            140,
+            210,
+            190,
+            25
+          ]
+        },
+        {
+          "type": "mobile",
+          "text": "+91 91234 56789",
+          "bbox": [
+            150,
+            155,
+            140,
+            18
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            60,
+            110,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "aadhaar_hi_jpeg.jpg": {
+      "type": "aadhaar_hi",
+      "variant": "jpeg",
+      "width": 500,
+      "height": 310,
+      "pii": [
+        {
+          "type": "aadhaar",
+          "text": "333890838631",
+          "bbox": [
+            140,
+            210,
+            190,
+            25
+          ]
+        },
+        {
+          "type": "mobile",
+          "text": "+91 91234 56789",
+          "bbox": [
+            150,
+            155,
+            140,
+            18
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            60,
+            110,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "aadhaar_hi_darkmode.png": {
+      "type": "aadhaar_hi",
+      "variant": "darkmode",
+      "width": 500,
+      "height": 310,
+      "pii": [
+        {
+          "type": "aadhaar",
+          "text": "333890838631",
+          "bbox": [
+            140,
+            210,
+            190,
+            25
+          ]
+        },
+        {
+          "type": "mobile",
+          "text": "+91 91234 56789",
+          "bbox": [
+            150,
+            155,
+            140,
+            18
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            60,
+            110,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "aadhaar_hi_smallfont.png": {
+      "type": "aadhaar_hi",
+      "variant": "smallfont",
+      "width": 350,
+      "height": 217,
+      "pii": [
+        {
+          "type": "aadhaar",
+          "text": "333890838631",
+          "bbox": [
+            98,
+            147,
+            133,
+            17
+          ]
+        },
+        {
+          "type": "mobile",
+          "text": "+91 91234 56789",
+          "bbox": [
+            105,
+            108,
+            98,
+            12
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            14,
+            42,
+            77,
+            91
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "aadhaar_hi_screen_photo.png": {
+      "type": "aadhaar_hi",
+      "variant": "screen_photo",
+      "width": 500,
+      "height": 310,
+      "pii": [
+        {
+          "type": "aadhaar",
+          "text": "333890838631",
+          "bbox": [
+            140,
+            210,
+            190,
+            25
+          ]
+        },
+        {
+          "type": "mobile",
+          "text": "+91 91234 56789",
+          "bbox": [
+            150,
+            155,
+            140,
+            18
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            60,
+            110,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "pan_card_clean.png": {
+      "type": "pan_card",
+      "variant": "clean",
+      "width": 480,
+      "height": 290,
+      "pii": [
+        {
+          "type": "pan",
+          "text": "ABCPK1234F",
+          "bbox": [
+            140,
+            180,
+            160,
+            24
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            55,
+            100,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "pan_card_rotated.png": {
+      "type": "pan_card",
+      "variant": "rotated",
+      "width": 498,
+      "height": 320,
+      "pii": [
+        {
+          "type": "pan",
+          "text": "ABCPK1234F",
+          "bbox": [
+            140,
+            180,
+            160,
+            24
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            55,
+            100,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "pan_card_blur.png": {
+      "type": "pan_card",
+      "variant": "blur",
+      "width": 480,
+      "height": 290,
+      "pii": [
+        {
+          "type": "pan",
+          "text": "ABCPK1234F",
+          "bbox": [
+            140,
+            180,
+            160,
+            24
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            55,
+            100,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "pan_card_lowres.png": {
+      "type": "pan_card",
+      "variant": "lowres",
+      "width": 480,
+      "height": 290,
+      "pii": [
+        {
+          "type": "pan",
+          "text": "ABCPK1234F",
+          "bbox": [
+            140,
+            180,
+            160,
+            24
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            55,
+            100,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "pan_card_jpeg.jpg": {
+      "type": "pan_card",
+      "variant": "jpeg",
+      "width": 480,
+      "height": 290,
+      "pii": [
+        {
+          "type": "pan",
+          "text": "ABCPK1234F",
+          "bbox": [
+            140,
+            180,
+            160,
+            24
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            55,
+            100,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "pan_card_darkmode.png": {
+      "type": "pan_card",
+      "variant": "darkmode",
+      "width": 480,
+      "height": 290,
+      "pii": [
+        {
+          "type": "pan",
+          "text": "ABCPK1234F",
+          "bbox": [
+            140,
+            180,
+            160,
+            24
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            55,
+            100,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "pan_card_smallfont.png": {
+      "type": "pan_card",
+      "variant": "smallfont",
+      "width": 336,
+      "height": 203,
+      "pii": [
+        {
+          "type": "pan",
+          "text": "ABCPK1234F",
+          "bbox": [
+            98,
+            125,
+            112,
+            16
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            14,
+            38,
+            70,
+            91
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "pan_card_screen_photo.png": {
+      "type": "pan_card",
+      "variant": "screen_photo",
+      "width": 480,
+      "height": 290,
+      "pii": [
+        {
+          "type": "pan",
+          "text": "ABCPK1234F",
+          "bbox": [
+            140,
+            180,
+            160,
+            24
+          ]
+        }
+      ],
+      "faces": [
+        {
+          "category": "standard",
+          "bbox": [
+            20,
+            55,
+            100,
+            130
+          ]
+        }
+      ],
+      "is_hard_negative": false
+    },
+    "bank_statement_clean.png": {
+      "type": "bank_statement",
+      "variant": "clean",
+      "width": 550,
+      "height": 360,
+      "pii": [
+        {
+          "type": "ifsc",
+          "text": "SBIN0001234",
+          "bbox": [
+            20,
+            85,
+            160,
+            18
+          ]
+        },
+        {
+          "type": "card",
+          "text": "4532265423511615",
+          "bbox": [
+            20,
+            110,
+            220,
+            18
+          ]
+        },
+        {
+          "type": "upi",
+          "text": "merchant@okaxis",
+          "bbox": [
+            120,
+            205,
+            130,
+            18
+          ]
+        }
+      ],
+      "faces": [],
+      "is_hard_negative": false
+    },
+    "bank_statement_rotated.png": {
+      "type": "bank_statement",
+      "variant": "rotated",
+      "width": 572,
+      "height": 394,
+      "pii": [
+        {
+          "type": "ifsc",
+          "text": "SBIN0001234",
+          "bbox": [
+            20,
+            85,
+            160,
+            18
+          ]
+        },
+        {
+          "type": "card",
+          "text": "4532265423511615",
+          "bbox": [
+            20,
+            110,
+            220,
+            18
+          ]
+        },
+        {
+          "type": "upi",
+          "text": "merchant@okaxis",
+          "bbox": [
+            120,
+            205,
+            130,
+            18
+          ]
+        }
+      ],
+      "faces": [],
+      "is_hard_negative": false
+    },
+    "bank_statement_blur.png": {
+      "type": "bank_statement",
+      "variant": "blur",
+      "width": 550,
+      "height": 360,
+      "pii": [
+        {
+          "type": "ifsc",
+          "text": "SBIN0001234",
+          "bbox": [
+            20,
+            85,
+            160,
+            18
+          ]
+        },
+        {
+          "type": "card",
+          "text": "4532265423511615",
+          "bbox": [
+            20,
+            110,
+            220,
+            18
+          ]
+        },
+        {
+          "type": "upi",
+          "text": "merchant@okaxis",
+          "bbox": [
+            120,
+            205,
+            130,
+            18
+          ]
+        }
+      ],
+      "faces": [],
+      "is_hard_negative": false
+    },
+    "bank_statement_lowres.png": {
+      "type": "bank_statement",
+      "variant": "lowres",
+      "width": 550,
+      "height": 360,
+      "pii": [
+        {
+          "type": "ifsc",
+          "text": "SBIN0001234",
+          "bbox": [
+            20,
+            85,
+            160,
+            18
+          ]
+        },
+        {
+          "type": "card",
+          "text": "4532265423511615",
+          "bbox": [
+            20,
+            110,
+            220,
+            18
+          ]
+        },
+        {
+          "type": "upi",
+          "text": "merchant@okaxis",
+          "bbox": [
+            120,
+            205,
+            130,
+            18
+          ]
+        }
+      ],
+      "faces": [],
+      "is_hard_negative": false
+    },
+    "bank_statement_jpeg.jpg": {
+      "type": "bank_statement",
+      "variant": "jpeg",
+      "width": 550,
+      "height": 360,
+      "pii": [
+        {
+          "type": "ifsc",
+          "text": "SBIN0001234",
+          "bbox": [
+            20,
+            85,
+            160,
+            18
+          ]
+        },
+        {
+          "type": "card",
+          "text": "4532265423511615",
+          "bbox": [
+            20,
+            110,
+            220,
+            18
+          ]
+        },
+        {
+          "type": "upi",
+          "text": "merchant@okaxis",
+          "bbox": [
+            120,
+            205,
+            130,
+            18
+          ]
+        }
+      ],
+      "faces": [],
+      "is_hard_negative": false
+    },
+    "bank_statement_darkmode.png": {
+      "type": "bank_statement",
+      "variant": "darkmode",
+      "width": 550,
+      "height": 360,
+      "pii": [
+        {
+          "type": "ifsc",
+          "text": "SBIN0001234",
+          "bbox": [
+            20,
+            85,
+            160,
+            18
+          ]
+        },
+        {
+          "type": "card",
+          "text": "4532265423511615",
+          "bbox": [
+            20,
+            110,
+            220,
+            18
+          ]
+        },
+        {
+          "type": "upi",
+          "text": "merchant@okaxis",
+          "bbox": [
+            120,
+            205,
+            130,
+            18
+          ]
+        }
+      ],
+      "faces": [],
+      "is_hard_negative": false
+    },
+    "bank_statement_smallfont.png": {
+      "type": "bank_statement",
+      "variant": "smallfont",
+      "width": 385,
+      "height": 251,
+      "pii": [
+        {
+          "type": "ifsc",
+          "text": "SBIN0001234",
+          "bbox": [
+            14,
+            59,
+            112,
+            12
+          ]
+        },
+        {
+          "type": "card",
+          "text": "4532265423511615",
+          "bbox": [
+            14,
+            77,
+            154,
+            12
+          ]
+        },
+        {
+          "type": "upi",
+          "text": "merchant@okaxis",
+          "bbox": [
+            84,
+            143,
+            91,
+            12
+          ]
+        }
+      ],
+      "faces": [],
+      "is_hard_negative": false
+    },
+    "bank_statement_screen_photo.png": {
+      "type": "bank_statement",
+      "variant": "screen_photo",
+      "width": 550,
+      "height": 360,
+      "pii": [
+        {
+          "type": "ifsc",
+          "text": "SBIN0001234",
+          "bbox": [
+            20,
+            85,
+            160,
+            18
+          ]
+        },
+        {
+          "type": "card",
+          "text": "4532265423511615",
+          "bbox": [
+            20,
+            110,
+            220,
+            18
+          ]
+        },
+        {
+          "type": "upi",
+          "text": "merchant@okaxis",
+          "bbox": [
+            120,
+            205,
+            130,
+            18
+          ]
+        }
+      ],
+      "faces": [],
+      "is_hard_negative": false
+    },
+    "face_young_light.png": {
+      "type": "face",
+      "faces": [
+        {
+          "category": "face_young_light",
+          "bbox": [
+            30,
+            25,
+            180,
+            190
+          ]
+        }
+      ],
+      "pii": [],
+      "is_hard_negative": false
+    },
+    "face_young_medium.png": {
+      "type": "face",
+      "faces": [
+        {
+          "category": "face_young_medium",
+          "bbox": [
+            30,
+            25,
+            180,
+            190
+          ]
+        }
+      ],
+      "pii": [],
+      "is_hard_negative": false
+    },
+    "face_young_deep.png": {
+      "type": "face",
+      "faces": [
+        {
+          "category": "face_young_deep",
+          "bbox": [
+            30,
+            25,
+            180,
+            190
+          ]
+        }
+      ],
+      "pii": [],
+      "is_hard_negative": false
+    },
+    "face_glasses_light.png": {
+      "type": "face",
+      "faces": [
+        {
+          "category": "face_glasses_light",
+          "bbox": [
+            30,
+            25,
+            180,
+            190
+          ]
+        }
+      ],
+      "pii": [],
+      "is_hard_negative": false
+    },
+    "face_glasses_dark.png": {
+      "type": "face",
+      "faces": [
+        {
+          "category": "face_glasses_dark",
+          "bbox": [
+            30,
+            25,
+            180,
+            190
+          ]
+        }
+      ],
+      "pii": [],
+      "is_hard_negative": false
+    },
+    "face_mask_light.png": {
+      "type": "face",
+      "faces": [
+        {
+          "category": "face_mask_light",
+          "bbox": [
+            30,
+            25,
+            180,
+            190
+          ]
+        }
+      ],
+      "pii": [],
+      "is_hard_negative": false
+    },
+    "face_mask_deep.png": {
+      "type": "face",
+      "faces": [
+        {
+          "category": "face_mask_deep",
+          "bbox": [
+            30,
+            25,
+            180,
+            190
+          ]
+        }
+      ],
+      "pii": [],
+      "is_hard_negative": false
+    },
+    "face_elder_light.png": {
+      "type": "face",
+      "faces": [
+        {
+          "category": "face_elder_light",
+          "bbox": [
+            30,
+            25,
+            180,
+            190
+          ]
+        }
+      ],
+      "pii": [],
+      "is_hard_negative": false
+    },
+    "face_elder_deep.png": {
+      "type": "face",
+      "faces": [
+        {
+          "category": "face_elder_deep",
+          "bbox": [
+            30,
+            25,
+            180,
+            190
+          ]
+        }
+      ],
+      "pii": [],
+      "is_hard_negative": false
+    },
+    "face_profile_left.png": {
+      "type": "face",
+      "faces": [
+        {
+          "category": "face_profile_left",
+          "bbox": [
+            30,
+            25,
+            180,
+            190
+          ]
+        }
+      ],
+      "pii": [],
+      "is_hard_negative": false
+    },
+    "faces_group_photo.png": {
+      "type": "face_group",
+      "faces": [
+        {
+          "category": "small_face",
+          "bbox": [
+            40,
+            60,
+            90,
+            110
+          ]
+        },
+        {
+          "category": "small_face",
+          "bbox": [
+            190,
+            50,
+            100,
+            120
+          ]
+        },
+        {
+          "category": "small_face",
+          "bbox": [
+            340,
+            65,
+            85,
+            105
+          ]
+        }
+      ],
+      "pii": [],
+      "is_hard_negative": false,
+      "width": 480,
+      "height": 260
+    },
+    "neg_geometric_logo.png": {
+      "type": "logo",
+      "faces": [],
+      "pii": [],
+      "is_hard_negative": true
+    },
+    "neg_statue_silhouette.png": {
+      "type": "statue",
+      "faces": [],
+      "pii": [],
+      "is_hard_negative": true
+    },
+    "neg_abstract_art.png": {
+      "type": "poster",
+      "faces": [],
+      "pii": [],
+      "is_hard_negative": true
+    },
+    "neg_animal_silhouette.png": {
+      "type": "animal",
+      "faces": [],
+      "pii": [],
+      "is_hard_negative": true
+    },
+    "neg_nonpii_text.png": {
+      "type": "text",
+      "faces": [],
+      "pii": [],
+      "is_hard_negative": true
+    },
+    "neg_invalid_numbers_table.png": {
+      "type": "invalid_numbers",
+      "faces": [],
+      "pii": [],
+      "is_hard_negative": true
+    },
+    "neg_scenery_landscape.png": {
+      "type": "landscape",
+      "faces": [],
+      "pii": [],
+      "is_hard_negative": true
+    },
+    "neg_circuit_diagram.png": {
+      "type": "diagram",
+      "faces": [],
+      "pii": [],
+      "is_hard_negative": true
+    }
+  },
+  "pages": {
+    "dev_001.html": {
+      "split": "dev",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "aadhaar_en_jpeg.jpg",
+        "neg_statue_silhouette.png"
+      ]
+    },
+    "dev_002.html": {
+      "split": "dev",
+      "embed_mode": "css_bg",
+      "elements": [
+        "aadhaar_en_screen_photo.png",
+        "faces_group_photo.png"
+      ]
+    },
+    "dev_003.html": {
+      "split": "dev",
+      "embed_mode": "video_poster",
+      "elements": [
+        "aadhaar_hi_clean.png",
+        "neg_nonpii_text.png"
+      ]
+    },
+    "dev_004.html": {
+      "split": "dev",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "aadhaar_hi_lowres.png",
+        "face_young_medium.png"
+      ]
+    },
+    "dev_005.html": {
+      "split": "dev",
+      "embed_mode": "img_standard",
+      "elements": [
+        "aadhaar_hi_smallfont.png",
+        "face_glasses_light.png",
+        "neg_geometric_logo.png"
+      ]
+    },
+    "dev_006.html": {
+      "split": "dev",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "bank_statement_darkmode.png",
+        "neg_circuit_diagram.png"
+      ]
+    },
+    "dev_007.html": {
+      "split": "dev",
+      "embed_mode": "css_bg",
+      "elements": [
+        "bank_statement_rotated.png",
+        "face_glasses_dark.png"
+      ]
+    },
+    "dev_008.html": {
+      "split": "dev",
+      "embed_mode": "video_poster",
+      "elements": [
+        "pan_card_blur.png",
+        "neg_abstract_art.png"
+      ]
+    },
+    "dev_009.html": {
+      "split": "dev",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "pan_card_jpeg.jpg",
+        "face_elder_light.png"
+      ]
+    },
+    "dev_010.html": {
+      "split": "dev",
+      "embed_mode": "img_standard",
+      "elements": [
+        "pan_card_screen_photo.png",
+        "face_profile_left.png",
+        "neg_scenery_landscape.png"
+      ]
+    },
+    "dev_011.html": {
+      "split": "dev",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "aadhaar_en_clean.png",
+        "neg_nonpii_text.png"
+      ]
+    },
+    "dev_012.html": {
+      "split": "dev",
+      "embed_mode": "css_bg",
+      "elements": [
+        "aadhaar_en_lowres.png",
+        "face_mask_light.png"
+      ]
+    },
+    "dev_013.html": {
+      "split": "dev",
+      "embed_mode": "video_poster",
+      "elements": [
+        "aadhaar_en_smallfont.png",
+        "neg_geometric_logo.png"
+      ]
+    },
+    "dev_014.html": {
+      "split": "dev",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "aadhaar_hi_darkmode.png",
+        "face_mask_deep.png"
+      ]
+    },
+    "dev_015.html": {
+      "split": "dev",
+      "embed_mode": "img_standard",
+      "elements": [
+        "aadhaar_hi_rotated.png",
+        "face_young_medium.png",
+        "neg_animal_silhouette.png"
+      ]
+    },
+    "dev_016.html": {
+      "split": "dev",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "bank_statement_blur.png",
+        "neg_abstract_art.png"
+      ]
+    },
+    "dev_017.html": {
+      "split": "dev",
+      "embed_mode": "css_bg",
+      "elements": [
+        "bank_statement_jpeg.jpg",
+        "face_young_light.png"
+      ]
+    },
+    "dev_018.html": {
+      "split": "dev",
+      "embed_mode": "video_poster",
+      "elements": [
+        "bank_statement_screen_photo.png",
+        "neg_scenery_landscape.png"
+      ]
+    },
+    "dev_019.html": {
+      "split": "dev",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "pan_card_clean.png",
+        "face_young_deep.png"
+      ]
+    },
+    "dev_020.html": {
+      "split": "dev",
+      "embed_mode": "img_standard",
+      "elements": [
+        "pan_card_lowres.png",
+        "face_elder_light.png",
+        "neg_invalid_numbers_table.png"
+      ]
+    },
+    "dev_021.html": {
+      "split": "dev",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "pan_card_smallfont.png",
+        "neg_geometric_logo.png"
+      ]
+    },
+    "dev_022.html": {
+      "split": "dev",
+      "embed_mode": "css_bg",
+      "elements": [
+        "aadhaar_en_darkmode.png",
+        "face_elder_deep.png"
+      ]
+    },
+    "dev_023.html": {
+      "split": "dev",
+      "embed_mode": "video_poster",
+      "elements": [
+        "aadhaar_en_rotated.png",
+        "neg_animal_silhouette.png"
+      ]
+    },
+    "dev_024.html": {
+      "split": "dev",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "aadhaar_hi_blur.png",
+        "faces_group_photo.png"
+      ]
+    },
+    "dev_025.html": {
+      "split": "dev",
+      "embed_mode": "img_standard",
+      "elements": [
+        "aadhaar_hi_jpeg.jpg",
+        "face_mask_deep.png",
+        "neg_statue_silhouette.png"
+      ]
+    },
+    "dev_026.html": {
+      "split": "dev",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "aadhaar_hi_screen_photo.png",
+        "neg_scenery_landscape.png"
+      ]
+    },
+    "dev_027.html": {
+      "split": "dev",
+      "embed_mode": "css_bg",
+      "elements": [
+        "bank_statement_clean.png",
+        "face_glasses_light.png"
+      ]
+    },
+    "dev_028.html": {
+      "split": "dev",
+      "embed_mode": "video_poster",
+      "elements": [
+        "bank_statement_lowres.png",
+        "neg_invalid_numbers_table.png"
+      ]
+    },
+    "dev_029.html": {
+      "split": "dev",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "bank_statement_smallfont.png",
+        "face_glasses_dark.png"
+      ]
+    },
+    "dev_030.html": {
+      "split": "dev",
+      "embed_mode": "img_standard",
+      "elements": [
+        "pan_card_darkmode.png",
+        "face_young_deep.png",
+        "neg_circuit_diagram.png"
+      ]
+    },
+    "dev_031.html": {
+      "split": "dev",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "pan_card_rotated.png",
+        "neg_animal_silhouette.png"
+      ]
+    },
+    "dev_032.html": {
+      "split": "dev",
+      "embed_mode": "css_bg",
+      "elements": [
+        "aadhaar_en_blur.png",
+        "face_profile_left.png"
+      ]
+    },
+    "dev_033.html": {
+      "split": "dev",
+      "embed_mode": "video_poster",
+      "elements": [
+        "aadhaar_en_jpeg.jpg",
+        "neg_statue_silhouette.png"
+      ]
+    },
+    "dev_034.html": {
+      "split": "dev",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "aadhaar_en_screen_photo.png",
+        "face_mask_light.png"
+      ]
+    },
+    "dev_035.html": {
+      "split": "dev",
+      "embed_mode": "img_standard",
+      "elements": [
+        "aadhaar_hi_clean.png",
+        "faces_group_photo.png",
+        "neg_nonpii_text.png"
+      ]
+    },
+    "dev_036.html": {
+      "split": "dev",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "aadhaar_hi_lowres.png",
+        "neg_invalid_numbers_table.png"
+      ]
+    },
+    "dev_037.html": {
+      "split": "dev",
+      "embed_mode": "css_bg",
+      "elements": [
+        "aadhaar_hi_smallfont.png",
+        "face_young_medium.png"
+      ]
+    },
+    "dev_038.html": {
+      "split": "dev",
+      "embed_mode": "video_poster",
+      "elements": [
+        "bank_statement_darkmode.png",
+        "neg_circuit_diagram.png"
+      ]
+    },
+    "dev_039.html": {
+      "split": "dev",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "bank_statement_rotated.png",
+        "face_young_light.png"
+      ]
+    },
+    "dev_040.html": {
+      "split": "dev",
+      "embed_mode": "img_standard",
+      "elements": [
+        "pan_card_blur.png",
+        "face_glasses_dark.png",
+        "neg_abstract_art.png"
+      ]
+    },
+    "dev_041.html": {
+      "split": "dev",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "pan_card_jpeg.jpg",
+        "neg_statue_silhouette.png"
+      ]
+    },
+    "dev_042.html": {
+      "split": "dev",
+      "embed_mode": "css_bg",
+      "elements": [
+        "pan_card_screen_photo.png",
+        "face_elder_light.png"
+      ]
+    },
+    "dev_043.html": {
+      "split": "dev",
+      "embed_mode": "video_poster",
+      "elements": [
+        "aadhaar_en_clean.png",
+        "neg_nonpii_text.png"
+      ]
+    },
+    "dev_044.html": {
+      "split": "dev",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "aadhaar_en_lowres.png",
+        "face_elder_deep.png"
+      ]
+    },
+    "dev_045.html": {
+      "split": "dev",
+      "embed_mode": "img_standard",
+      "elements": [
+        "aadhaar_en_smallfont.png",
+        "face_mask_light.png",
+        "neg_geometric_logo.png"
+      ]
+    },
+    "dev_046.html": {
+      "split": "dev",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "aadhaar_hi_darkmode.png",
+        "neg_circuit_diagram.png"
+      ]
+    },
+    "dev_047.html": {
+      "split": "dev",
+      "embed_mode": "css_bg",
+      "elements": [
+        "aadhaar_hi_rotated.png",
+        "face_mask_deep.png"
+      ]
+    },
+    "dev_048.html": {
+      "split": "dev",
+      "embed_mode": "video_poster",
+      "elements": [
+        "bank_statement_blur.png",
+        "neg_abstract_art.png"
+      ]
+    },
+    "dev_049.html": {
+      "split": "dev",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "bank_statement_jpeg.jpg",
+        "face_glasses_light.png"
+      ]
+    },
+    "dev_050.html": {
+      "split": "dev",
+      "embed_mode": "img_standard",
+      "elements": [
+        "bank_statement_screen_photo.png",
+        "face_young_light.png",
+        "neg_scenery_landscape.png"
+      ]
+    },
+    "dev_051.html": {
+      "split": "dev",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "pan_card_clean.png",
+        "neg_nonpii_text.png"
+      ]
+    },
+    "dev_052.html": {
+      "split": "dev",
+      "embed_mode": "css_bg",
+      "elements": [
+        "pan_card_lowres.png",
+        "face_young_deep.png"
+      ]
+    },
+    "dev_053.html": {
+      "split": "dev",
+      "embed_mode": "video_poster",
+      "elements": [
+        "pan_card_smallfont.png",
+        "neg_geometric_logo.png"
+      ]
+    },
+    "dev_054.html": {
+      "split": "dev",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "aadhaar_en_darkmode.png",
+        "face_profile_left.png"
+      ]
+    },
+    "dev_055.html": {
+      "split": "dev",
+      "embed_mode": "img_standard",
+      "elements": [
+        "aadhaar_en_rotated.png",
+        "face_elder_deep.png",
+        "neg_animal_silhouette.png"
+      ]
+    },
+    "dev_056.html": {
+      "split": "dev",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "aadhaar_hi_blur.png",
+        "neg_abstract_art.png"
+      ]
+    },
+    "dev_057.html": {
+      "split": "dev",
+      "embed_mode": "css_bg",
+      "elements": [
+        "aadhaar_hi_jpeg.jpg",
+        "faces_group_photo.png"
+      ]
+    },
+    "dev_058.html": {
+      "split": "dev",
+      "embed_mode": "video_poster",
+      "elements": [
+        "aadhaar_hi_screen_photo.png",
+        "neg_scenery_landscape.png"
+      ]
+    },
+    "dev_059.html": {
+      "split": "dev",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "bank_statement_clean.png",
+        "face_young_medium.png"
+      ]
+    },
+    "dev_060.html": {
+      "split": "dev",
+      "embed_mode": "img_standard",
+      "elements": [
+        "bank_statement_lowres.png",
+        "face_glasses_light.png",
+        "neg_invalid_numbers_table.png"
+      ]
+    },
+    "held_out_001.html": {
+      "split": "held_out",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "aadhaar_en_jpeg.jpg",
+        "neg_statue_silhouette.png"
+      ]
+    },
+    "held_out_002.html": {
+      "split": "held_out",
+      "embed_mode": "css_bg",
+      "elements": [
+        "aadhaar_en_screen_photo.png",
+        "faces_group_photo.png"
+      ]
+    },
+    "held_out_003.html": {
+      "split": "held_out",
+      "embed_mode": "video_poster",
+      "elements": [
+        "aadhaar_hi_clean.png",
+        "neg_nonpii_text.png"
+      ]
+    },
+    "held_out_004.html": {
+      "split": "held_out",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "aadhaar_hi_lowres.png",
+        "face_young_medium.png"
+      ]
+    },
+    "held_out_005.html": {
+      "split": "held_out",
+      "embed_mode": "img_standard",
+      "elements": [
+        "aadhaar_hi_smallfont.png",
+        "face_glasses_light.png",
+        "neg_geometric_logo.png"
+      ]
+    },
+    "held_out_006.html": {
+      "split": "held_out",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "bank_statement_darkmode.png",
+        "neg_circuit_diagram.png"
+      ]
+    },
+    "held_out_007.html": {
+      "split": "held_out",
+      "embed_mode": "css_bg",
+      "elements": [
+        "bank_statement_rotated.png",
+        "face_glasses_dark.png"
+      ]
+    },
+    "held_out_008.html": {
+      "split": "held_out",
+      "embed_mode": "video_poster",
+      "elements": [
+        "pan_card_blur.png",
+        "neg_abstract_art.png"
+      ]
+    },
+    "held_out_009.html": {
+      "split": "held_out",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "pan_card_jpeg.jpg",
+        "face_elder_light.png"
+      ]
+    },
+    "held_out_010.html": {
+      "split": "held_out",
+      "embed_mode": "img_standard",
+      "elements": [
+        "pan_card_screen_photo.png",
+        "face_profile_left.png",
+        "neg_scenery_landscape.png"
+      ]
+    },
+    "held_out_011.html": {
+      "split": "held_out",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "aadhaar_en_clean.png",
+        "neg_nonpii_text.png"
+      ]
+    },
+    "held_out_012.html": {
+      "split": "held_out",
+      "embed_mode": "css_bg",
+      "elements": [
+        "aadhaar_en_lowres.png",
+        "face_mask_light.png"
+      ]
+    },
+    "held_out_013.html": {
+      "split": "held_out",
+      "embed_mode": "video_poster",
+      "elements": [
+        "aadhaar_en_smallfont.png",
+        "neg_geometric_logo.png"
+      ]
+    },
+    "held_out_014.html": {
+      "split": "held_out",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "aadhaar_hi_darkmode.png",
+        "face_mask_deep.png"
+      ]
+    },
+    "held_out_015.html": {
+      "split": "held_out",
+      "embed_mode": "img_standard",
+      "elements": [
+        "aadhaar_hi_rotated.png",
+        "face_young_medium.png",
+        "neg_animal_silhouette.png"
+      ]
+    },
+    "held_out_016.html": {
+      "split": "held_out",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "bank_statement_blur.png",
+        "neg_abstract_art.png"
+      ]
+    },
+    "held_out_017.html": {
+      "split": "held_out",
+      "embed_mode": "css_bg",
+      "elements": [
+        "bank_statement_jpeg.jpg",
+        "face_young_light.png"
+      ]
+    },
+    "held_out_018.html": {
+      "split": "held_out",
+      "embed_mode": "video_poster",
+      "elements": [
+        "bank_statement_screen_photo.png",
+        "neg_scenery_landscape.png"
+      ]
+    },
+    "held_out_019.html": {
+      "split": "held_out",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "pan_card_clean.png",
+        "face_young_deep.png"
+      ]
+    },
+    "held_out_020.html": {
+      "split": "held_out",
+      "embed_mode": "img_standard",
+      "elements": [
+        "pan_card_lowres.png",
+        "face_elder_light.png",
+        "neg_invalid_numbers_table.png"
+      ]
+    },
+    "held_out_021.html": {
+      "split": "held_out",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "pan_card_smallfont.png",
+        "neg_geometric_logo.png"
+      ]
+    },
+    "held_out_022.html": {
+      "split": "held_out",
+      "embed_mode": "css_bg",
+      "elements": [
+        "aadhaar_en_darkmode.png",
+        "face_elder_deep.png"
+      ]
+    },
+    "held_out_023.html": {
+      "split": "held_out",
+      "embed_mode": "video_poster",
+      "elements": [
+        "aadhaar_en_rotated.png",
+        "neg_animal_silhouette.png"
+      ]
+    },
+    "held_out_024.html": {
+      "split": "held_out",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "aadhaar_hi_blur.png",
+        "faces_group_photo.png"
+      ]
+    },
+    "held_out_025.html": {
+      "split": "held_out",
+      "embed_mode": "img_standard",
+      "elements": [
+        "aadhaar_hi_jpeg.jpg",
+        "face_mask_deep.png",
+        "neg_statue_silhouette.png"
+      ]
+    },
+    "held_out_026.html": {
+      "split": "held_out",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "aadhaar_hi_screen_photo.png",
+        "neg_scenery_landscape.png"
+      ]
+    },
+    "held_out_027.html": {
+      "split": "held_out",
+      "embed_mode": "css_bg",
+      "elements": [
+        "bank_statement_clean.png",
+        "face_glasses_light.png"
+      ]
+    },
+    "held_out_028.html": {
+      "split": "held_out",
+      "embed_mode": "video_poster",
+      "elements": [
+        "bank_statement_lowres.png",
+        "neg_invalid_numbers_table.png"
+      ]
+    },
+    "held_out_029.html": {
+      "split": "held_out",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "bank_statement_smallfont.png",
+        "face_glasses_dark.png"
+      ]
+    },
+    "held_out_030.html": {
+      "split": "held_out",
+      "embed_mode": "img_standard",
+      "elements": [
+        "pan_card_darkmode.png",
+        "face_young_deep.png",
+        "neg_circuit_diagram.png"
+      ]
+    },
+    "held_out_031.html": {
+      "split": "held_out",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "pan_card_rotated.png",
+        "neg_animal_silhouette.png"
+      ]
+    },
+    "held_out_032.html": {
+      "split": "held_out",
+      "embed_mode": "css_bg",
+      "elements": [
+        "aadhaar_en_blur.png",
+        "face_profile_left.png"
+      ]
+    },
+    "held_out_033.html": {
+      "split": "held_out",
+      "embed_mode": "video_poster",
+      "elements": [
+        "aadhaar_en_jpeg.jpg",
+        "neg_statue_silhouette.png"
+      ]
+    },
+    "held_out_034.html": {
+      "split": "held_out",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "aadhaar_en_screen_photo.png",
+        "face_mask_light.png"
+      ]
+    },
+    "held_out_035.html": {
+      "split": "held_out",
+      "embed_mode": "img_standard",
+      "elements": [
+        "aadhaar_hi_clean.png",
+        "faces_group_photo.png",
+        "neg_nonpii_text.png"
+      ]
+    },
+    "held_out_036.html": {
+      "split": "held_out",
+      "embed_mode": "canvas_draw",
+      "elements": [
+        "aadhaar_hi_lowres.png",
+        "neg_invalid_numbers_table.png"
+      ]
+    },
+    "held_out_037.html": {
+      "split": "held_out",
+      "embed_mode": "css_bg",
+      "elements": [
+        "aadhaar_hi_smallfont.png",
+        "face_young_medium.png"
+      ]
+    },
+    "held_out_038.html": {
+      "split": "held_out",
+      "embed_mode": "video_poster",
+      "elements": [
+        "bank_statement_darkmode.png",
+        "neg_circuit_diagram.png"
+      ]
+    },
+    "held_out_039.html": {
+      "split": "held_out",
+      "embed_mode": "iframe_pdf",
+      "elements": [
+        "bank_statement_rotated.png",
+        "face_young_light.png"
+      ]
+    },
+    "held_out_040.html": {
+      "split": "held_out",
+      "embed_mode": "img_standard",
+      "elements": [
+        "pan_card_blur.png",
+        "face_glasses_dark.png",
+        "neg_abstract_art.png"
+      ]
+    }
+  }
+}

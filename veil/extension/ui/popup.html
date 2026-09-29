@@ -19,6 +19,7 @@
     --accent-green: #10b981;
     --accent-amber: #f59e0b;
     --accent-red: #ef4444;
+    --accent-blue: #3b82f6;
     --radius-sm: 6px;
     --radius-md: 10px;
     --radius-lg: 14px;
@@ -34,7 +35,7 @@
 
   body {
     width: 440px;
-    max-height: 580px;
+    max-height: 590px;
     background: var(--bg-page);
     color: var(--text-primary);
     font-size: 13px;
@@ -48,7 +49,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 18px;
+    padding: 12px 18px;
     background: var(--bg-card);
     border-bottom: 1px solid var(--border-color);
     position: sticky;
@@ -111,11 +112,11 @@
   }
   .tab-item {
     flex: 1;
-    padding: 6px 12px;
+    padding: 6px 8px;
     border-radius: 7px;
     border: 0;
     background: transparent;
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 500;
     color: var(--text-secondary);
     cursor: pointer;
@@ -154,6 +155,108 @@
     line-height: 1.45;
   }
 
+  /* Server status row */
+  .server-status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+  }
+  .server-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background: #94a3b8;
+  }
+  .status-dot.online { background: #10b981; }
+  .status-dot.offline { background: #f59e0b; }
+
+  /* Mode selection */
+  .mode-selector {
+    display: flex;
+    background: var(--bg-subtle);
+    padding: 2px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    gap: 2px;
+    margin-bottom: 10px;
+  }
+  .mode-btn {
+    flex: 1;
+    padding: 5px 8px;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    text-align: center;
+  }
+  .mode-btn.active {
+    background: #ffffff;
+    color: var(--text-primary);
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+
+  /* Textarea Goal */
+  .goal-input {
+    width: 100%;
+    height: 54px;
+    padding: 8px 10px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 12px;
+    resize: none;
+    outline: none;
+    margin-bottom: 10px;
+  }
+  .goal-input:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12);
+  }
+
+  /* Telemetry stats */
+  .telemetry-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .telemetry-card {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 6px 8px;
+    text-align: center;
+  }
+  .telemetry-label {
+    font-size: 9.5px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .telemetry-val {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-top: 2px;
+  }
+
   /* Buttons */
   .btn-row {
     display: flex;
@@ -162,7 +265,7 @@
   .btn {
     padding: 8px 14px;
     border-radius: var(--radius-sm);
-    font-size: 12.5px;
+    font-size: 12px;
     font-weight: 600;
     border: 0;
     cursor: pointer;
@@ -197,7 +300,7 @@
     border-radius: 5px;
   }
 
-  /* Submit Approval Card */
+  /* Approval Card */
   .approval-card {
     background: #fffbeb;
     border: 1px solid #fde68a;
@@ -219,7 +322,7 @@
     margin-bottom: 10px;
   }
   .review-table-wrapper {
-    max-height: 140px;
+    max-height: 130px;
     overflow-y: auto;
     border: 1px solid #fef3c7;
     border-radius: var(--radius-sm);
@@ -285,7 +388,7 @@
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     padding: 10px;
-    height: 140px;
+    height: 120px;
     overflow-y: auto;
     font-size: 11px;
     font-family: ui-monospace, Menlo, Consolas, monospace;
@@ -356,6 +459,107 @@
     border: 1px solid #fee2e2;
   }
 
+  /* Inspection Overlay Modal */
+  #inspect-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(3px);
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+    padding: 10px;
+  }
+  #inspect-modal.open { display: flex; }
+  .modal-content {
+    background: #ffffff;
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+  }
+  .modal-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+  }
+  .modal-title { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+  .close-btn {
+    border: 0;
+    background: transparent;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 0 4px;
+    line-height: 1;
+  }
+  .modal-body {
+    padding: 12px;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .inspect-tabs {
+    display: flex;
+    gap: 4px;
+    background: #e2e8f0;
+    padding: 3px;
+    border-radius: 6px;
+  }
+  .inspect-tab-btn {
+    flex: 1;
+    padding: 4px 6px;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+  .inspect-tab-btn.active {
+    background: #ffffff;
+    color: var(--text-primary);
+  }
+  .img-preview-box {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: #f8fafc;
+    text-align: center;
+    padding: 6px;
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .img-preview-box img, .img-preview-box canvas {
+    max-width: 100%;
+    max-height: 320px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .manifest-pre {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 10.5px;
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px;
+    max-height: 280px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: #334155;
+  }
+
   /* Toast Notification */
   .toast {
     position: fixed;
@@ -391,16 +595,16 @@
   <div class="tab-container">
     <div class="segmented-tabs">
       <button type="button" id="tab-autofill" class="tab-item active">Autofill</button>
+      <button type="button" id="tab-vision" class="tab-item">Vision AI Agent</button>
       <button type="button" id="tab-vault" class="tab-item">Vault Profile</button>
     </div>
   </div>
 
   <!-- TAB 1: AUTOFILL VIEW -->
   <main id="view-autofill" class="view-pane active">
-    <!-- Main Autofill Action Card -->
     <div class="card">
       <p class="card-lead">
-        Agent reads the active form, maps fields to your Vault dataset, and fills them automatically.
+        Reads form structure, maps fields to your Vault, and fills automatically without cloud transmission. Sensitive fields are skipped.
       </p>
       <div class="btn-row">
         <button type="button" id="btn-run" class="btn btn-dark">Auto-Fill Form</button>
@@ -423,7 +627,7 @@
     <!-- Submit Approval Card (Shown after filling) -->
     <div id="submit-approval-box" class="approval-card">
       <div class="approval-title">Review Before Submit</div>
-      <p class="approval-text">All matching fields have been filled. Please review details before final submission.</p>
+      <p class="approval-text">Fields have been filled. Please review details before final submission.</p>
 
       <div class="review-table-wrapper">
         <table class="review-table">
@@ -438,7 +642,7 @@
       </div>
 
       <div class="skipped-notice">
-        Sensitive fields (Password, Aadhaar, PAN) were safely skipped and left untouched.
+        🛡️ Sensitive fields (Password, Aadhaar, PAN) were safely skipped and left untouched.
       </div>
 
       <div class="btn-row">
@@ -455,12 +659,87 @@
     <div id="log-viewer" class="log-box">Ready. Open a form and click "Auto-Fill Form".</div>
   </main>
 
-  <!-- TAB 2: VAULT PROFILE VIEW -->
+  <!-- TAB 2: VISION AI AGENT VIEW (SIH PS 26171 Core Architecture) -->
+  <main id="view-vision" class="view-pane">
+    <!-- Server Connection Status -->
+    <div class="server-status-row">
+      <div class="server-pill">
+        <span id="server-status-dot" class="status-dot online"></span>
+        <span id="server-status-text">Server: Checking...</span>
+      </div>
+      <button type="button" id="btn-check-server" class="btn btn-light btn-sm" style="padding: 3px 8px; font-size: 10.5px;">Check</button>
+    </div>
+
+    <!-- Operating Mode Dial -->
+    <div class="mode-selector" role="radiogroup" aria-label="Operating Mode">
+      <button type="button" id="mode-strict" class="mode-btn" title="Tokens only, zero screenshots">Strict</button>
+      <button type="button" id="mode-balanced" class="mode-btn active" title="Client-side ViT + solid black redaction + server VLM">Balanced</button>
+      <button type="button" id="mode-open" class="mode-btn" title="Full resolution DOM & image context">Open</button>
+    </div>
+
+    <!-- Goal Input Card -->
+    <div class="card">
+      <textarea id="agent-goal" class="goal-input" placeholder="Enter task goal (e.g. Fill KYC application and navigate to confirmation)">Fill form and proceed</textarea>
+      <div class="btn-row">
+        <button type="button" id="btn-run-vision" class="btn btn-dark">Start Vision Agent</button>
+        <button type="button" id="btn-stop-vision" class="btn btn-light" disabled>Stop</button>
+      </div>
+    </div>
+
+    <!-- Telemetry -->
+    <div class="telemetry-row">
+      <div class="telemetry-card">
+        <div class="telemetry-label">Latency</div>
+        <div id="telemetry-latency" class="telemetry-val">-- ms</div>
+      </div>
+      <div class="telemetry-card">
+        <div class="telemetry-label">Payload</div>
+        <div id="telemetry-bytes" class="telemetry-val">-- KB</div>
+      </div>
+      <div class="telemetry-card">
+        <div class="telemetry-label">Redactions</div>
+        <div id="telemetry-redactions" class="telemetry-val">--</div>
+      </div>
+      <div class="telemetry-card">
+        <div class="telemetry-label">Step</div>
+        <div id="telemetry-step" class="telemetry-val">--</div>
+      </div>
+    </div>
+
+    <!-- Action Approval Card -->
+    <div id="action-approval-box" class="approval-card">
+      <div class="approval-title">User Approval Required</div>
+      <p id="action-approval-desc" class="approval-text">High-impact action detected. Confirm execution?</p>
+      <div class="btn-row">
+        <button type="button" id="btn-approve-action" class="btn btn-success">Approve Action</button>
+        <button type="button" id="btn-reject-action" class="btn btn-light">Reject</button>
+      </div>
+    </div>
+
+    <!-- Inspection and Cryptographic Receipt Row -->
+    <div class="btn-row" style="margin-bottom: 12px;">
+      <button type="button" id="btn-open-inspect" class="btn btn-light" style="font-size: 11px;">
+        🔍 What Server Sees
+      </button>
+      <button type="button" id="btn-export-receipts" class="btn btn-light" style="font-size: 11px;">
+        🛡️ Export Audit Receipts
+      </button>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="log-header">
+      <span class="log-title">Agent Telemetry & Logs</span>
+      <button type="button" id="btn-clear-vision-log" class="btn btn-light btn-sm" style="padding: 2px 6px; font-size: 10px;">Clear</button>
+    </div>
+    <div id="vision-log-viewer" class="log-box">Ready. Click "Start Vision Agent" or "Check" server connection.</div>
+  </main>
+
+  <!-- TAB 3: VAULT PROFILE VIEW -->
   <main id="view-vault" class="view-pane">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
       <div>
         <h2 style="font-size: 13px; font-weight: 700;">Personal Vault</h2>
-        <p style="font-size: 11px; color: var(--text-secondary);">Enter your details once. Used across all forms.</p>
+        <p style="font-size: 11px; color: var(--text-secondary);">Enter details once. Stored with AES-GCM encryption on-device.</p>
       </div>
       <div style="display: flex; gap: 6px;">
         <button type="button" id="btn-load-demo" class="btn btn-light btn-sm">Sample Data</button>
@@ -518,7 +797,6 @@
               <option value="OBC">OBC</option>
               <option value="SC">SC</option>
               <option value="ST">ST</option>
-              <option value="EWS">EWS</option>
             </select>
           </div>
         </div>
@@ -529,20 +807,20 @@
         <div class="section-head">Contact Information</div>
         <div class="section-grid">
           <div class="form-group col-full">
-            <label class="field-label" for="v_EMAIL">Primary Email</label>
-            <input type="email" id="v_EMAIL" class="field-input" placeholder="name@example.com">
+            <label class="field-label" for="v_EMAIL">Email Address</label>
+            <input type="email" id="v_EMAIL" class="field-input" placeholder="name@domain.com">
           </div>
           <div class="form-group">
-            <label class="field-label" for="v_MOBILE">Phone Number</label>
-            <input type="tel" id="v_MOBILE" class="field-input" placeholder="10-digit number">
+            <label class="field-label" for="v_MOBILE">Mobile Number</label>
+            <input type="tel" id="v_MOBILE" class="field-input" placeholder="10-digit mobile">
           </div>
           <div class="form-group">
             <label class="field-label" for="v_ALT_MOBILE">Alternate Phone</label>
             <input type="tel" id="v_ALT_MOBILE" class="field-input" placeholder="Alternate phone">
           </div>
           <div class="form-group col-full">
-            <label class="field-label" for="v_WORK_EMAIL">Work Email</label>
-            <input type="email" id="v_WORK_EMAIL" class="field-input" placeholder="work@company.com">
+            <label class="field-label" for="v_WORK_EMAIL">Work / College Email</label>
+            <input type="email" id="v_WORK_EMAIL" class="field-input" placeholder="college@inst.edu">
           </div>
         </div>
       </div>
@@ -552,121 +830,37 @@
         <div class="section-head">Current Address</div>
         <div class="section-grid">
           <div class="form-group col-full">
-            <label class="field-label" for="v_ADDRESS_LINE1">Street / House No</label>
-            <input type="text" id="v_ADDRESS_LINE1" class="field-input" placeholder="House/Flat No, Street">
+            <label class="field-label" for="v_ADDRESS_LINE1">Street / House / Apartment</label>
+            <input type="text" id="v_ADDRESS_LINE1" class="field-input" placeholder="Flat No, Building, Area">
           </div>
           <div class="form-group col-full">
-            <label class="field-label" for="v_ADDRESS_LINE2">Area / Landmark</label>
-            <input type="text" id="v_ADDRESS_LINE2" class="field-input" placeholder="Area, Landmark">
+            <label class="field-label" for="v_ADDRESS_LINE2">Landmark / Area Line 2</label>
+            <input type="text" id="v_ADDRESS_LINE2" class="field-input" placeholder="Landmark">
           </div>
           <div class="form-group">
             <label class="field-label" for="v_CITY">City</label>
             <input type="text" id="v_CITY" class="field-input" placeholder="City">
           </div>
           <div class="form-group">
+            <label class="field-label" for="v_DISTRICT">District</label>
+            <input type="text" id="v_DISTRICT" class="field-input" placeholder="District">
+          </div>
+          <div class="form-group">
             <label class="field-label" for="v_STATE">State</label>
             <input type="text" id="v_STATE" class="field-input" placeholder="State">
           </div>
           <div class="form-group">
-            <label class="field-label" for="v_PIN">PIN / ZIP Code</label>
-            <input type="text" id="v_PIN" class="field-input" placeholder="PIN Code">
+            <label class="field-label" for="v_PIN">PIN Code</label>
+            <input type="text" id="v_PIN" class="field-input" placeholder="6-digit PIN">
           </div>
-          <div class="form-group">
+          <div class="form-group col-full">
             <label class="field-label" for="v_COUNTRY">Country</label>
-            <input type="text" id="v_COUNTRY" class="field-input" placeholder="Country">
+            <input type="text" id="v_COUNTRY" class="field-input" placeholder="India">
           </div>
         </div>
       </div>
 
-      <!-- 4. PERMANENT ADDRESS -->
-      <div class="vault-section">
-        <div class="section-head">
-          <span>Permanent Address</span>
-          <button type="button" id="btn-copy-address" class="btn btn-light btn-sm" style="font-size: 10.5px;">Same as Current</button>
-        </div>
-        <div class="section-grid">
-          <div class="form-group col-full">
-            <label class="field-label" for="v_PERMANENT_ADDRESS_LINE1">Permanent Street Address</label>
-            <input type="text" id="v_PERMANENT_ADDRESS_LINE1" class="field-input" placeholder="Permanent Street">
-          </div>
-          <div class="form-group">
-            <label class="field-label" for="v_PERMANENT_CITY">City</label>
-            <input type="text" id="v_PERMANENT_CITY" class="field-input" placeholder="City">
-          </div>
-          <div class="form-group">
-            <label class="field-label" for="v_PERMANENT_STATE">State</label>
-            <input type="text" id="v_PERMANENT_STATE" class="field-input" placeholder="State">
-          </div>
-          <div class="form-group">
-            <label class="field-label" for="v_PERMANENT_PIN">PIN Code</label>
-            <input type="text" id="v_PERMANENT_PIN" class="field-input" placeholder="PIN Code">
-          </div>
-          <div class="form-group">
-            <label class="field-label" for="v_PERMANENT_COUNTRY">Country</label>
-            <input type="text" id="v_PERMANENT_COUNTRY" class="field-input" placeholder="Country">
-          </div>
-        </div>
-      </div>
-
-      <!-- 5. EDUCATION -->
-      <div class="vault-section">
-        <div class="section-head">Education</div>
-        <div class="section-grid">
-          <div class="form-group">
-            <label class="field-label" for="v_DEGREE">Degree / Qualification</label>
-            <input type="text" id="v_DEGREE" class="field-input" placeholder="e.g. B.Tech / MBA">
-          </div>
-          <div class="form-group">
-            <label class="field-label" for="v_MAJOR">Stream / Branch</label>
-            <input type="text" id="v_MAJOR" class="field-input" placeholder="e.g. Computer Science">
-          </div>
-          <div class="form-group col-full">
-            <label class="field-label" for="v_COLLEGE">College / University</label>
-            <input type="text" id="v_COLLEGE" class="field-input" placeholder="Institution Name">
-          </div>
-          <div class="form-group">
-            <label class="field-label" for="v_GRADUATION_YEAR">Graduation Year</label>
-            <input type="text" id="v_GRADUATION_YEAR" class="field-input" placeholder="e.g. 2026">
-          </div>
-          <div class="form-group">
-            <label class="field-label" for="v_CGPA">CGPA / %</label>
-            <input type="text" id="v_CGPA" class="field-input" placeholder="e.g. 9.2 or 88%">
-          </div>
-        </div>
-      </div>
-
-      <!-- 6. CAREER -->
-      <div class="vault-section">
-        <div class="section-head">Career</div>
-        <div class="section-grid">
-          <div class="form-group">
-            <label class="field-label" for="v_JOB_TITLE">Job Title</label>
-            <input type="text" id="v_JOB_TITLE" class="field-input" placeholder="e.g. Software Engineer">
-          </div>
-          <div class="form-group">
-            <label class="field-label" for="v_COMPANY">Company</label>
-            <input type="text" id="v_COMPANY" class="field-input" placeholder="Company Name">
-          </div>
-          <div class="form-group">
-            <label class="field-label" for="v_EXPERIENCE_YEARS">Experience (Years)</label>
-            <input type="text" id="v_EXPERIENCE_YEARS" class="field-input" placeholder="e.g. 2">
-          </div>
-          <div class="form-group">
-            <label class="field-label" for="v_ANNUAL_SALARY">Annual CTC / Salary</label>
-            <input type="text" id="v_ANNUAL_SALARY" class="field-input" placeholder="e.g. 800000">
-          </div>
-          <div class="form-group col-full">
-            <label class="field-label" for="v_LINKEDIN_URL">LinkedIn URL</label>
-            <input type="url" id="v_LINKEDIN_URL" class="field-input" placeholder="https://linkedin.com/in/username">
-          </div>
-          <div class="form-group col-full">
-            <label class="field-label" for="v_PORTFOLIO_URL">Portfolio / Website</label>
-            <input type="url" id="v_PORTFOLIO_URL" class="field-input" placeholder="https://portfolio.com">
-          </div>
-        </div>
-      </div>
-
-      <!-- 7. SENSITIVE IDENTIFIERS (SKIPPED) -->
+      <!-- 4. SENSITIVE IDENTIFIERS -->
       <div class="vault-section">
         <div class="section-head">
           <span>Sensitive Data</span>
@@ -674,7 +868,7 @@
         </div>
         <div class="section-grid">
           <p style="grid-column: span 2; font-size: 11px; color: var(--text-secondary); line-height: 1.4;">
-            Stored encrypted in your local vault for your reference, but strictly skipped during form autofill.
+            Encrypted in your local vault for your reference, but strictly skipped during autofill and solid blacked in screenshots.
           </p>
           <div class="form-group">
             <label class="field-label" for="v_PASSWORD">Password</label>
@@ -702,6 +896,50 @@
       </div>
     </form>
   </main>
+
+  <!-- "WHAT THE SERVER SEES" INSPECTION MODAL -->
+  <div id="inspect-modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span id="modal-heading" class="modal-title">What the Server Sees (Visual Redaction)</span>
+        <button type="button" id="close-modal-btn" class="close-btn" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="inspect-tabs">
+          <button type="button" id="tab-overlays" class="inspect-tab-btn active">Box Overlays</button>
+          <button type="button" id="tab-redacted" class="inspect-tab-btn">Redacted Image</button>
+          <button type="button" id="tab-original" class="inspect-tab-btn">Original</button>
+          <button type="button" id="tab-manifest" class="inspect-tab-btn">Manifest</button>
+        </div>
+
+        <div id="panel-overlays" class="img-preview-box" style="flex-direction:column;">
+          <canvas id="overlay-canvas" style="display:none;"></canvas>
+          <div id="overlay-placeholder" style="color:var(--text-muted); font-size:12px;">No screenshot or overlays recorded yet. Run the Vision Agent to view.</div>
+          <div style="font-size: 10.5px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px;">
+            <span><strong style="color:#ef4444;">■</strong> Face</span>
+            <span><strong style="color:#f97316;">■</strong> PII Text</span>
+            <span><strong style="color:#a855f7;">■</strong> DOM PII</span>
+            <span><strong style="color:#22c55e;">▢</strong> Media Cleared</span>
+            <span><strong style="color:#0f172a;">■</strong> Media Blacked</span>
+          </div>
+        </div>
+
+        <div id="panel-redacted" class="img-preview-box" style="display:none;">
+          <img id="redacted-img" style="display:none;" alt="Redacted screenshot">
+          <div id="redacted-placeholder" style="color:var(--text-muted); font-size:12px;">No redacted image available yet.</div>
+        </div>
+
+        <div id="panel-original" class="img-preview-box" style="display:none;">
+          <img id="original-img" style="display:none;" alt="Original screenshot">
+          <div id="original-placeholder" style="color:var(--text-muted); font-size:12px;">No original screenshot available.</div>
+        </div>
+
+        <div id="panel-manifest" style="display:none;">
+          <pre id="manifest-content" class="manifest-pre">[]</pre>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div id="toast" class="toast">Vault saved successfully!</div>
 

@@ -433,25 +433,125 @@
     return rawVal || '';
   }
 
-  // --- 4. Masking for Preview ---
+  // --- 4. Masking for Preview & Tokenizer ---
 
-  function maskValue(val, type) {
-    if (typeof val !== 'string') return '••••';
+  function maskValue(val, type, showLast4 = false) {
+    if (typeof val !== 'string') return 'XXXX';
     const clean = val.trim();
     if (!clean) return '';
-    if (type === 'password') return '••••••••';
-    if (type === 'aadhaar') return 'XXXX XXXX ' + (clean.replace(/\D/g, '').slice(-4) || 'XXXX');
-    if (type === 'pan') return clean.slice(0, 2) + 'XXXXX' + clean.slice(-1);
+
+    if (!showLast4) {
+      if (type === 'email') return 'XXXX@XXXX.XXX';
+      if (type === 'aadhaar') return 'XXXX XXXX XXXX';
+      if (type === 'card' || type === 'credit_card') return 'XXXX XXXX XXXX XXXX';
+      if (type === 'mobile' || type === 'phone') return 'XXXXXXXXXX';
+      if (type === 'pan') return 'XXXXXXXXXX';
+      if (type === 'account_no') return 'XXXXXXXXXXXX';
+      if (type === 'dob') return 'XXXX-XX-XX';
+      if (type === 'password') return '••••••••';
+      return 'X'.repeat(Math.max(4, Math.min(clean.length, 16)));
+    }
+
+    // showLast4 === true
+    const digitsOnly = clean.replace(/\D/g, '');
+    if (digitsOnly.length >= 4) {
+      const last4 = digitsOnly.slice(-4);
+      if (type === 'aadhaar') return `XXXX XXXX ${last4}`;
+      if (type === 'card' || type === 'credit_card') return `XXXX XXXX XXXX ${last4}`;
+      if (type === 'mobile' || type === 'phone') return `XXXXXX${last4}`;
+      if (type === 'account_no') return `XXXXXXX${last4}`;
+    }
+    if (type === 'pan' && clean.length === 10) {
+      return clean.slice(0, 2) + 'XXXXX' + clean.slice(-1);
+    }
     if (type === 'email') {
       const parts = clean.split('@');
       if (parts.length === 2) {
         return parts[0].slice(0, 2) + '•••@' + parts[1];
       }
     }
-    if (clean.length > 8) {
-      return clean.slice(0, 3) + '•••' + clean.slice(-3);
+    if (clean.length > 4) {
+      return 'X'.repeat(clean.length - 4) + clean.slice(-4);
     }
     return clean;
+  }
+
+  function createSessionTokenizer(options = {}) {
+    const showLast4 = !!options.showLast4;
+    const valueToToken = new Map();
+    const tokenToValue = new Map();
+    const typeCounters = new Map();
+
+    function tokenize(value, type = 'VALUE') {
+      if (typeof value !== 'string') return value;
+      const cleanVal = value.trim();
+      const normType = type.toUpperCase().replace(/[^A-Z0-9_]/g, '');
+
+      if (valueToToken.has(cleanVal)) {
+        return valueToToken.get(cleanVal);
+      }
+
+      const count = (typeCounters.get(normType) || 0) + 1;
+      typeCounters.set(normType, count);
+      const token = `[${normType}_${count}]`;
+
+      valueToToken.set(cleanVal, token);
+      tokenToValue.set(token, cleanVal);
+      return token;
+    }
+
+    function resolve(token) {
+      if (typeof token !== 'string') return null;
+      const clean = token.trim();
+      return tokenToValue.get(clean) ?? null;
+    }
+
+    function isSessionToken(token) {
+      if (typeof token !== 'string') return false;
+      return tokenToValue.has(token.trim());
+    }
+
+    function getIssuedTokens() {
+      const out = {};
+      for (const [token, val] of tokenToValue.entries()) {
+        out[token] = {
+          token,
+          masked: maskValue(val, token.split('_')[0].replace('[', '').toLowerCase(), showLast4)
+        };
+      }
+      return out;
+    }
+
+    function mask(val, type) {
+      return maskValue(val, type, showLast4);
+    }
+
+    return {
+      tokenize,
+      resolve,
+      isSessionToken,
+      getIssuedTokens,
+      mask
+    };
+  }
+
+  function isKeyApprovedForDomain(key, domain, approvedDomains = {}) {
+    if (!domain) return false;
+    const cleanDomain = domain.toLowerCase();
+    const keys = approvedDomains[cleanDomain] || [];
+    return keys.includes(key);
+  }
+
+  function approveKeyForDomain(key, domain, approvedDomains = {}) {
+    if (!domain) return approvedDomains;
+    const cleanDomain = domain.toLowerCase();
+    const next = { ...approvedDomains };
+    const currentKeys = next[cleanDomain] ? [...next[cleanDomain]] : [];
+    if (!currentKeys.includes(key)) {
+      currentKeys.push(key);
+    }
+    next[cleanDomain] = currentKeys;
+    return next;
   }
 
   const VeilVault = {
@@ -462,11 +562,14 @@
     encryptVault,
     decryptVault,
     maskValue,
+    createSessionTokenizer,
     getSensitivity,
     isSensitive,
     isHighSensitivity,
     getProfile,
-    compose
+    compose,
+    isKeyApprovedForDomain,
+    approveKeyForDomain
   };
 
   if (typeof globalThis !== 'undefined') {

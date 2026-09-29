@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Customer Onboarding Portal</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 30px auto; padding: 20px; line-height: 1.5; }
+    .field { margin-bottom: 16px; }
+    label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 14px; }
+    input { width: 100%; padding: 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    button { background: #0284c7; color: #fff; padding: 10px 20px; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .avatar { width: 80px; height: 80px; border-radius: 50%; background: #e2e8f0; display: block; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <h2>Customer Profile Registration</h2>
+  <p>Please enter your verified profile details to complete setup.</p>
+  
+  <div class="field">
+    <img id="avatar-img" class="avatar" src="data:image/jpeg;base64,/9j/4AAQSkZJRg==" alt="Profile headshot">
+  </div>
+
+  <form id="onboard-form" onsubmit="event.preventDefault(); document.title='ONBOARDING_COMPLETE';">
+    <div class="field">
+      <label for="full-name">Full name</label>
+      <input id="full-name" name="name" type="text" placeholder="Your legal name">
+    </div>
+
+    <div class="field">
+      <label for="user-email">Email</label>
+      <input id="user-email" name="email" type="email" placeholder="name@domain.com">
+    </div>
+
+    <div class="field">
+      <label for="contact-phone">Mobile</label>
+      <input id="contact-phone" name="phone" type="tel" placeholder="10-digit mobile">
+    </div>
+
+    <div class="field">
+      <label for="account-pwd">Security Password</label>
+      <input id="account-pwd" name="password" type="password" placeholder="Create secure password">
+    </div>
+
+    <button id="submit-portal-btn" type="submit">Submit Registration</button>
+  </form>
+</body>
+</html>
