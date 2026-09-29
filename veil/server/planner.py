@@ -161,14 +161,15 @@ class DeterministicPlanner(BasePlanner):
                     reason="unrecognized field without matching vault key"
                 )
 
-        if "submit" in goal_lower:
+        if any(w in goal_lower for w in ("submit", "complete", "kyc", "fill", "register", "apply")):
             for n in req.dom.nodes:
                 is_btn = (
                     n.tag == "button"
                     or n.role == "button"
                     or (n.tag == "input" and (n.type or "").lower() in ("submit", "button"))
                 )
-                if is_btn and "submit" in (n.label or "").lower() and n.id not in done_targets:
+                btn_text = f"{n.label or ''} {n.text or ''}".lower()
+                if is_btn and any(w in btn_text for w in ("submit", "continue", "next", "proceed", "save")) and n.id not in done_targets:
                     return ActionResponse(
                         type="action",
                         action="click",

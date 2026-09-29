@@ -332,18 +332,23 @@
           allPiiTypes.push(classification.pii_type);
         }
 
+        const SENSITIVE_PII_TYPES = new Set([
+          'password', 'otp', 'card', 'aadhaar', 'pan', 'passport', 'voter_id', 'driving_licence'
+        ]);
+        const hasSensitivePII = allPiiTypes.some((t) => SENSITIVE_PII_TYPES.has(t));
+
         const isSensitive =
           classification.sensitive ||
           type === 'password' ||
           /cc-|one-time-code/.test(ac) ||
-          allPiiTypes.length > 0;
+          hasSensitivePII;
 
         nodes.push({
           id: idFor(el),
           tag,
           role: role || null,
           type: type || null,
-          label: redactedLabel.text.slice(0, 100),
+          label: redactedLabel.text.slice(0, 40),
           text: redactedLabel.text.slice(0, textLimit),
           autocomplete: ac || null,
           sensitive: isSensitive,

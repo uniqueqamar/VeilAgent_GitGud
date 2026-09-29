@@ -15,7 +15,9 @@
   const ALLOWED_NODE_KEYS = new Set([
     'id', 'tag', 'role', 'type', 'label', 'text', 'autocomplete', 'sensitive', 'bbox', 'pii'
   ]);
-  const ALLOWED_ACTION_KEYS = new Set(['action', 'target_id', 'coords', 'value', 'reason', 'skipped']);
+  const ALLOWED_ACTION_KEYS = new Set([
+    'type', 'action', 'target_id', 'coords', 'value', 'text', 'question', 'reason', 'skipped'
+  ]);
   const ALLOWED_REDACTION_KEYS = new Set(['id', 'type', 'bbox', 'parentId']);
 
   // Receipt chain state in memory

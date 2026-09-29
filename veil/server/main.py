@@ -18,6 +18,12 @@ import time
 import uuid
 from typing import Dict, List, Optional
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 from fastapi import FastAPI, Header, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -52,6 +58,22 @@ Image.MAX_IMAGE_PIXELS = 10_000_000  # Decompression bomb cap
 
 # Token auth configuration
 SERVER_TOKEN = os.getenv("VEIL_SERVER_TOKEN", "veil-shared-secret-token")
+
+
+def is_valid_token(token_hdr: str) -> bool:
+    if not token_hdr:
+        return False
+    # Primary constant-time check against configured SERVER_TOKEN
+    if hmac.compare_digest(token_hdr.encode("utf-8"), SERVER_TOKEN.encode("utf-8")):
+        return True
+    # In development / local setups, accept the default template secrets interchangeably
+    default_dev_tokens = (
+        "veil-shared-secret-token",
+        "veil-shared-secret-token-change-in-production"
+    )
+    if SERVER_TOKEN in default_dev_tokens and token_hdr in default_dev_tokens:
+        return True
+    return False
 
 # Canary Mode Configuration (Task 2 & Invariant 15)
 VEIL_CANARY = os.getenv("VEIL_CANARY", "0") == "1"
@@ -112,25 +134,11 @@ async def security_and_audit_guard(request: Request, call_next):
             return JSONResponse(status_code=413, content={"error": "Payload exceeds 2 MB limit"})
 
         # 2. Token Authentication (Constant-time comparison)
-        # Exclude /health, /canary/*, and OPTIONS from token authentication
+        # Exclude /health, /auth/verify, /canary/*, and OPTIONS from token authentication
         is_canary_path = VEIL_CANARY and request.url.path.startswith("/canary")
-        if request.url.path not in ("/health", "/docs", "/openapi.json") and not is_canary_path and request.method != "OPTIONS":
+        if request.url.path not in ("/health", "/auth/verify", "/docs", "/openapi.json") and not is_canary_path and request.method != "OPTIONS":
             token_hdr = request.headers.get("x-veil-token", "")
-            is_valid = False
-            if token_hdr:
-                # Primary constant-time check against configured SERVER_TOKEN
-                if hmac.compare_digest(token_hdr.encode("utf-8"), SERVER_TOKEN.encode("utf-8")):
-                    is_valid = True
-                else:
-                    # In development / local setups, accept the default template secrets interchangeably
-                    default_dev_tokens = (
-                        "veil-shared-secret-token",
-                        "veil-shared-secret-token-change-in-production"
-                    )
-                    if SERVER_TOKEN in default_dev_tokens and token_hdr in default_dev_tokens:
-                        is_valid = True
-
-            if not is_valid:
+            if not is_valid_token(token_hdr):
                 status_code = 401
                 error_code = "UNAUTHORIZED"
                 return JSONResponse(status_code=401, content={"error": "Unauthorized: invalid or missing X-Veil-Token"})
@@ -211,6 +219,14 @@ def health():
             "status": "ready"
         }
     }
+
+
+@app.get("/auth/verify")
+async def verify_auth(x_veil_token: Optional[str] = Header(None, alias="X-Veil-Token")):
+    """Verification endpoint allowing extension to test X-Veil-Token authentication."""
+    if not x_veil_token or not is_valid_token(x_veil_token):
+        raise HTTPException(status_code=401, detail="Unauthorized: invalid or missing X-Veil-Token")
+    return {"status": "authenticated", "server": "Veil Agent Hardened Server"}
 
 
 def process_image_securely(image_str: Optional[str]) -> Optional[bytes]:

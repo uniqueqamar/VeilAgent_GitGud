@@ -871,6 +871,12 @@ async function runLoopFrom(tabId, goal, startStep, history, tabUrl) {
           cleanNode[k] = node[k];
         }
       }
+      if (typeof cleanNode.label === 'string' && cleanNode.label.length > 40) {
+        cleanNode.label = cleanNode.label.slice(0, 40);
+      }
+      if (typeof cleanNode.text === 'string' && cleanNode.text.length > 500) {
+        cleanNode.text = cleanNode.text.slice(0, 500);
+      }
       return cleanNode;
     });
 
@@ -882,6 +888,19 @@ async function runLoopFrom(tabId, goal, startStep, history, tabUrl) {
       nodes: cleanNodes
     };
 
+    const ALLOWED_HISTORY_FIELDS = new Set([
+      'type', 'action', 'target_id', 'coords', 'value', 'text', 'question', 'reason', 'skipped'
+    ]);
+    const cleanHistory = (history || []).map((item) => {
+      const cleanItem = {};
+      for (const k of Object.keys(item)) {
+        if (ALLOWED_HISTORY_FIELDS.has(k)) {
+          cleanItem[k] = item[k];
+        }
+      }
+      return cleanItem;
+    });
+
     const payload = {
       goal,
       step,
@@ -890,7 +909,7 @@ async function runLoopFrom(tabId, goal, startStep, history, tabUrl) {
       redactions: redactionManifest,
       cleared_media: redactResult?.clearedMediaIds || [],
       vision: redactResult?.vision || null,
-      history,
+      history: cleanHistory,
       mode: effectiveMode,
       suspect_text_count: cap.dom.suspectTextCount || 0
     };

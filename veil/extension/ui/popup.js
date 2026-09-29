@@ -672,22 +672,38 @@ if (saveSettingsBtn) {
 if (testConnectionBtn) {
   testConnectionBtn.onclick = async () => {
     const url = (serverUrlInput?.value.trim() || 'http://127.0.0.1:8000').replace(/\/+$/, '');
+    const token = serverTokenInput?.value.trim() || 'veil-shared-secret-token';
     if (settingsStatus) {
       settingsStatus.style.display = 'block';
       settingsStatus.style.color = 'var(--primary)';
-      settingsStatus.textContent = 'Testing connection...';
+      settingsStatus.textContent = 'Testing connection & auth...';
     }
     try {
-      const res = await fetch(url + '/health');
+      const res = await fetch(url + '/auth/verify', {
+        headers: { 'X-Veil-Token': token }
+      });
       if (res.ok) {
         if (settingsStatus) {
           settingsStatus.style.color = 'var(--signal)';
-          settingsStatus.textContent = 'Connected (HTTP 200 OK)';
+          settingsStatus.textContent = 'Connected & Authenticated (HTTP 200 OK)';
         }
-      } else {
+      } else if (res.status === 401) {
         if (settingsStatus) {
           settingsStatus.style.color = 'var(--danger)';
-          settingsStatus.textContent = `Server responded: HTTP ${res.status}`;
+          settingsStatus.textContent = 'Auth Failed: Token does not match server VEIL_SERVER_TOKEN (HTTP 401). Restart python server.';
+        }
+      } else {
+        const hRes = await fetch(url + '/health');
+        if (hRes.ok) {
+          if (settingsStatus) {
+            settingsStatus.style.color = 'var(--signal)';
+            settingsStatus.textContent = 'Connected (HTTP 200 OK)';
+          }
+        } else {
+          if (settingsStatus) {
+            settingsStatus.style.color = 'var(--danger)';
+            settingsStatus.textContent = `Server responded: HTTP ${res.status}`;
+          }
         }
       }
     } catch (e) {
