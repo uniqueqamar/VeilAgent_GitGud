@@ -279,8 +279,8 @@ function saveVaultData() {
 
   api.runtime.sendMessage({ type: 'SAVE_VAULT', profile }, (res) => {
     if (res?.ok) {
-      showToast('Vault details saved securely!');
-      appendLog('💾 Saved updated Vault details to local encrypted storage.');
+      showToast('Vault details saved securely');
+      appendLog('Saved updated Vault details to local encrypted storage.');
     }
   });
 }
@@ -295,7 +295,7 @@ btnLoadDemo.onclick = () => {
       el.value = DEMO_PROFILE[key];
     }
   }
-  showToast('Sample details loaded! Click Save to apply.');
+  showToast('Sample details loaded. Click Save to apply.');
 };
 
 btnCopyAddress.onclick = () => {

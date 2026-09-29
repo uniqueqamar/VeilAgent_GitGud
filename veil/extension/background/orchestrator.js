@@ -135,7 +135,7 @@ async function ensureContentScript(tabId) {
   try {
     await api.scripting.executeScript({
       target: { tabId },
-      files: ['workers/pii.js', 'privacy/injection-shield.js', 'content/dom-capture.js', 'content/executor.js']
+      files: ['workers/pii.js', 'privacy/injection-shield.js', 'content/dom-capture.js', 'content/executor.js', 'content/floating-widget.js']
     });
     await new Promise((r) => setTimeout(r, 100));
     return true;
@@ -209,11 +209,11 @@ async function captureAllFrames(tabId) {
 // 1. Read Form -> 2. Match to Vault -> 3. Skip Sensitive -> 4. Ask Approval for Submit
 async function runAutofill(goal = 'Autofill Form') {
   await clearLogs();
-  await appendLog('🚀 Starting Veil Form Autofill...');
+  await appendLog('Starting form autofill...');
 
   const [tab] = await api.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id) {
-    await appendLog('❌ Error: No active browser tab found.');
+    await appendLog('Error: No active browser tab found.');
     await updateState({ status: 'error', error: 'No active tab found' });
     return;
   }
@@ -232,7 +232,7 @@ async function runAutofill(goal = 'Autofill Form') {
       goal,
       tabId: tab.id
     });
-    await appendLog(`🔒 Domain approval required for: ${domain}`);
+    await appendLog(`Domain approval required for: ${domain}`);
     return;
   }
 
@@ -255,7 +255,7 @@ async function runAutofill(goal = 'Autofill Form') {
   // Capture DOM nodes
   const cap = await captureAllFrames(tab.id);
   const nodes = cap.nodes || [];
-  await appendLog(`🔍 Form Scanner: Found ${nodes.length} page elements.`);
+  await appendLog(`Scanned ${nodes.length} page elements.`);
 
   const filledList = [];
   const skippedList = [];
@@ -302,7 +302,7 @@ async function runAutofill(goal = 'Autofill Form') {
         type: sensitiveType,
         reason: 'Password/Aadhaar/PAN are never autofilled for security'
       });
-      await appendLog(`🛡️ [SKIPPED SENSITIVE] "${fieldDesc}" (${sensitiveType}) - safely left untouched.`);
+      await appendLog(`[Skipped Sensitive] "${fieldDesc}" (${sensitiveType}) - safely untouched.`);
       continue;
     }
 
@@ -345,9 +345,9 @@ async function runAutofill(goal = 'Autofill Form') {
             masked: maskedVal
           });
 
-          await appendLog(`✅ [FILLED] "${node.label || vaultKey}" → ${vaultKey}: "${maskedVal}"`);
+          await appendLog(`[Filled] "${node.label || vaultKey}" -> ${vaultKey}: "${maskedVal}"`);
         } catch (err) {
-          await appendLog(`⚠️ [FILL FAILED] "${node.label || node.id}": ${err.message}`);
+          await appendLog(`[Fill Failed] "${node.label || node.id}": ${err.message}`);
         }
       } else {
         missingList.push({
@@ -355,10 +355,10 @@ async function runAutofill(goal = 'Autofill Form') {
           label: node.label || vaultKey,
           key: vaultKey
         });
-        await appendLog(`ℹ️ [VAULT EMPTY] "${node.label || vaultKey}" matched key ${vaultKey}, but no value entered in your Vault.`);
+        await appendLog(`[Vault Empty] "${node.label || vaultKey}" matched ${vaultKey}, but no value in Vault.`);
       }
     } else {
-      await appendLog(`ℹ️ [UNMATCHED] Field "${node.label || node.name || node.id}" (no matching vault key).`);
+      await appendLog(`[Unmatched] Field "${node.label || node.name || node.id}" (no matching vault key).`);
     }
   }
 
@@ -377,8 +377,8 @@ async function runAutofill(goal = 'Autofill Form') {
       submitLabel,
       tabId: tab.id
     });
-    await appendLog(`\n📋 Form Autofill Finished: ${filledList.length} fields filled, ${skippedList.length} sensitive skipped.`);
-    await appendLog(`✋ Ready to submit! Click "Approve & Submit" in popup to finalize.`);
+    await appendLog(`\nForm Autofill Finished: ${filledList.length} fields filled, ${skippedList.length} sensitive skipped.`);
+    await appendLog(`Ready to submit. Click "Approve and Submit" to finalize.`);
   } else {
     await updateState({
       status: 'done',
@@ -387,7 +387,7 @@ async function runAutofill(goal = 'Autofill Form') {
       missingFields: missingList,
       reason: `Autofilled ${filledList.length} fields. ${skippedList.length} sensitive fields skipped.`
     });
-    await appendLog(`\n🎉 Autofill Complete! Filled ${filledList.length} fields. ${skippedList.length} sensitive fields skipped.`);
+    await appendLog(`\nAutofill Complete: Filled ${filledList.length} fields. ${skippedList.length} sensitive fields skipped.`);
   }
 }
 
@@ -437,7 +437,7 @@ api.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         return;
       }
 
-      await appendLog('🚀 Submitting form upon user approval...');
+      await appendLog('Submitting form upon user approval...');
       let targetFrameId = 0;
       let localTargetId = state.pendingSubmitAction.target_id;
       const m = localTargetId.match(/^f(\d+):(.*)$/);
@@ -453,7 +453,7 @@ api.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
           action: { action: 'click', target_id: localTargetId }
         }, msgOpts);
 
-        await appendLog('✅ Form submitted successfully!');
+        await appendLog('Form submitted successfully.');
         await updateState({
           status: 'done',
           pendingSubmitAction: null,
@@ -461,7 +461,7 @@ api.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         });
         sendResponse({ ok: true });
       } catch (err) {
-        await appendLog(`⚠️ Submit click failed: ${err.message}`);
+        await appendLog(`Submit click failed: ${err.message}`);
         await updateState({ status: 'error', error: err.message, pendingSubmitAction: null });
         sendResponse({ ok: false, error: err.message });
       }
@@ -499,7 +499,7 @@ api.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       vault.profiles = vault.profiles || {};
       vault.profiles.default = { ...(vault.profiles.default || {}), ...updatedProfile };
       await saveEncryptedVault(vault);
-      await appendLog(`💾 Vault updated with ${Object.keys(updatedProfile).length} fields.`);
+      await appendLog(`Vault updated with ${Object.keys(updatedProfile).length} fields.`);
       sendResponse({ ok: true });
     })();
     return true;
