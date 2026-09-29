@@ -861,12 +861,25 @@ async function runLoopFrom(tabId, goal, startStep, history, tabUrl) {
       continue;
     }
 
+    const ALLOWED_NODE_FIELDS = new Set([
+      'id', 'tag', 'role', 'type', 'label', 'text', 'autocomplete', 'sensitive', 'bbox', 'pii'
+    ]);
+    const cleanNodes = (cap.dom.nodes || []).map((node) => {
+      const cleanNode = {};
+      for (const k of Object.keys(node)) {
+        if (ALLOWED_NODE_FIELDS.has(k)) {
+          cleanNode[k] = node[k];
+        }
+      }
+      return cleanNode;
+    });
+
     const cleanDom = {
       url: cap.dom.url,
       title: cap.dom.title,
       viewport: cap.dom.viewport,
       scrollY: cap.dom.scrollY,
-      nodes: cap.dom.nodes
+      nodes: cleanNodes
     };
 
     const payload = {

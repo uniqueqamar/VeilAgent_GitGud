@@ -88,6 +88,9 @@
       throw new Error('GATE: dom.nodes must be an array');
     }
     for (const node of payload.dom.nodes) {
+      delete node.frameId;
+      delete node.frameOrigin;
+      delete node.hasBgImage;
       for (const k of Object.keys(node)) {
         if (!ALLOWED_NODE_KEYS.has(k)) {
           throw new Error(`GATE: unauthorized node key "${k}" on node ${node.id}`);

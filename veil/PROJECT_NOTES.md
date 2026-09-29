@@ -178,6 +178,20 @@ veil/
 7. **Handwritten Fields**: Scanned or handwritten text areas require specialized offline vision processing.
 8. **Synthetic Event Blocking Sites**: Pages employing aggressive anti-automation scripts that intercept untrusted synthetic events (`isTrusted === false`).
 
+---
+
+## Phase 9: Production Polish, Defense-in-Depth & Packaging
+- **Open Operating Mode**: Added alongside `Strict` and `Balanced` in protocol schema v1.0. Allows full resolution (0.95 JPEG quality), up to 800 nodes, and 500 characters of node text while preserving 100% tokenization and solid black visual redaction.
+- **Canary Leak Scanner & Negative Control**: Integrated server tripwire canary registry (`VEIL_CANARY=1`) scanning all incoming request strings. Negative control (`__TEST_DISABLE_GATE`) validates detection of deliberate leaks, while production pipeline ensures 0 leaks across 50 canary surfaces.
+- **Heuristic Prompt Injection Shield (`privacy/injection-shield.js`)**: DOM-level sanitizer that strips Unicode zero-width/bidi-override characters, detects LLM role injection tags (`<system>`, `[INST]`), hostile instruction phrases, and 40+ char base64 blobs, converting suspect text to `[SUSPECT_TEXT]` and tracking counts in tamper-evident receipts.
+- **Lookalike Domain Guard (`privacy/domain-guard.js`)**: Evaluates domains before vault credentials can be filled. Requires HTTPS (plain HTTP blocked, localhost permitted for dev), detects IDN mixed-script homographs, Punycode, Levenshtein typosquatting against critical government/bank domains, and subdomain brand spoofing.
+- **On-Device Voice Input Engine (`voice/voice-engine.js`)**: Push-to-talk audio input engine using local Whisper ONNX Runtime Web. Normalizes Hindi/Hinglish/English queries, purges audio from memory immediately, and tokenizes real PII in transcripts before user confirmation.
+- **Viewport Perceptual Hash Cache (`privacy/cache.js`)**: Memory-only 8x8 average perceptual hash (aHash) change detector. Reuses redacted screenshots only when scroll, zoom, DOM version, and visual hash (Hamming distance <= 2) match; invalidated immediately on navigation.
+- **Adaptive Compute Engine (`privacy/adaptive-compute.js`)**: Hardware-aware vision scaling across High (WebGPU/8 cores), Medium (WASM/4 cores), and Low tiers. Invariant: lower tier means LESS vision (all media solid black by default), NEVER less protection.
+- **Cryptographic Receipt Verifier & Standalone Privacy Report**: Standalone CLI/module verifier (`eval/verify_receipt.js`) verifying SHA-256 chains; self-contained HTML audit generator (`privacy/privacy-report.js`) with DPDP Act (2023) architecture mapping and statutory disclaimer.
+- **Reproducible Release Packaging (`scripts/build_release.py`)**: Builds production-ready Chrome and Firefox MV3 zips, automatically stripping test hooks and auditing every file against debug endpoints and forbidden patterns.
+
+
 
 
 
