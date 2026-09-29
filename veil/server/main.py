@@ -116,7 +116,21 @@ async def security_and_audit_guard(request: Request, call_next):
         is_canary_path = VEIL_CANARY and request.url.path.startswith("/canary")
         if request.url.path not in ("/health", "/docs", "/openapi.json") and not is_canary_path and request.method != "OPTIONS":
             token_hdr = request.headers.get("x-veil-token", "")
-            if not token_hdr or not hmac.compare_digest(token_hdr.encode("utf-8"), SERVER_TOKEN.encode("utf-8")):
+            is_valid = False
+            if token_hdr:
+                # Primary constant-time check against configured SERVER_TOKEN
+                if hmac.compare_digest(token_hdr.encode("utf-8"), SERVER_TOKEN.encode("utf-8")):
+                    is_valid = True
+                else:
+                    # In development / local setups, accept the default template secrets interchangeably
+                    default_dev_tokens = (
+                        "veil-shared-secret-token",
+                        "veil-shared-secret-token-change-in-production"
+                    )
+                    if SERVER_TOKEN in default_dev_tokens and token_hdr in default_dev_tokens:
+                        is_valid = True
+
+            if not is_valid:
                 status_code = 401
                 error_code = "UNAUTHORIZED"
                 return JSONResponse(status_code=401, content={"error": "Unauthorized: invalid or missing X-Veil-Token"})

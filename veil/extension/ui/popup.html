@@ -436,6 +436,29 @@
     </div>
   </div>
 
+  <!-- Server Connection Settings Card -->
+  <div class="card" id="settings-card" style="margin-top: 10px;">
+    <div class="card-header" style="cursor: pointer;" id="toggle-settings-header">
+      <span class="card-title">Backend Connection</span>
+      <span id="settings-toggle-icon" style="font-size: 11px; color: var(--primary); font-weight: 600;">⚙ Configure</span>
+    </div>
+    <div id="settings-content" style="display: none; margin-top: 8px;">
+      <div style="margin-bottom: 6px;">
+        <label for="server-url-input" style="display: block; font-weight: 600; font-size: 11px; margin-bottom: 2px; color: var(--text-muted);">Server URL</label>
+        <input type="text" id="server-url-input" value="http://127.0.0.1:8000" style="width: 100%; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; font-size: 11.5px; box-sizing: border-box;">
+      </div>
+      <div style="margin-bottom: 8px;">
+        <label for="server-token-input" style="display: block; font-weight: 600; font-size: 11px; margin-bottom: 2px; color: var(--text-muted);">Shared Secret (X-Veil-Token)</label>
+        <input type="password" id="server-token-input" value="veil-shared-secret-token" style="width: 100%; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; font-size: 11.5px; box-sizing: border-box;">
+      </div>
+      <div style="display: flex; gap: 6px;">
+        <button type="button" id="save-settings-btn" class="sec-btn" style="flex: 1; padding: 4px 8px; font-size: 11px;">Save Settings</button>
+        <button type="button" id="test-connection-btn" class="sec-btn" style="flex: 1; padding: 4px 8px; font-size: 11px;">Test Connection</button>
+      </div>
+      <div id="settings-status" style="margin-top: 6px; font-size: 11px; display: none;"></div>
+    </div>
+  </div>
+
   <div id="log" aria-live="polite">Ready.</div>
 
   <!-- What the server sees modal -->

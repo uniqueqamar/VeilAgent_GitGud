@@ -331,12 +331,29 @@
     }
   }
 
+  async function getServerUrl() {
+    try {
+      const api = globalThis.browser ?? globalThis.chrome;
+      if (api?.storage?.local?.get) {
+        const res = await api.storage.local.get(['server_url', 'serverUrl']);
+        const url = res.server_url || res.serverUrl;
+        if (url && typeof url === 'string' && url.trim()) {
+          return url.trim().replace(/\/+$/, '');
+        }
+      }
+    } catch (_) {}
+    return SERVER_URL;
+  }
+
   async function getSharedToken() {
     try {
       const api = globalThis.browser ?? globalThis.chrome;
       if (api?.storage?.local?.get) {
-        const { server_token } = await api.storage.local.get('server_token');
-        if (server_token) return server_token;
+        const res = await api.storage.local.get(['server_token', 'serverToken', 'VEIL_SERVER_TOKEN']);
+        const token = res.server_token || res.serverToken || res.VEIL_SERVER_TOKEN;
+        if (token && typeof token === 'string' && token.trim()) {
+          return token.trim();
+        }
       }
     } catch (_) {}
     return 'veil-shared-secret-token';
@@ -382,7 +399,8 @@
     receiptLog?.(receipt);
 
     // 4. Security check: refuse plain HTTP for non-local hosts (Task 2)
-    const targetUrl = SERVER_URL + path;
+    const baseUrl = await getServerUrl();
+    const targetUrl = baseUrl + path;
     checkServerUrl(targetUrl);
 
     const token = await getSharedToken();
@@ -415,7 +433,9 @@
       }
       throw new Error(`server refused: schema validation error (HTTP 422)`);
     }
-    if (res.status === 401) throw new Error('server refused: unauthorized token (HTTP 401)');
+    if (res.status === 401) {
+      throw new Error('server refused: unauthorized token (HTTP 401). Verify that X-Veil-Token in extension matches VEIL_SERVER_TOKEN in server/.env');
+    }
     if (res.status === 413) throw new Error('server refused: payload too large (HTTP 413)');
     if (res.status === 429) throw new Error('server refused: rate limit exceeded (HTTP 429)');
     if (res.status === 503) throw new Error('server refused: concurrency limit reached (HTTP 503)');

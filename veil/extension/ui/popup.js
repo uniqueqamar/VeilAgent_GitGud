@@ -48,6 +48,15 @@ const askUserQuestion = document.getElementById('ask-user-question');
 const askUserInput = document.getElementById('ask-user-input');
 const submitAnswerBtn = document.getElementById('submit-answer-btn');
 
+// Server connection settings
+const toggleSettingsHeader = document.getElementById('toggle-settings-header');
+const settingsContent = document.getElementById('settings-content');
+const serverUrlInput = document.getElementById('server-url-input');
+const serverTokenInput = document.getElementById('server-token-input');
+const saveSettingsBtn = document.getElementById('save-settings-btn');
+const testConnectionBtn = document.getElementById('test-connection-btn');
+const settingsStatus = document.getElementById('settings-status');
+
 if (copyAnswerBtn) {
   copyAnswerBtn.onclick = async () => {
     if (answerText?.textContent) {
@@ -297,6 +306,10 @@ async function loadFromStorage() {
 
   const { agentMode = 'Balanced' } = await api.storage.local.get('agentMode');
   updateModeUI(agentMode);
+
+  const { server_url, server_token } = await api.storage.local.get(['server_url', 'server_token']);
+  if (serverUrlInput && server_url) serverUrlInput.value = server_url;
+  if (serverTokenInput && server_token) serverTokenInput.value = server_token;
 
   if (state?.goal && !goalEl.value.trim()) {
     goalEl.value = state.goal;
@@ -632,6 +645,58 @@ if (api.storage?.onChanged) {
       }
     }
   });
+}
+
+// Backend Connection Settings Handlers
+if (toggleSettingsHeader && settingsContent) {
+  toggleSettingsHeader.onclick = () => {
+    const isHidden = settingsContent.style.display === 'none';
+    settingsContent.style.display = isHidden ? 'block' : 'none';
+  };
+}
+
+if (saveSettingsBtn) {
+  saveSettingsBtn.onclick = async () => {
+    const url = serverUrlInput?.value.trim() || 'http://127.0.0.1:8000';
+    const token = serverTokenInput?.value.trim() || 'veil-shared-secret-token';
+    await api.storage.local.set({ server_url: url, server_token: token });
+    if (settingsStatus) {
+      settingsStatus.style.display = 'block';
+      settingsStatus.style.color = 'var(--signal)';
+      settingsStatus.textContent = 'Settings saved!';
+      setTimeout(() => { settingsStatus.style.display = 'none'; }, 3000);
+    }
+  };
+}
+
+if (testConnectionBtn) {
+  testConnectionBtn.onclick = async () => {
+    const url = (serverUrlInput?.value.trim() || 'http://127.0.0.1:8000').replace(/\/+$/, '');
+    if (settingsStatus) {
+      settingsStatus.style.display = 'block';
+      settingsStatus.style.color = 'var(--primary)';
+      settingsStatus.textContent = 'Testing connection...';
+    }
+    try {
+      const res = await fetch(url + '/health');
+      if (res.ok) {
+        if (settingsStatus) {
+          settingsStatus.style.color = 'var(--signal)';
+          settingsStatus.textContent = 'Connected (HTTP 200 OK)';
+        }
+      } else {
+        if (settingsStatus) {
+          settingsStatus.style.color = 'var(--danger)';
+          settingsStatus.textContent = `Server responded: HTTP ${res.status}`;
+        }
+      }
+    } catch (e) {
+      if (settingsStatus) {
+        settingsStatus.style.color = 'var(--danger)';
+        settingsStatus.textContent = `Connection failed: ${e.message}`;
+      }
+    }
+  };
 }
 
 // Initial render
