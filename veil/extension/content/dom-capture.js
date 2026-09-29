@@ -43,29 +43,40 @@
     return elToId.get(el);
   }
 
-  // Scan any string for PII and redact findings in-place
+  // Scan any string for PII and redact findings in-place (incorporates Injection Shield)
   function scanAndRedact(str) {
     if (!str || typeof str !== 'string') {
-      return { text: str || '', piiTypes: [] };
-    }
-    const piiWorker = globalThis.VeilPII;
-    if (!piiWorker || typeof piiWorker.detectPII !== 'function') {
-      return { text: str, piiTypes: [] };
+      return { text: str || '', piiTypes: [], suspectCount: 0 };
     }
 
-    const findings = piiWorker.detectPII(str);
+    // Task 3: Run Injection Shield (strip zero-width/bidi, mask instruction text)
+    let sanitizedStr = str;
+    let suspectCount = 0;
+    const shield = globalThis.VeilInjectionShield || (typeof require !== 'undefined' ? require('../privacy/injection-shield.js') : null);
+    if (shield && typeof shield.sanitizeText === 'function') {
+      const shieldRes = shield.sanitizeText(str);
+      sanitizedStr = shieldRes.text;
+      suspectCount = shieldRes.suspectCount || 0;
+    }
+
+    const piiWorker = globalThis.VeilPII;
+    if (!piiWorker || typeof piiWorker.detectPII !== 'function') {
+      return { text: sanitizedStr, piiTypes: [], suspectCount };
+    }
+
+    const findings = piiWorker.detectPII(sanitizedStr);
     if (!findings || findings.length === 0) {
-      return { text: str, piiTypes: [] };
+      return { text: sanitizedStr, piiTypes: [], suspectCount };
     }
 
     const piiTypes = [...new Set(findings.map((f) => f.type))];
     const sorted = [...findings].sort((a, b) => b.start - a.start);
-    let redacted = str;
+    let redacted = sanitizedStr;
     for (const f of sorted) {
       const tag = `[REDACTED:${f.type.toUpperCase()}]`;
       redacted = redacted.slice(0, f.start) + tag + redacted.slice(f.end);
     }
-    return { text: redacted, piiTypes };
+    return { text: redacted, piiTypes, suspectCount };
   }
 
   // Relative luminance for WCAG contrast calculation (Task 5)
@@ -221,6 +232,11 @@
   // Capture current frame's sanitized DOM
   function capture(options = {}) {
     const frameId = options.frameId ?? 0;
+    const isOpenMode = options.mode === 'Open';
+    const textLimit = isOpenMode ? 500 : 200;
+    const maxNodes = isOpenMode ? 800 : 400;
+    let totalSuspectTextCount = 0;
+
     const nodes = [];
     const seenElements = new Set();
     const childFrames = [];
@@ -290,6 +306,7 @@
         const redactedLabel = scanAndRedact(rawLabel);
         const redactedAlt = scanAndRedact(altAttr);
         const redactedTitleAttr = scanAndRedact(titleAttr);
+        totalSuspectTextCount += (redactedLabel.suspectCount || 0) + (redactedAlt.suspectCount || 0) + (redactedTitleAttr.suspectCount || 0);
 
         const allPiiTypes = [
           ...new Set([
@@ -327,7 +344,7 @@
           role: role || null,
           type: type || null,
           label: redactedLabel.text.slice(0, 100),
-          text: redactedLabel.text.slice(0, 200),
+          text: redactedLabel.text.slice(0, textLimit),
           autocomplete: ac || null,
           sensitive: isSensitive,
           pii: allPiiTypes,
@@ -344,8 +361,9 @@
         const rawText = (el.innerText || el.textContent || '').trim().replace(/\s+/g, ' ');
         if (!rawText || rawText.length === 0) return;
 
-        const boundedText = rawText.slice(0, 200);
+        const boundedText = rawText.slice(0, textLimit);
         const redacted = scanAndRedact(boundedText);
+        totalSuspectTextCount += redacted.suspectCount || 0;
         const r = el.getBoundingClientRect();
 
         nodes.push({
@@ -370,6 +388,7 @@
         const r = el.getBoundingClientRect();
         const alt = el.getAttribute('alt') || el.getAttribute('title') || el.getAttribute('aria-label') || '';
         const redactedAlt = scanAndRedact(alt);
+        totalSuspectTextCount += redactedAlt.suspectCount || 0;
 
         nodes.push({
           id: idFor(el),
@@ -418,10 +437,11 @@
       return 0;
     });
 
-    // Cap nodes at 400 (Task 1 & 4)
-    const cappedNodes = nodes.slice(0, 400);
+    // Cap nodes (Open mode: 800, Balanced/Strict: 400)
+    const cappedNodes = nodes.slice(0, maxNodes);
 
     const titleScan = scanAndRedact(document.title || '');
+    totalSuspectTextCount += titleScan.suspectCount || 0;
     const originOnly = location.origin && location.origin !== 'null'
       ? location.origin
       : (location.protocol + '//' + location.host);
@@ -434,7 +454,8 @@
       viewport: [innerWidth, innerHeight],
       scrollY: Math.round(scrollY),
       nodes: cappedNodes,
-      childFrames
+      childFrames,
+      suspectTextCount: totalSuspectTextCount
     };
   }
 

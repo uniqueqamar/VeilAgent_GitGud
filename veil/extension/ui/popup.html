@@ -320,10 +320,11 @@
   </div>
   <p class="sub">Privacy-preserving agent. Sensitive data never leaves your device.</p>
 
-  <!-- Mode Toggle -->
+  <!-- Mode Toggle (Privacy Dial: Strict / Balanced / Open) -->
   <div class="mode-container" role="radiogroup" aria-label="Privacy Operating Mode">
-    <button type="button" id="mode-balanced" class="mode-btn active" role="radio" aria-checked="true" title="Redacted screenshot + tokens">Balanced Mode</button>
-    <button type="button" id="mode-strict" class="mode-btn" role="radio" aria-checked="false" title="Tokens only, zero screenshots">Strict Mode</button>
+    <button type="button" id="mode-strict" class="mode-btn" role="radio" aria-checked="false" title="Tokens only, zero screenshots">Strict</button>
+    <button type="button" id="mode-balanced" class="mode-btn active" role="radio" aria-checked="true" title="Redacted screenshot + tokens">Balanced</button>
+    <button type="button" id="mode-open" class="mode-btn" role="radio" aria-checked="false" title="Full resolution & extended DOM text (all tokenized)">Open</button>
   </div>
 
   <textarea id="goal" placeholder="Example: fill the KYC form and submit">fill the form and submit</textarea>
@@ -404,6 +405,19 @@
     </div>
   </div>
 
+  <!-- Live Last Step Telemetry Panel (Part A Task 1) -->
+  <div class="card" id="live-panel" style="background: #f8fafc; border: 1px solid var(--line);">
+    <div class="card-header">
+      <span class="card-title">Last Step Telemetry</span>
+      <span id="live-mode-badge" style="font-size: 10.5px; font-weight: 700; color: var(--primary);">Balanced</span>
+    </div>
+    <div class="receipt-details" style="grid-template-columns: 1fr 1fr 1fr; font-size: 11px;">
+      <div>Latency: <strong id="live-latency">—</strong></div>
+      <div>Payload: <strong id="live-payload">0 B</strong></div>
+      <div>Redactions: <strong id="live-redactions">0</strong></div>
+    </div>
+  </div>
+
   <!-- Tamper-evident Audit Receipt Card -->
   <div class="card">
     <div class="card-header">
@@ -417,7 +431,8 @@
     </div>
     <div class="card-actions">
       <button type="button" id="inspect-btn" class="sec-btn">What Server Sees</button>
-      <button type="button" id="export-receipts-btn" class="sec-btn">Export Receipts</button>
+      <button type="button" id="export-receipts-btn" class="sec-btn">Receipts JSON</button>
+      <button type="button" id="export-report-btn" class="sec-btn">Privacy Report</button>
     </div>
   </div>
 
@@ -474,6 +489,7 @@
     </div>
   </div>
 
+  <script src="../privacy/privacy-report.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

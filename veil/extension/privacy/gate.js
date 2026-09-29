@@ -8,7 +8,8 @@
   const FORBIDDEN_KEYS = new Set(['value', 'innerText', 'password']);
 
   const ALLOWED_TOP_KEYS = new Set([
-    'goal', 'step', 'dom', 'screenshot', 'redactions', 'history', 'mode', 'cleared_media', 'vision'
+    'goal', 'step', 'dom', 'screenshot', 'redactions', 'history', 'mode', 'cleared_media', 'vision',
+    'suspectTextCount', 'suspect_text_count', 'v', 'image', 'manifest', 'legend_version'
   ]);
   const ALLOWED_DOM_KEYS = new Set(['url', 'title', 'viewport', 'scrollY', 'nodes']);
   const ALLOWED_NODE_KEYS = new Set([
@@ -76,8 +77,8 @@
       if (node.label && node.label.length > 40) {
         throw new Error(`GATE: node label exceeds 40 characters on ${node.id}`);
       }
-      if (node.text && node.text.length > 200) {
-        throw new Error(`GATE: node text exceeds 200 characters on ${node.id}`);
+      if (node.text && node.text.length > 500) {
+        throw new Error(`GATE: node text exceeds 500 characters on ${node.id}`);
       }
       if (node.tag && node.tag.length > 20) {
         throw new Error(`GATE: node tag exceeds 20 characters on ${node.id}`);
@@ -248,12 +249,16 @@
 
     const mode = payload.mode || (payload.screenshot ? 'Balanced' : 'Strict');
     const time = new Date().toISOString();
+    const redactionCount = (payload.redactions || payload.manifest || []).length;
+    const suspectTextCount = payload.suspectTextCount || payload.suspect_text_count || 0;
 
     const receiptData = {
       time,
       counts,
       mode,
       bytes: bodyLength,
+      redactionCount,
+      suspectTextCount,
       hashPrev: prevReceiptHash,
       vision: payload.vision ? {
         backend: payload.vision.backend || 'none',
@@ -313,9 +318,14 @@
     return 'veil-shared-secret-token';
   }
 
+  // Negative control test flag (Task 2)
+  let __TEST_DISABLE_GATE = false;
+
   async function sendSanitized(path, payload, receiptLog) {
     // 1. Enforce local invariant assertions (schema, redaction coverage, local PII)
-    assertClean(payload); // Throws => fails closed, nothing sent
+    if (!__TEST_DISABLE_GATE) {
+      assertClean(payload); // Throws => fails closed, nothing sent
+    }
 
     // 2. Format protocol v1 payload
     const wirePayload = {
@@ -397,6 +407,8 @@
 
     const t1 = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
     responseJson._latencyMs = Math.round(t1 - t0);
+    responseJson._requestBytes = body.length;
+    responseJson._receipt = receipt;
 
     return responseJson;
   }
@@ -419,6 +431,8 @@
     createReceipt,
     exportReceipts,
     checkServerUrl,
+    setTestDisableGate: (val) => { __TEST_DISABLE_GATE = !!val; },
+    isTestDisableGate: () => __TEST_DISABLE_GATE,
     getReceiptChain: () => [...receiptChain]
   };
 

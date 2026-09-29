@@ -291,8 +291,9 @@
         manifest.push(manifestEntry);
       }
 
-      // 6. Encode redacted canvas as JPEG
-      const redactedBlob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.85 });
+      // 6. Encode redacted canvas as JPEG (Open mode uses 0.95 full resolution quality)
+      const jpegQuality = options.mode === 'Open' ? 0.95 : (options.quality || 0.85);
+      const redactedBlob = await canvas.convertToBlob({ type: 'image/jpeg', quality: jpegQuality });
       const redactedBase64 = await blobToDataUrl(redactedBlob);
 
       return {

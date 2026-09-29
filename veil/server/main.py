@@ -53,6 +53,31 @@ Image.MAX_IMAGE_PIXELS = 10_000_000  # Decompression bomb cap
 # Token auth configuration
 SERVER_TOKEN = os.getenv("VEIL_SERVER_TOKEN", "veil-shared-secret-token")
 
+# Canary Mode Configuration (Task 2 & Invariant 15)
+VEIL_CANARY = os.getenv("VEIL_CANARY", "0") == "1"
+VEIL_ALLOW_CLOUD = os.getenv("VEIL_ALLOW_CLOUD", "0") == "1"
+
+if VEIL_CANARY and VEIL_ALLOW_CLOUD:
+    raise RuntimeError("Security Violation: VEIL_CANARY=1 is strictly forbidden when cloud mode is active.")
+
+canary_registry: set[str] = set()
+canary_field_hits: Dict[str, int] = collections.defaultdict(int)
+
+
+def scan_dict_for_canaries(obj, path="payload"):
+    if not canary_registry:
+        return
+    if isinstance(obj, str):
+        for c in canary_registry:
+            if c and c in obj:
+                canary_field_hits[path] += 1
+    elif isinstance(obj, dict):
+        for k, v in obj.items():
+            scan_dict_for_canaries(v, f"{path}.{k}")
+    elif isinstance(obj, list):
+        for idx, item in enumerate(obj):
+            scan_dict_for_canaries(item, f"{path}[{idx}]")
+
 # In-memory concurrency and rate-limiting structures
 concurrency_semaphore = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS)
 token_rate_tracker: Dict[str, collections.deque] = collections.defaultdict(collections.deque)
@@ -87,8 +112,9 @@ async def security_and_audit_guard(request: Request, call_next):
             return JSONResponse(status_code=413, content={"error": "Payload exceeds 2 MB limit"})
 
         # 2. Token Authentication (Constant-time comparison)
-        # Exclude /health and OPTIONS from token authentication
-        if request.url.path not in ("/health", "/docs", "/openapi.json") and request.method != "OPTIONS":
+        # Exclude /health, /canary/*, and OPTIONS from token authentication
+        is_canary_path = VEIL_CANARY and request.url.path.startswith("/canary")
+        if request.url.path not in ("/health", "/docs", "/openapi.json") and not is_canary_path and request.method != "OPTIONS":
             token_hdr = request.headers.get("x-veil-token", "")
             if not token_hdr or not hmac.compare_digest(token_hdr.encode("utf-8"), SERVER_TOKEN.encode("utf-8")):
                 status_code = 401
@@ -248,6 +274,10 @@ async def plan_endpoint(request: Request):
     except Exception as e:
         return JSONResponse(status_code=400, content={"error": f"Invalid JSON payload: {e}"})
 
+    # Task 2: Canary Leak Scanner (when VEIL_CANARY=1)
+    if VEIL_CANARY:
+        scan_dict_for_canaries(body_dict)
+
     # Task 3: Server Tripwire - Scan every string in request for unredacted PII
     pii_types_detected = scan_payload_for_pii(body_dict)
     if pii_types_detected:
@@ -284,6 +314,37 @@ async def plan_endpoint(request: Request):
         return JSONResponse(status_code=500, content={"error": "Response size exceeds cap"})
 
     return JSONResponse(content=resp_dict)
+
+
+# Canary Mode Endpoints (Active strictly when VEIL_CANARY=1, Localhost only)
+if VEIL_CANARY:
+    @app.post("/canary/register")
+    async def canary_register(request: Request):
+        try:
+            data = await request.json()
+            canaries = data.get("canaries", [])
+            for c in canaries:
+                if isinstance(c, str) and len(c.strip()) > 0:
+                    canary_registry.add(c.strip())
+            return {"ok": True, "registered_count": len(canary_registry)}
+        except Exception as e:
+            return JSONResponse(status_code=400, content={"error": str(e)})
+
+    @app.get("/canary/report")
+    def canary_report():
+        # Invariant 6 & 20: Return counts of hits per field, NEVER canary values
+        return {
+            "ok": True,
+            "total_registered": len(canary_registry),
+            "total_leaks": sum(canary_field_hits.values()),
+            "hits_per_field": dict(canary_field_hits)
+        }
+
+    @app.post("/canary/reset")
+    def canary_reset():
+        canary_registry.clear()
+        canary_field_hits.clear()
+        return {"ok": True}
 
 
 if __name__ == "__main__":

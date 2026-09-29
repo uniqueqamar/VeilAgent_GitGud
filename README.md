@@ -23,7 +23,9 @@
 9. [Configuration Reference](#9-configuration-reference)
 10. [Repository File Map](#10-repository-file-map)
 11. [Real-World Web Handling & Anti-Evasion Defenses](#11-real-world-web-handling--anti-evasion-defenses)
-12. [Known Limitations & Operating Boundaries](#12-known-limitations--operating-boundaries)
+12. [Phase 8: Advanced Form Filling & Layered Field Mapping](#12-phase-8-advanced-form-filling--layered-field-mapping)
+13. [Phase 9: Production Polish, Defense-in-Depth & Packaging](#13-phase-9-production-polish-defense-in-depth--packaging)
+14. [Known Limitations & Operating Boundaries](#14-known-limitations--operating-boundaries)
 
 ---
 
@@ -654,7 +656,93 @@ Evaluated across 32 realistic synthetic form templates (20 Dev templates, 12 Hel
 
 ---
 
-## 13. Known Limitations & Operating Boundaries
+## 13. Phase 9: Production Polish, Defense-in-Depth & Packaging
+
+Phase 9 elevates Veil Agent to production-grade security, auditability, and edge performance with defense-in-depth safeguards across the entire automation loop:
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                              PHASE 9 DEFENSE-IN-DEPTH SUITE                            │
+│                                                                                        │
+│  ┌───────────────────────┐  ┌───────────────────────┐  ┌────────────────────────────┐  │
+│  │ 1. Operating Modes    │  │ 2. Canary Leak Scanner│  │ 3. Injection Shield        │  │
+│  │    Strict / Balanced  │  │    50-Field Registry  │  │    Zero-Width & Bidi Strip │  │
+│  │    / Open (0.95 JPEG) │  │    Negative Control   │  │    Role & Instruction Mask │  │
+│  └───────────────────────┘  └───────────────────────┘  └────────────────────────────┘  │
+│  ┌───────────────────────┐  ┌───────────────────────┐  ┌────────────────────────────┐  │
+│  │ 4. Domain Guard       │  │ 5. On-Device Voice    │  │ 6. Perceptual Cache        │  │
+│  │    HTTPS Enforcement  │  │    Whisper ONNX Local │  │    8x8 aHash Change Engine │  │
+│  │    IDN Homograph/Typo │  │    Audio Purged (0ms) │  │    Hamming Dist <= 2       │  │
+│  └───────────────────────┘  └───────────────────────┘  └────────────────────────────┘  │
+│  ┌───────────────────────┐  ┌───────────────────────┐  ┌────────────────────────────┐  │
+│  │ 7. Adaptive Compute   │  │ 8. Cryptographic Audit│  │ 9. Release Packaging       │  │
+│  │    High/Med/Low Tiers │  │    Standalone Verifier│  │    Chrome & Firefox MV3    │  │
+│  │    Hardware Probing   │  │    DPDP Compliance Rpt│  │    Deep AST/Regex Audit    │  │
+│  └───────────────────────┘  └───────────────────────┘  └────────────────────────────┘  │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Architectural Highlights
+
+1. **Open Operating Mode & Protocol Extensions**:
+   - Complements `Strict` (zero screenshots) and `Balanced` with `Open` mode, allowing up to 800 DOM nodes, 500 characters of node text, and 0.95 JPEG quality for visually dense interfaces while preserving 100% tokenization and solid black visual redaction.
+   - Live telemetry updates (`latency`, `bytes`, `redactionCount`, `mode`) displayed directly in the extension popup.
+
+2. **50-Field Canary Leak Verification Suite & Negative Control**:
+   - 50 unique canary tokens embedded across text, headers, table cells, lists, attributes, canvas graphics, and iframes on [`veil/eval/synthetic_pages/canary_50.html`](file:///d:/downloads/Downloads/veil-skeleton/veil/eval/synthetic_pages/canary_50.html).
+   - Server canary registry (`VEIL_CANARY=1`) tracks leaks without echoing sensitive data.
+   - Negative control flag (`__TEST_DISABLE_GATE`) validates that unredacted payloads trigger canary hits, while the production Veil pipeline achieves **0 canary leaks**.
+
+3. **Heuristic Prompt Injection Shield ([`veil/extension/privacy/injection-shield.js`](file:///d:/downloads/Downloads/veil-skeleton/veil/extension/privacy/injection-shield.js))**:
+   - DOM-level defense scrubbing zero-width characters (ZWSP, ZWNJ, BOM) and bidirectional overrides (RLO, LRO, etc.).
+   - Pattern matching detects instruction hijacking, LLM role tags (`<system>`, `[INST]`), and 40+ character base64 blobs, converting suspect text to `[SUSPECT_TEXT]` and tracking counts in tamper-evident receipts.
+
+4. **Pure Function Lookalike-Domain Guard ([`veil/extension/privacy/domain-guard.js`](file:///d:/downloads/Downloads/veil-skeleton/veil/extension/privacy/domain-guard.js))**:
+   - Enforces HTTPS before credentials or identity data can be filled.
+   - Detects IDN mixed-script homographs (e.g. Cyrillic `а`), Punycode (`xn--`), Levenshtein distance 1-2 typosquatting, and subdomain brand spoofing against sensitive banking and government domains.
+   - Unseen domains strictly require explicit user confirmation.
+
+5. **On-Device Voice Input Engine ([`veil/extension/voice/voice-engine.js`](file:///d:/downloads/Downloads/veil-skeleton/veil/extension/voice/voice-engine.js))**:
+   - Push-to-talk voice interface executing locally via Whisper ONNX Runtime Web / WASM.
+   - Normalizes Hindi, Hinglish, and English voice queries (`VOCAB_SYNONYMS`).
+   - Memory purge zeroes out audio PCM buffers immediately upon transcription. Real PII is scrubbed from transcripts before displaying the user confirmation prompt.
+
+6. **Viewport Change Detector & Perceptual Hash (aHash) Cache ([`veil/extension/privacy/cache.js`](file:///d:/downloads/Downloads/veil-skeleton/veil/extension/privacy/cache.js))**:
+   - Computes 8x8 average perceptual hash (aHash) for redacted screenshots.
+   - Reuses cached screenshots only when scroll, zoom, DOM version, and visual hash (Hamming distance <= 2) match and cache age <= 3s.
+   - Strictly memory-only (never IndexedDB or disk) and cleared immediately on navigation.
+
+7. **Adaptive Compute Engine ([`veil/extension/privacy/adaptive-compute.js`](file:///d:/downloads/Downloads/veil-skeleton/veil/extension/privacy/adaptive-compute.js))**:
+   - Probes WebGPU, hardware concurrency, and device memory to assign High, Medium, or Low compute tiers.
+   - **Critical Invariant**: Lower compute tiers degrade vision models to solid black by default, **NEVER** degrading safety or PII protection.
+
+8. **Cryptographic Receipt Chain Verifier & DPDP Privacy Report ([`veil/eval/verify_receipt.js`](file:///d:/downloads/Downloads/veil-skeleton/veil/eval/verify_receipt.js))**:
+   - Standalone CLI/module verifier inspecting SHA-256 hash chains, `hashPrev` linkage, and tamper evidence.
+   - Generates self-contained, XSS-escaped HTML audit reports ([`veil/extension/privacy/privacy-report.js`](file:///d:/downloads/Downloads/veil-skeleton/veil/extension/privacy/privacy-report.js)) with comprehensive mapping to the **Digital Personal Data Protection Act (DPDP), 2023** (Sections 4, 6, 8, 9, 12).
+
+9. **Reproducible Release Build Script ([`veil/scripts/build_release.py`](file:///d:/downloads/Downloads/veil-skeleton/veil/scripts/build_release.py))**:
+   - Builds production MV3 distribution zips for Chrome and Firefox.
+   - Strips test-only flags and performs a deep regex/AST audit across every packaged file to guarantee zero debug endpoints or negative control flags exist in release artifacts.
+
+### Phase 9 Automated Evaluation Results
+
+Evaluated across the Phase 9 test suite ([`veil/eval/phase9_production.test.js`](file:///d:/downloads/Downloads/veil-skeleton/veil/eval/phase9_production.test.js)):
+
+| Task / Feature | Test Description | Success Criteria | Status |
+| :--- | :--- | :---: | :---: |
+| **Task 1: Open Operating Mode** | Protocol validator, text limits (500 chars), node cap (800) | Valid schema & rejection above limits | **PASS** |
+| **Task 2: Canary Leak Scanner** | 50 unique canary tokens, server tripwire scanner, negative control | 0 real PII leaks in production payload | **PASS** |
+| **Task 3: Heuristic Injection Shield**| Zero-width/bidi stripping, instruction detection, base64 masking | 100% suspect vectors flagged | **PASS** |
+| **Task 4: Lookalike Domain Guard** | HTTPS requirement, IDN homographs, typosquatting, trusted approval | Suspicious domains blocked | **PASS** |
+| **Task 5: On-Device Voice Engine** | Audio buffer memory purge (0ms), Hindi synonym normalization, PII tokenization | Real PII masked in transcripts | **PASS** |
+| **Task 6: Perceptual aHash Cache** | 64-bit aHash, Hamming distance <= 2, invalidation on mutation/scroll | Cache hits without stale leaks | **PASS** |
+| **Task 7: Adaptive Compute Engine** | Hardware profiling, tier allocation (High/Med/Low), fail-closed invariant | Low tier defaults to solid black | **PASS** |
+| **Task 8: Receipt Verifier & DPDP** | SHA-256 chain verification, tamper detection, standalone HTML report | Tampering detected & valid chain verified | **PASS** |
+| **Release Build Deep Audit** | `build_release.py` package verification for Chrome & Firefox | 0 violations, clean zip archives | **PASS** |
+
+---
+
+## 14. Known Limitations & Operating Boundaries
 
 In accordance with **Invariant 9 (Honest Reporting)**, the following known boundaries apply to Veil Agent:
 
@@ -668,7 +756,7 @@ In accordance with **Invariant 9 (Honest Reporting)**, the following known bound
 8. **Browser-Internal Pages**: The extension cannot automate privileged browser internal URLs (`chrome://*`, `about:*`, `edge://*`).
 
 ### Automated Test Limitations
-- **What Was Tested**: 32 synthetic form templates across Dev and Held-Out distributions, near-duplicate disambiguation, Hindi Devanagari and transliterated labels, split date/phone inputs, controlled inputs, consent checkbox halting, honeypot evasion, server PII tripwire canary checks, and review table generation.
+- **What Was Tested**: 32 synthetic form templates across Dev and Held-Out distributions, near-duplicate disambiguation, Hindi Devanagari and transliterated labels, split date/phone inputs, controlled inputs, consent checkbox halting, honeypot evasion, server PII tripwire canary checks, 50-field canary leak suite, heuristic prompt injection shield, lookalike domain guard, on-device voice input engine, perceptual hash cache, adaptive compute tiers, cryptographic receipt verifier, and reproducible release packaging.
 - **What Was Not Tested via Automation**: Native OS file picker dialog popups and live third-party commercial CAPTCHA solvers (due to their native OS or proprietary cloud nature).
 
 ---
@@ -676,4 +764,5 @@ In accordance with **Invariant 9 (Honest Reporting)**, the following known bound
 ## License
 
 This project is licensed under the Apache License 2.0. Model dependencies utilized for local on-device inference (`UltraFace`, `PaddleOCR`, `YOLOX-Nano`, and `Qwen2.5-VL`) use permissive open-source licenses (Apache-2.0 / MIT / BSD).
+
 

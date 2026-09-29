@@ -15,7 +15,7 @@
         "role": { "type": ["string", "null"], "maxLength": 30 },
         "type": { "type": ["string", "null"], "maxLength": 30 },
         "label": { "type": "string", "maxLength": 100 },
-        "text": { "type": ["string", "null"], "maxLength": 200 },
+        "text": { "type": ["string", "null"], "maxLength": 500 },
         "autocomplete": { "type": ["string", "null"], "maxLength": 50 },
         "sensitive": { "type": "boolean" },
         "bbox": {
@@ -97,7 +97,7 @@
         },
         "mode": {
           "type": "string",
-          "enum": ["Strict", "Balanced"]
+          "enum": ["Strict", "Balanced", "Open"]
         },
         "goal": {
           "type": "string",

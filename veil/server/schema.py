@@ -17,7 +17,7 @@ class Node(BaseModel):
     sensitive: bool = False
     bbox: list[int] = Field(..., min_length=4, max_length=4)
     pii: list[Annotated[str, StringConstraints(max_length=30)]] = []
-    text: Optional[Annotated[str, StringConstraints(max_length=200)]] = None
+    text: Optional[Annotated[str, StringConstraints(max_length=500)]] = None
 
 
 class Dom(BaseModel):
@@ -119,7 +119,7 @@ class HistoryItem(BaseModel):
 class PlanRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     v: Annotated[str, StringConstraints(max_length=10, pattern=r"^[0-9]+(\.[0-9]+)*$")] = "1.0"
-    mode: Literal["Strict", "Balanced"] = "Balanced"
+    mode: Literal["Strict", "Balanced", "Open"] = "Balanced"
     goal: Annotated[str, StringConstraints(min_length=1, max_length=500)]
     step: int = Field(..., ge=0, le=100)
     history: list[Union[ActionResponse, DoneResponse, FailResponse, AnswerResponse, AskUserResponse, HistoryItem]] = Field(default_factory=list, max_length=8)

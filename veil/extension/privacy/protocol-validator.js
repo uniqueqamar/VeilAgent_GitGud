@@ -22,7 +22,7 @@
   const DONE_RESPONSE_KEYS = new Set(['type', 'action', 'reason']);
   const FAIL_RESPONSE_KEYS = new Set(['type', 'action', 'reason']);
 
-  const VALID_MODES = new Set(['Strict', 'Balanced']);
+  const VALID_MODES = new Set(['Strict', 'Balanced', 'Open']);
   const VALID_ACTIONS = new Set(['click', 'type', 'select', 'scroll']);
   const VALID_RESPONSE_TYPES = new Set(['action', 'answer', 'ask_user', 'done', 'fail']);
 
@@ -63,7 +63,7 @@
 
     // mode
     if (!VALID_MODES.has(req.mode)) {
-      throw new Error(`PROTOCOL: invalid mode "${req.mode}" (must be "Strict" or "Balanced")`);
+      throw new Error(`PROTOCOL: invalid mode "${req.mode}" (must be "Strict", "Balanced", or "Open")`);
     }
 
     // goal
@@ -167,8 +167,8 @@
       if (node.label !== undefined && (typeof node.label !== 'string' || node.label.length > 100)) {
         throw new Error(`PROTOCOL: node[${i}].label must be a string <= 100 characters`);
       }
-      if (node.text && (typeof node.text !== 'string' || node.text.length > 200)) {
-        throw new Error(`PROTOCOL: node[${i}].text must be a string <= 200 characters`);
+      if (node.text && (typeof node.text !== 'string' || node.text.length > 500)) {
+        throw new Error(`PROTOCOL: node[${i}].text must be a string <= 500 characters`);
       }
       if (node.autocomplete && (typeof node.autocomplete !== 'string' || node.autocomplete.length > 50)) {
         throw new Error(`PROTOCOL: node[${i}].autocomplete must be a string <= 50 characters`);

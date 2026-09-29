@@ -4,10 +4,10 @@
 
 if (typeof importScripts === 'function') {
   try {
-    importScripts('/workers/pii.js', '/workers/field-matcher.js', '/privacy/protocol-validator.js', '/privacy/vault.js', '/privacy/model-loader.js', '/privacy/vision-runner.js', '/privacy/redactor.js', '/privacy/gate.js');
+    importScripts('/workers/pii.js', '/workers/field-matcher.js', '/privacy/injection-shield.js', '/privacy/protocol-validator.js', '/privacy/vault.js', '/privacy/model-loader.js', '/privacy/vision-runner.js', '/privacy/redactor.js', '/privacy/gate.js');
   } catch (e) {
     try {
-      importScripts('../workers/pii.js', '../workers/field-matcher.js', '../privacy/protocol-validator.js', '../privacy/vault.js', '../privacy/model-loader.js', '../privacy/vision-runner.js', '../privacy/redactor.js', '../privacy/gate.js');
+      importScripts('../workers/pii.js', '../workers/field-matcher.js', '../privacy/injection-shield.js', '../privacy/protocol-validator.js', '../privacy/vault.js', '../privacy/model-loader.js', '../privacy/vision-runner.js', '../privacy/redactor.js', '../privacy/gate.js');
     } catch (e2) {
       console.error('Failed to import background scripts:', e2);
     }
@@ -136,7 +136,7 @@ async function ensureContentScript(tabId) {
   try {
     await api.scripting.executeScript({
       target: { tabId },
-      files: ['workers/pii.js', 'content/dom-capture.js', 'content/executor.js']
+      files: ['workers/pii.js', 'privacy/injection-shield.js', 'content/dom-capture.js', 'content/executor.js']
     });
     await new Promise((r) => setTimeout(r, 80));
     return true;
@@ -560,7 +560,7 @@ async function runAgent(goal) {
 // Frame origin map for security and vault protection (Task 1 & 2)
 const frameOriginsMap = new Map();
 
-async function captureAllFrames(tabId) {
+async function captureAllFrames(tabId, options = {}) {
   frameOriginsMap.clear();
   let frameSnapshots = [];
 
@@ -569,9 +569,10 @@ async function captureAllFrames(tabId) {
     try {
       const results = await api.scripting.executeScript({
         target: { tabId, allFrames: true },
-        func: () => {
-          return globalThis.__veil?.capture ? globalThis.__veil.capture() : null;
-        }
+        func: (opts) => {
+          return globalThis.__veil?.capture ? globalThis.__veil.capture(opts) : null;
+        },
+        args: [options]
       });
       frameSnapshots = (results || [])
         .filter((r) => r && r.result)
@@ -581,7 +582,7 @@ async function captureAllFrames(tabId) {
 
   // Fallback to tabs.sendMessage if executeScript was empty or unavailable
   if (frameSnapshots.length === 0) {
-    const single = await api.tabs.sendMessage(tabId, { type: 'CAPTURE' });
+    const single = await api.tabs.sendMessage(tabId, { type: 'CAPTURE', mode: options.mode });
     if (single?.ok && single?.dom) {
       frameSnapshots = [{ frameId: 0, dom: single.dom }];
     }
@@ -598,6 +599,11 @@ async function captureAllFrames(tabId) {
 
   const allNodes = [];
   const topViewport = topSnapshot.dom.viewport || [1280, 800];
+  let totalSuspectText = 0;
+
+  for (const f of frameSnapshots) {
+    if (f.dom?.suspectTextCount) totalSuspectText += f.dom.suspectTextCount;
+  }
 
   // Frame 0 nodes (qualified with f0: or frameId)
   for (const node of (topSnapshot.dom.nodes || [])) {
@@ -654,8 +660,9 @@ async function captureAllFrames(tabId) {
     return 0;
   });
 
-  // Cap at 400 nodes total (Task 1 & 4)
-  const cappedNodes = allNodes.slice(0, 400);
+  // Cap nodes (Open mode: 800, Balanced/Strict: 400)
+  const maxNodes = options.mode === 'Open' ? 800 : 400;
+  const cappedNodes = allNodes.slice(0, maxNodes);
 
   return {
     ok: true,
@@ -664,7 +671,8 @@ async function captureAllFrames(tabId) {
       title: topSnapshot.dom.title,
       viewport: topViewport,
       scrollY: topSnapshot.dom.scrollY,
-      nodes: cappedNodes
+      nodes: cappedNodes,
+      suspectTextCount: totalSuspectText
     },
     topOrigin,
     frameOrigins: frameOriginsMap
@@ -696,10 +704,17 @@ async function runLoopFrom(tabId, goal, startStep, history, tabUrl) {
       return;
     }
 
-    // Capture sanitized DOM across all frames (Task 1)
+    // Read operating mode: Strict vs. Balanced vs. Open (Only user can change via popup)
+    const { agentMode = 'Balanced' } = await api.storage.local.get('agentMode');
+    let screenshotData = null;
+    let redactionManifest = [];
+    let effectiveMode = agentMode;
+    let redactResult = null;
+
+    // Capture sanitized DOM across all frames with operating mode limits
     let cap;
     try {
-      cap = await captureAllFrames(tabId);
+      cap = await captureAllFrames(tabId, { mode: agentMode });
       if (!cap?.ok || !cap?.dom) throw new Error('invalid capture response');
     } catch (e) {
       const msg = 'Error: no content script responding on active tab (' + e.message + ')';
@@ -708,14 +723,8 @@ async function runLoopFrom(tabId, goal, startStep, history, tabUrl) {
       return;
     }
 
-    // Read operating mode: Strict vs. Balanced
-    const { agentMode = 'Balanced' } = await api.storage.local.get('agentMode');
-    let screenshotData = null;
-    let redactionManifest = [];
-    let effectiveMode = agentMode;
-
-    if (agentMode === 'Balanced' && globalThis.VeilRedactor?.captureAndRedact) {
-      const redactResult = await globalThis.VeilRedactor.captureAndRedact(tabId, cap.dom);
+    if ((agentMode === 'Balanced' || agentMode === 'Open') && globalThis.VeilRedactor?.captureAndRedact) {
+      redactResult = await globalThis.VeilRedactor.captureAndRedact(tabId, cap.dom, { mode: agentMode });
       if (redactResult.degraded) {
         effectiveMode = 'Strict';
         screenshotData = null;
@@ -724,7 +733,7 @@ async function runLoopFrom(tabId, goal, startStep, history, tabUrl) {
       } else {
         screenshotData = redactResult.image;
         redactionManifest = redactResult.manifest;
-        effectiveMode = 'Balanced';
+        effectiveMode = agentMode;
 
         // UI Context Detection (Task 3, 4, Invariants 14-16)
         // Runs ONLY on already-redacted image canvas
@@ -752,7 +761,7 @@ async function runLoopFrom(tabId, goal, startStep, history, tabUrl) {
         // Cache view in memory for user inspection view ("What the server sees")
         lastServerInspectionView = {
           time: new Date().toISOString(),
-          mode: 'Balanced',
+          mode: agentMode,
           originalImage: redactResult.original,
           redactedImage: redactResult.image,
           dom: cap.dom,
@@ -860,7 +869,8 @@ async function runLoopFrom(tabId, goal, startStep, history, tabUrl) {
       cleared_media: redactResult?.clearedMediaIds || [],
       vision: redactResult?.vision || null,
       history,
-      mode: effectiveMode
+      mode: effectiveMode,
+      suspect_text_count: cap.dom.suspectTextCount || 0
     };
 
     let serverResponse;
@@ -878,6 +888,15 @@ async function runLoopFrom(tabId, goal, startStep, history, tabUrl) {
     }
 
     const latency = serverResponse._latencyMs || 0;
+    const stepTelemetry = {
+      latency,
+      bytes: serverResponse._requestBytes || 0,
+      redactions: redactionManifest.length,
+      mode: effectiveMode,
+      step
+    };
+    await sessionStore.set({ last_step_telemetry: stepTelemetry });
+    api.runtime.sendMessage({ type: 'TELEMETRY_UPDATED', telemetry: stepTelemetry }).catch(() => {});
 
     // Normalize response type
     let respType = serverResponse.type;

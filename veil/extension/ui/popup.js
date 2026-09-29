@@ -9,6 +9,12 @@ const stopBtn = document.getElementById('stop');
 const statusBadge = document.getElementById('status-badge');
 const modeBalancedBtn = document.getElementById('mode-balanced');
 const modeStrictBtn = document.getElementById('mode-strict');
+const modeOpenBtn = document.getElementById('mode-open');
+
+const liveModeBadge = document.getElementById('live-mode-badge');
+const liveLatency = document.getElementById('live-latency');
+const livePayload = document.getElementById('live-payload');
+const liveRedactions = document.getElementById('live-redactions');
 
 const approvalBox = document.getElementById('approval-box');
 const approvalDesc = document.getElementById('approval-desc');
@@ -84,31 +90,58 @@ function appendLog(line) {
 }
 
 function updateModeUI(mode) {
-  currentMode = mode;
-  if (mode === 'Balanced') {
-    modeBalancedBtn.classList.add('active');
-    modeBalancedBtn.setAttribute('aria-checked', 'true');
-    modeStrictBtn.classList.remove('active');
-    modeStrictBtn.setAttribute('aria-checked', 'false');
-  } else {
-    modeStrictBtn.classList.add('active');
-    modeStrictBtn.setAttribute('aria-checked', 'true');
-    modeBalancedBtn.classList.remove('active');
-    modeBalancedBtn.setAttribute('aria-checked', 'false');
+  currentMode = mode || 'Balanced';
+  if (modeStrictBtn) {
+    const isStrict = currentMode === 'Strict';
+    modeStrictBtn.classList.toggle('active', isStrict);
+    modeStrictBtn.setAttribute('aria-checked', String(isStrict));
+  }
+  if (modeBalancedBtn) {
+    const isBalanced = currentMode === 'Balanced';
+    modeBalancedBtn.classList.toggle('active', isBalanced);
+    modeBalancedBtn.setAttribute('aria-checked', String(isBalanced));
+  }
+  if (modeOpenBtn) {
+    const isOpen = currentMode === 'Open';
+    modeOpenBtn.classList.toggle('active', isOpen);
+    modeOpenBtn.setAttribute('aria-checked', String(isOpen));
+  }
+  if (liveModeBadge) {
+    liveModeBadge.textContent = currentMode;
   }
 }
 
-modeBalancedBtn.onclick = async () => {
-  updateModeUI('Balanced');
-  await api.storage.local.set({ agentMode: 'Balanced' });
-  appendLog('Mode set to Balanced (Redacted visual screenshots + tokens).');
-};
+if (modeBalancedBtn) {
+  modeBalancedBtn.onclick = async () => {
+    updateModeUI('Balanced');
+    await api.storage.local.set({ agentMode: 'Balanced' });
+    appendLog('Mode set to Balanced (Redacted visual screenshots + tokens).');
+  };
+}
 
-modeStrictBtn.onclick = async () => {
-  updateModeUI('Strict');
-  await api.storage.local.set({ agentMode: 'Strict' });
-  appendLog('Mode set to Strict (Tokens only, screenshots disabled).');
-};
+if (modeStrictBtn) {
+  modeStrictBtn.onclick = async () => {
+    updateModeUI('Strict');
+    await api.storage.local.set({ agentMode: 'Strict' });
+    appendLog('Mode set to Strict (Tokens only, zero screenshots).');
+  };
+}
+
+if (modeOpenBtn) {
+  modeOpenBtn.onclick = async () => {
+    updateModeUI('Open');
+    await api.storage.local.set({ agentMode: 'Open' });
+    appendLog('Mode set to Open (Full resolution & extended DOM text, all tokenized).');
+  };
+}
+
+function renderTelemetry(telemetry) {
+  if (!telemetry) return;
+  if (liveLatency) liveLatency.textContent = telemetry.latency !== undefined ? `${telemetry.latency} ms` : '—';
+  if (livePayload) livePayload.textContent = telemetry.bytes !== undefined ? `${telemetry.bytes} B` : '0 B';
+  if (liveRedactions) liveRedactions.textContent = String(telemetry.redactions ?? 0);
+  if (liveModeBadge && telemetry.mode) liveModeBadge.textContent = telemetry.mode;
+}
 
 function renderState(state) {
   if (!state) return;
@@ -276,6 +309,11 @@ async function loadFromStorage() {
   }
   renderState(state);
   renderReceipt(receipt);
+
+  const storedTelemetry = await sessionStore.get('last_step_telemetry');
+  if (storedTelemetry?.last_step_telemetry) {
+    renderTelemetry(storedTelemetry.last_step_telemetry);
+  }
 }
 
 runBtn.onclick = () => {
@@ -363,6 +401,37 @@ exportReceiptsBtn.onclick = async () => {
   URL.revokeObjectURL(url);
   appendLog(`Exported ${receiptsArray.length} tamper-evident receipt(s) (head: ${headHash.slice(0, 10)}...).`);
 };
+
+// Privacy Report HTML Export (Task 8)
+const exportReportBtn = document.getElementById('export-report-btn');
+if (exportReportBtn) {
+  exportReportBtn.onclick = async () => {
+    const { receipt_chain: chain, latest_receipt: latest, agent_state: state } =
+      await sessionStore.get(['receipt_chain', 'latest_receipt', 'agent_state']);
+
+    const receiptsArray = Array.isArray(chain) ? chain : (latest ? [latest] : []);
+    const generator = globalThis.VeilPrivacyReport;
+    if (!generator || typeof generator.generatePrivacyReportHtml !== 'function') {
+      appendLog('Privacy report generator not loaded.');
+      return;
+    }
+
+    const htmlContent = generator.generatePrivacyReportHtml({
+      receipts: receiptsArray,
+      goal: state?.goal || goalEl?.value || 'Automated session',
+      mode: currentMode
+    });
+
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `veil-privacy-report-${Date.now()}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+    appendLog(`Exported self-contained Privacy Report HTML (${receiptsArray.length} receipts, DPDP mapping).`);
+  };
+}
 
 // "What the server sees" Inspection View (Task 9)
 inspectBtn.onclick = async () => {
@@ -534,6 +603,8 @@ api.runtime.onMessage.addListener((m) => {
     appendLog(m.line);
   } else if (m?.type === 'STATE_CHANGED') {
     renderState(m.state);
+  } else if (m?.type === 'TELEMETRY_UPDATED') {
+    renderTelemetry(m.telemetry);
   } else if (m?.type === 'CLEAR_LOGS') {
     logEl.textContent = '';
   }
@@ -552,6 +623,9 @@ if (api.storage?.onChanged) {
       }
       if (changes.latest_receipt?.newValue) {
         renderReceipt(changes.latest_receipt.newValue);
+      }
+      if (changes.last_step_telemetry?.newValue) {
+        renderTelemetry(changes.last_step_telemetry.newValue);
       }
       if (changes.agentMode?.newValue) {
         updateModeUI(changes.agentMode.newValue);
